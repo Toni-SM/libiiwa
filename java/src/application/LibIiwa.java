@@ -113,6 +113,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	private LibIiwaEnum enumMotionType = LibIiwaEnum.MOTION_TYPE_PTP;
 	private LibIiwaEnum enumControlInterface = LibIiwaEnum.CONTROL_INTERFACE_STANDARD;
 	private LibIiwaEnum enumControlMode = LibIiwaEnum.CONTROL_MODE_POSITION;
+	private LibIiwaEnum enumControlExecutionType = LibIiwaEnum.EXECUTION_TYPE_ASYNCHRONOUS;
 
 	private IMotionControlMode propCurrentControlMode = null;
 	private IMotionContainer propCurrentMotionContainer = null;
@@ -595,7 +596,31 @@ public class LibIiwa extends RoboticsAPIApplication {
 		if (VERBOSE) getLogger().info("Control mode: " + this.enumControlMode.toString());
 		return true;
 	}
+	
+	/** DONE
+	 * Set the execution type
+	 * 
+	 * @param executionType execution type (EXECUTION_TYPE_ASYNCHRONOUS, EXECUTION_TYPE_SYNCHRONOUS)
+	 * @return true if the configuration is valid, otherwise false
+	 */
+	public boolean methSetExecutionType(LibIiwaEnum executionType) {
+		// stop and reset motion
+		this.methStopAndResetMotion();
+		
+		// set execution type
+		if (executionType.getCode() == LibIiwaEnum.EXECUTION_TYPE_ASYNCHRONOUS.getCode())
+			this.enumControlExecutionType = LibIiwaEnum.EXECUTION_TYPE_ASYNCHRONOUS;
+		else if (executionType.getCode() == LibIiwaEnum.EXECUTION_TYPE_SYNCHRONOUS.getCode())
+			this.enumControlExecutionType = LibIiwaEnum.EXECUTION_TYPE_SYNCHRONOUS;
+		else {
+			if (VERBOSE) getLogger().warn("Invalid execution type: " + executionType.getCode());
+			return false;
+		}
 
+		if (VERBOSE) getLogger().info("Execution type: " + this.enumControlExecutionType.toString());
+		return true;
+	}
+	
 	/** DONE
 	 * Set the communication mode
 	 * 
@@ -830,6 +855,12 @@ public class LibIiwa extends RoboticsAPIApplication {
 			LibIiwaEnum controlMode = LibIiwaEnum.CONTROL_MODE;
 			controlMode.setCode(command[1]);
 			return this.methSetControlMode(controlMode);
+		}
+		else if (commandCode == LibIiwaEnum.COMMAND_SET_EXECUTION_TYPE.getCode()){
+			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_EXECUTION_TYPE.toString());
+			LibIiwaEnum executionType = LibIiwaEnum.EXECUTION_TYPE;
+			executionType.setCode(command[1]);
+			return this.methSetExecutionType(executionType);
 		}
 		// configuration commands (communication)
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_COMMUNICATION_MODE.getCode()){
