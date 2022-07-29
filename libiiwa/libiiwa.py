@@ -82,7 +82,7 @@ COMMAND_SET_EXECUTION_TYPE = 305
 
 class LibIiwaCommunication:
     def __init__(self,
-                 ip="172.31.1.25",
+                 ip="0.0.0.0",
                  port=12225,
                  queue_size=1):
 
@@ -159,14 +159,14 @@ class LibIiwaCommunication:
             self.set_command(None)
 
         self._state_lock.acquire()
-        state = self._state[:]
+        state = np.array(self._state, dtype=np.float32)
         self._state_lock.release()
 
         return {"joint_position": state[2:9],
                 "joint_velocity": state[9:16],
                 "joint_acceleration": state[16:23],
                 "joint_torque": state[23:30],
-                "cartesian_position": state[30:33],
+                "cartesian_position": state[30:33] / 1000.0,  # mm to m
                 "cartesian_orientation": state[33:36],
                 "cartesian_force": state[36:39],
                 "cartesian_torque": state[39:42]}
@@ -220,7 +220,7 @@ class LibIiwaCommunication:
 
 
 class LibIiwa:
-    def __init__(self, ip="172.31.1.35", port=12225):
+    def __init__(self, ip="0.0.0.0", port=12225):
         self._communication = LibIiwaCommunication(ip=ip,
                                                    port=port,
                                                    queue_size=10)
@@ -251,7 +251,7 @@ class LibIiwa:
     # motion command
 
     def command_joint_position(self, position: Union[List[float], np.ndarray], degrees: bool = False) -> bool:
-        """Move the robot to the specified joint position.
+        """Move the robot to the specified joint position
         
         :param position: The joint position to move to
         :type position: List[float] or np.ndarray
