@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import Optional, Union, List
 
 import time
 import struct
@@ -82,10 +82,22 @@ COMMAND_SET_EXECUTION_TYPE = 305
 
 class LibIiwaCommunication:
     def __init__(self,
-                 ip="0.0.0.0",
-                 port=12225,
-                 queue_size=1):
+                 ip: Optional[str] = "0.0.0.0",
+                 port: Optional[int] = 12225,
+                 queue_size: Optional[int] = 10,
+                 run_without_communication: Optional[bool] = False) -> None:
+        """Library communication endpoint
 
+        :param ip: IP address of the library communication endpoint (default: all interfaces)
+        :type ip: str, optional
+        :param port: port of the library communication endpoint (default: 12225)
+        :type port: int, optional
+        :param queue_size: size of the command queue (default: 10)
+        :type queue_size: int, optional
+        :param run_without_communication: Run the library without creating the communication socket (default: False).
+                                          Useful for testing the library without the robot
+        :type run_without_communication: bool, optional
+        """
         self._running = False
         self._communication_mode = CommunicationMode.COMMUNICATION_MODE_ON_DEMAND
 
@@ -94,6 +106,7 @@ class LibIiwaCommunication:
         self._port = port
         self._sock = None
         self._connection = None
+        self._run_without_communication = run_without_communication
 
         self._state_lock = threading.Lock()
         self._command_lock = threading.Lock()
@@ -105,10 +118,14 @@ class LibIiwaCommunication:
         self._command = [0] * self.COMMAND_LENGTH
 
     def _send(self, command):
+        if self._run_without_communication:
+            return
         data = struct.pack('!{}d'.format(self.COMMAND_LENGTH), *command)
         self._connection.send(data)
 
     def _recv(self):
+        if self._run_without_communication:
+            return [0] * self.STATE_LENGTH
         data = self._connection.recv(self.STATE_LENGTH * 8)
         state = struct.unpack('!' + 'd' * self.STATE_LENGTH, data)
         return state
@@ -172,14 +189,17 @@ class LibIiwaCommunication:
                 "cartesian_torque": state[39:42]}
 
     def init(self):
+        if self._run_without_communication:
+            print("[LibIiwaCommunication] [WARNING] Running without communication")
+            return
         # create socket
         try:
             self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self._sock.bind((self._ip, self._port))
         except:
-            print("[ERROR] Connection for KUKA cannot assign requested address ")
-            return
+            print(f"[LibIiwaCommunication] [ERROR] Could not create communication endpoint at {self._ip}:{self._port}")
+            raise Exception(f"Could not create communication endpoint at {self._ip}:{self._port}")
 
         # listen for incoming connections
         self._sock.listen(1)
@@ -220,12 +240,27 @@ class LibIiwaCommunication:
 
 
 class LibIiwa:
-    def __init__(self, ip="0.0.0.0", port=12225):
+    def __init__(self, 
+                 ip: Optional[str] = "0.0.0.0", 
+                 port: Optional[int] = 12225,
+                 run_without_communication: Optional[bool] = False) -> None:
+        """KUKA LBR iiwa robot library
+
+        :param ip: IP address of the library communication endpoint (default: all interfaces)
+        :type ip: str, optional
+        :param port: port of the library communication endpoint (default: 12225)
+        :type port: int, optional
+        :param run_without_communication: Run the library without creating the communication socket (default: False).
+                                          Useful for testing the library without the robot
+        :type run_without_communication: bool, optional
+        """
         self._communication = LibIiwaCommunication(ip=ip,
                                                    port=port,
-                                                   queue_size=10)
+                                                   queue_size=10,
+                                                   run_without_communication=run_without_communication)
 
     def start(self, threaded=True):
+        # TODO: docstring
         self._communication.init()
 
         # if threaded:
