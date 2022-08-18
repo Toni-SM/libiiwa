@@ -349,8 +349,13 @@ class LibIiwa:
 
     # configuration commands (limits and constants)
 
-    def set_desired_joint_velocity_rel(self, value: float) -> bool:
+    def set_desired_joint_velocity_rel(self, value: float) -> bool:  # DONE
         """Define the axis-specific relative velocity (% of maximum velocity)
+
+        Example::
+
+            >> libiiwa.set_desired_joint_velocity_rel(0.1)
+            True
 
         :param value: The relative velocity in % of maximum velocity [0, 1]
         :type value: float
@@ -364,8 +369,13 @@ class LibIiwa:
         command = [COMMAND_SET_DESIRED_JOINT_VELOCITY_REL] + [value] + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
 
-    def set_desired_joint_acceleration_rel(self, value: float) -> bool:
+    def set_desired_joint_acceleration_rel(self, value: float) -> bool:  # DONE
         """Define the axis-specific relative acceleration (% of maximum acceleration)
+
+        Example::
+
+            >> libiiwa.set_desired_joint_acceleration_rel(0.1)
+            True
 
         :param value: The relative acceleration in % of maximum acceleration [0, 1]
         :type value: float
@@ -379,8 +389,13 @@ class LibIiwa:
         command = [COMMAND_SET_DESIRED_JOINT_ACCELERATION_REL] + [value] + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
 
-    def set_desired_joint_jerk_rel(self, value: float) -> bool:
+    def set_desired_joint_jerk_rel(self, value: float) -> bool:  # DONE
         """Define the axis-specific relative jerk (% of maximum jerk)
+
+        Example::
+
+            >> libiiwa.set_desired_joint_jerk_rel(0.1)
+            True
 
         :param value: The relative jerk in % of maximum jerk [0, 1]
         :type value: float
@@ -394,8 +409,13 @@ class LibIiwa:
         command = [COMMAND_SET_DESIRED_JOINT_JERK_REL] + [value] + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
 
-    def set_desired_cartesian_velocity(self, value: float) -> bool:
+    def set_desired_cartesian_velocity(self, value: float) -> bool:  # DONE
         """Define the absolute Cartesian velocity (m/s)
+
+        Example::
+
+            >> libiiwa.set_desired_cartesian_velocity(10)
+            True
 
         The Cartesian velocity will be automatically converted to mm/s before sending to the robot
 
@@ -411,8 +431,13 @@ class LibIiwa:
         command = [COMMAND_SET_DESIRED_CARTESIAN_VELOCITY] + [value * 1000.0] + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
 
-    def set_desired_cartesian_acceleration(self, value: float) -> bool:
+    def set_desired_cartesian_acceleration(self, value: float) -> bool:  # DONE
         """Define the absolute Cartesian acceleration (m/s^2)
+
+        Example::
+
+            >> libiiwa.set_desired_cartesian_acceleration(10)
+            True
 
         The Cartesian acceleration will be automatically converted to mm/s^2 before sending to the robot
 
@@ -428,8 +453,13 @@ class LibIiwa:
         command = [COMMAND_SET_DESIRED_CARTESIAN_ACCELERATION] + [value * 1000.0] + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
 
-    def set_desired_cartesian_jerk(self, value: float) -> bool:
+    def set_desired_cartesian_jerk(self, value: float) -> bool:  # DONE
         """Define the absolute Cartesian jerk (m/s^3)
+
+        Example::
+
+            >> libiiwa.set_desired_cartesian_jerk(10)
+            True
 
         The Cartesian jerk will be automatically converted to mm/s^3 before sending to the robot
 

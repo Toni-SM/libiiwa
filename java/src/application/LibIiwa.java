@@ -268,7 +268,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	// TODO: setOrientationType, setOrientationReferenceSystem
 	// TODO: setJointVelocityRel, setJointAccelerationRel, setJointJerkRel for each axis (double[] = {1, 1, 1, 1, 1, 1, 1})
 	
-	/**
+	/** DONE
 	 * Define the axis-specific relative velocity (% of maximum velocity)
 	 * <p>
 	 * velocity: [0.0, 1.0]
@@ -279,6 +279,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	public boolean methSetDesiredJointVelocityRel(double jointVelocityRel) {
 		if (jointVelocityRel < 0 || jointVelocityRel > 1.0) {
 			if (VERBOSE) getLogger().warn("Invalid joint velocity: " + jointVelocityRel);
+			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 		this.propDesiredJointVelocityRel = jointVelocityRel;
@@ -286,7 +287,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 
-	/**
+	/** DONE
 	 * Define the axis-specific relative acceleration (% of maximum acceleration)
 	 * <p>
 	 * acceleration: [0.0, 1.0]
@@ -297,6 +298,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	public boolean methSetDesiredJointAccelerationRel(double jointAccelerationRel) {
 		if (jointAccelerationRel < 0 || jointAccelerationRel > 1.0) {
 			if (VERBOSE) getLogger().warn("Invalid joint acceleration: " + jointAccelerationRel);
+			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 		this.propDesiredJointAccelerationRel = jointAccelerationRel;
@@ -304,7 +306,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 
-	/**
+	/** DONE
 	 * Define the axis-specific relative jerk (% of maximum jerk)
 	 * <p>
 	 * jerk: [0.0, 1.0]
@@ -315,6 +317,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	public boolean methSetDesiredJointJerkRel(double jointJerkRel) {
 		if (jointJerkRel < 0 || jointJerkRel > 1.0) {
 			if (VERBOSE) getLogger().warn("Invalid joint jerk: " + jointJerkRel);
+			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 		this.propDesiredJointJerkRel = jointJerkRel;
@@ -322,7 +325,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 
-	/**
+	/** DONE
 	 * Define the absolute Cartesian velocity (mm/s)
 	 * <p>
 	 * velocity: (0.0, Inf)
@@ -333,6 +336,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	public boolean methSetDesiredCartesianVelocity(double cartesianVelocity) {
 		if (cartesianVelocity <= 0) {
 			if (VERBOSE) getLogger().warn("Invalid cartesian velocity: " + cartesianVelocity);
+			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 		this.propDesiredCartesianVelocity = cartesianVelocity;
@@ -340,7 +344,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 
-	/**
+	/** DONE
 	 * Define the absolute Cartesian acceleration (mm/s^2)
 	 * <p>
 	 * acceleration: (0.0, Inf)
@@ -351,6 +355,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	public boolean methSetDesiredCartesianAcceleration(double cartesianAcceleration) {
 		if (cartesianAcceleration <= 0) {
 			if (VERBOSE) getLogger().warn("Invalid cartesian acceleration: " + cartesianAcceleration);
+			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 		this.propDesiredCartesianAcceleration = cartesianAcceleration;
@@ -358,7 +363,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 
-	/**
+	/** DONE
 	 * Define the absolute Cartesian jerk (mm/s^3)
 	 * <p>
 	 * jerk: (0.0, Inf)
@@ -369,6 +374,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	public boolean methSetDesiredCartesianJerk(double cartesianJerk) {
 		if (cartesianJerk <= 0) {
 			if (VERBOSE) getLogger().warn("Invalid cartesian jerk: " + cartesianJerk);
+			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 		this.propDesiredCartesianJerk = cartesianJerk;
