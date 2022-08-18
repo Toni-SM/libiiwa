@@ -19,7 +19,7 @@ __all__ = [
     'API_VERSION',
 ]
 
-
+__version__ = '0.1.0-beta'
 API_VERSION = "0.1.0-beta"
 
 # empty commands
@@ -32,6 +32,8 @@ class CommunicationMode(Enum):
 
 # motion types
 class MotionType(Enum):
+    """Configurable motion types
+    """
     MOTION_TYPE_PTP = 21
     MOTION_TYPE_LIN = 22
     MOTION_TYPE_LIN_REL = 23
@@ -39,12 +41,16 @@ class MotionType(Enum):
 
 # control interfaces
 class ControlInterface(Enum):
+    """Configurable control interfaces
+    """
     CONTROL_INTERFACE_STANDARD = 31
     CONTROL_INTERFACE_SERVO = 32
     CONTROL_INTERFACE_FRI = 33
 
 # control modes
 class ControlMode(Enum):
+    """Configurable control modes
+    """
     CONTROL_MODE_POSITION = 41
     CONTROL_MODE_JOINT_IMPEDANCE = 42
     CONTROL_MODE_CARTESIAN_IMPEDANCE = 43
@@ -52,8 +58,10 @@ class ControlMode(Enum):
 
 # execution type
 class ExecutionType(Enum):
-	EXECUTION_TYPE_ASYNCHRONOUS = 51
-	EXECUTION_TYPE_SYNCHRONOUS = 52
+    """Configurable execution types
+    """
+    EXECUTION_TYPE_ASYNCHRONOUS = 51
+    EXECUTION_TYPE_SYNCHRONOUS = 52
 
 # control command
 COMMAND_JOINT_POSITION = 101
@@ -584,8 +592,13 @@ class LibIiwa:
     
     # configuration commands (control)
 
-    def set_control_interface(self, control_interface: ControlInterface) -> bool:
+    def set_control_interface(self, control_interface: ControlInterface) -> bool:  # DONE
         """Set the control interface
+
+        Example::
+
+            >>> libiiwa.set_control_interface(libiiwa.ControlInterface.CONTROL_INTERFACE_SERVO)
+            True
 
         :param control_interface: Control interface
         :type control_interface: ControlInterface
@@ -599,8 +612,13 @@ class LibIiwa:
         command = [COMMAND_SET_CONTROL_INTERFACE] + [control_interface.value] + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
 
-    def set_motion_type(self, motion_type: MotionType) -> bool:
+    def set_motion_type(self, motion_type: MotionType) -> bool:  # DONE
         """Set the motion type
+
+        Example::
+
+            >>> libiiwa.set_motion_type(libiiwa.MotionType.MOTION_TYPE_LIN)
+            True
 
         :param motion_type: Motion type
         :type motion_type: MotionType
@@ -614,8 +632,13 @@ class LibIiwa:
         command = [COMMAND_SET_MOTION_TYPE] + [motion_type.value] + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
 
-    def set_control_mode(self, control_mode: ControlMode) -> bool:
+    def set_control_mode(self, control_mode: ControlMode) -> bool:  # DONE
         """Set the control mode
+
+        Example::
+
+            >>> libiiwa.set_control_mode(libiiwa.ControlMode.CONTROL_MODE_POSITION)
+            True
 
         :param control_mode: Control mode
         :type control_mode: ControlMode
@@ -629,8 +652,13 @@ class LibIiwa:
         command = [COMMAND_SET_CONTROL_MODE] + [control_mode.value] + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
     
-    def set_execution_type(self, execution_type: ExecutionType) -> bool:
+    def set_execution_type(self, execution_type: ExecutionType) -> bool:  # DONE
         """Set the execution type
+
+        Example::
+
+            >>> libiiwa.set_control_mode(libiiwa.ExecutionType.EXECUTION_TYPE_ASYNCHRONOUS)
+            True
 
         :param execution_type: Execution type
         :type execution_type: ExecutionType

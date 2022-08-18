@@ -119,7 +119,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	private double propMaxJointTorqueLimits[];
 	
 	// errors
-	private LibIiwaEnum enumLastError = LibIiwaEnum.APPLICATION_ERROR;
+	private LibIiwaEnum enumLastError = LibIiwaEnum.ERROR;
 
 	// configuration
 	private LibIiwaEnum enumMotionType = LibIiwaEnum.MOTION_TYPE_PTP;
@@ -520,7 +520,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 	
-	/**
+	/** DONE
 	 * Set the control interface
 	 * 
 	 * @param controlInterface control interface (CONTROL_INTERFACE_STANDARD, CONTROL_INTERFACE_SERVO)
@@ -537,6 +537,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 			this.enumControlInterface = LibIiwaEnum.CONTROL_INTERFACE_SERVO;
 		else {
 			if (VERBOSE) getLogger().warn("Invalid control interface: " + controlInterface.getCode());
+			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 
@@ -544,7 +545,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 
-	/**
+	/** DONE
 	 * Set the motion type
 	 * 
 	 * @param motionType motion type (MOTION_TYPE_PTP, MOTION_TYPE_LIN, MOTION_TYPE_LIN_REL, MOTION_TYPE_CIRC)
@@ -565,6 +566,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 			this.enumMotionType = LibIiwaEnum.MOTION_TYPE_CIRC;
 		else {
 			if (VERBOSE) getLogger().warn("Invalid motion type: " + motionType.getCode());
+			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 
@@ -609,7 +611,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 	
-	/**
+	/** DONE
 	 * Set the execution type
 	 * 
 	 * @param executionType execution type (EXECUTION_TYPE_ASYNCHRONOUS, EXECUTION_TYPE_SYNCHRONOUS)
@@ -626,6 +628,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 			this.enumControlExecutionType = LibIiwaEnum.EXECUTION_TYPE_SYNCHRONOUS;
 		else {
 			if (VERBOSE) getLogger().warn("Invalid execution type: " + executionType.getCode());
+			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 
