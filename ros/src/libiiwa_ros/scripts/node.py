@@ -517,9 +517,10 @@ if __name__ == "__main__":
     action_namespace = rospy.get_param("~action_namespace", "follow_joint_trajectory")
     libiiwa_ip = rospy.get_param("~libiiwa_ip", "0.0.0.0")
     libiiwa_port = rospy.get_param("~libiiwa_port", 12225)
+    run_without_communication = rospy.get_param("~run_without_communication", False)
 
     # init robot interface
-    robot = LibIiwa(ip=libiiwa_ip, port=libiiwa_port)
+    robot = LibIiwa(ip=libiiwa_ip, port=libiiwa_port, run_without_communication=run_without_communication)
     robot.start()
 
     robot.set_control_interface(libiiwa.ControlInterface.CONTROL_INTERFACE_SERVO)
