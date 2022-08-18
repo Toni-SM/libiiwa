@@ -2,10 +2,14 @@ package application;
 
 public enum LibIiwaEnum{
 	
+	// APPLICATION ERRORS
+	VALUE_ERROR(-11),
+	ERROR(-10),
+
 	// communication errors
-	EXCEPTION(-1),
-	INVALID_NUMBER_OF_BYTES(-2),
 	TIMEOUT(-3),
+	INVALID_NUMBER_OF_BYTES(-2),
+	EXCEPTION(-1),
 	
 	// empty commands
 	COMMAND_PASS(0),
