@@ -10,7 +10,29 @@ from trajectory_msgs.msg import JointTrajectoryPoint
 from libiiwa_msgs.srv import SetDouble, SetDoubleResponse
 from libiiwa_msgs.srv import SetString, SetStringResponse
 
-import libiiwa
+try:
+    import libiiwa
+except ModuleNotFoundError:
+    import os
+    import sys
+    # get path relative to repository root
+    libiiwa_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', 'libiiwa'))
+    if os.path.exists(libiiwa_path):
+        print('libiiwa path: {}'.format(libiiwa_path))
+        sys.path.append(libiiwa_path)
+    # get path form env variable LIBIIWA_PATH
+    else:
+        libiiwa_path = os.environ.get('LIBIIWA_PATH')
+        if libiiwa_path is not None:
+            print('libiiwa path: {}'.format(libiiwa_path))
+            sys.path.append(libiiwa_path)
+    try:
+        import libiiwa
+    except ModuleNotFoundError:
+        print('\nlibiiwa not found')
+        print('Set environment variable LIBIIWA_PATH to libiiwa.py folder (e.g. export LIBIIWA_PATH=/path/to/libiiwa)')
+        print(' or copy libiiwa.py to the same folder as this node\n')
+        sys.exit(1)
 
 
 JOINTS = {"iiwa_joint_1": {"index": 0, "type": "revolute", "has_limits": False, "lower": 0, "upper": 0},
@@ -479,21 +501,32 @@ class FollowJointTrajectory:
                         self._action_feedback_message)
 
 
+
+
 if __name__ == "__main__":
 
     from libiiwa import LibIiwa
 
+    # init node
     rospy.init_node("iiwa")
     rate = rospy.Rate(50)  # Hz
 
-    robot = LibIiwa()
+    # get launch parameters
+    robot_name = rospy.get_param("~robot_name", "iiwa")
+    controller_name = rospy.get_param("~controller_name", "iiwa_controller")
+    action_namespace = rospy.get_param("~action_namespace", "follow_joint_trajectory")
+    libiiwa_ip = rospy.get_param("~libiiwa_ip", "0.0.0.0")
+    libiiwa_port = rospy.get_param("~libiiwa_port", 12225)
+
+    # init robot interface
+    robot = LibIiwa(ip=libiiwa_ip, port=libiiwa_port)
     robot.start()
 
     robot.set_control_interface(libiiwa.ControlInterface.CONTROL_INTERFACE_SERVO)
     robot.set_desired_joint_velocity_rel(0.5)
 
     controllers = [Iiwa(robot, JOINTS),
-                   FollowJointTrajectory(robot, "/iiwa_controller/follow_joint_trajectory", JOINTS)]
+                   FollowJointTrajectory(robot, f"/{controller_name}/{action_namespace}", JOINTS)]
 
     for controller in controllers:
         controller.start()
