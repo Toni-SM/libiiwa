@@ -110,6 +110,18 @@ public class LibIiwa extends RoboticsAPIApplication {
 	private LBR lbr;
 	private Tool tool;
 
+	private double propCurrentState[];
+	private boolean propShouldContinue = false;	// TODO: rename
+
+	private JointPosition propMinJointPositionLimits;
+	private JointPosition propMaxJointPositionLimits;
+	private double propMinJointTorqueLimits[];
+	private double propMaxJointTorqueLimits[];
+	
+	// errors
+	private LibIiwaEnum enumLastError = LibIiwaEnum.APPLICATION_ERROR;
+
+	// configuration
 	private LibIiwaEnum enumMotionType = LibIiwaEnum.MOTION_TYPE_PTP;
 	private LibIiwaEnum enumControlInterface = LibIiwaEnum.CONTROL_INTERFACE_STANDARD;
 	private LibIiwaEnum enumControlMode = LibIiwaEnum.CONTROL_MODE_POSITION;
@@ -140,15 +152,6 @@ public class LibIiwa extends RoboticsAPIApplication {
 	private double propMinimumTrajectoryExecutionTime = 0.001;
 
 	private boolean propOverwriteMotion = true;
-
-	private JointPosition propMinJointPositionLimits;
-	private JointPosition propMaxJointPositionLimits;
-	private double propMinJointTorqueLimits[];
-	private double propMaxJointTorqueLimits[];
-
-	private boolean propShouldContinue = false;	// TODO: rename
-
-	private double propCurrentState[];
 
 	// ===========================================================
 	// INTERNAL METHODS
@@ -210,7 +213,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	// INTERNAL CONTROL METHODS
 	// ===========================================================
 
-	private void methMoveStandard(MotionBatch motionBatch) {
+	private boolean methMoveStandard(MotionBatch motionBatch) {
 		if (lbr.isReadyToMove()) {
 			// set limits
 			motionBatch.setJointVelocityRel(propDesiredJointVelocityRel).setJointAccelerationRel(propDesiredJointAccelerationRel)
@@ -219,34 +222,42 @@ public class LibIiwa extends RoboticsAPIApplication {
 			if (propCurrentMotionContainer != null) {
 				if (!propCurrentMotionContainer.isFinished()) {
 					if (!propOverwriteMotion)
-						return;
+						return false;
 					propCurrentMotionContainer.cancel();
 				}
 			}
 			// execute motion
 			propCurrentMotionContainer = lbr.moveAsync(motionBatch);
+			return true;
 		}
+		return false;
 	}
 
-	private void methMoveSmartServo(JointPosition jointPosition) {
+	private boolean methMoveSmartServo(JointPosition jointPosition) {
 		if (lbr.isReadyToMove()) {
 			methInitializeSmartServo();
 			propCurrentSmartServoRuntime.setDestination(jointPosition);
+			return true;
 		}
+		return false;
 	}
 
-	private void methMoveSmartServo(Frame frame) {
+	private boolean methMoveSmartServo(Frame frame) {
 		if (lbr.isReadyToMove()) {
 			methInitializeSmartServo();
 			propCurrentSmartServoRuntime.setDestination(frame);
+			return true;
 		}
+		return false;
 	}
 
-	private void methMoveSmartServoLIN(Frame frame) {
+	private boolean methMoveSmartServoLIN(Frame frame) {
 		if (lbr.isReadyToMove()) {
 			methInitializeSmartServoLIN();
 			propCurrentSmartServoLINRuntime.setDestination(frame);
+			return true;
 		}
+		return false;
 	}
 
 	// ===========================================================
@@ -257,7 +268,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	// TODO: setOrientationType, setOrientationReferenceSystem
 	// TODO: setJointVelocityRel, setJointAccelerationRel, setJointJerkRel for each axis (double[] = {1, 1, 1, 1, 1, 1, 1})
 	
-	/** DONE
+	/**
 	 * Define the axis-specific relative velocity (% of maximum velocity)
 	 * <p>
 	 * velocity: [0.0, 1.0]
@@ -275,7 +286,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 
-	/** DONE
+	/**
 	 * Define the axis-specific relative acceleration (% of maximum acceleration)
 	 * <p>
 	 * acceleration: [0.0, 1.0]
@@ -293,7 +304,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 
-	/** DONE
+	/**
 	 * Define the axis-specific relative jerk (% of maximum jerk)
 	 * <p>
 	 * jerk: [0.0, 1.0]
@@ -311,7 +322,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 
-	/** DONE
+	/**
 	 * Define the absolute Cartesian velocity (mm/s)
 	 * <p>
 	 * velocity: (0.0, Inf)
@@ -329,7 +340,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 
-	/** DONE
+	/**
 	 * Define the absolute Cartesian acceleration (mm/s^2)
 	 * <p>
 	 * acceleration: (0.0, Inf)
@@ -347,7 +358,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 
-	/** DONE
+	/**
 	 * Define the absolute Cartesian jerk (mm/s^3)
 	 * <p>
 	 * jerk: (0.0, Inf)
@@ -365,7 +376,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 	
-	/** DONE
+	/**
 	 * Define the force condition (N)
 	 * <p>
 	 * threshold: [0.0, Inf)
@@ -395,7 +406,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 	
-	/** DONE
+	/**
 	 * Define the Cartesian impedance control stiffness (translational: Nm, rotational: Nm/rad)
 	 * <p>
 	 * translational: [0.0, 5000.0] (default: 2000.0)
@@ -424,7 +435,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 	
-	/** DONE
+	/**
 	 * Define the Cartesian impedance control damping
 	 * <p>
 	 * translational: [0.1, 1.0] (default: 0.7)
@@ -453,7 +464,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 	
-	/** DONE
+	/**
 	 * Define the Cartesian impedance control additional control force (translational: N, rotational: Nm)
 	 * <p>
 	 * 
@@ -473,7 +484,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 	
-	/** DONE
+	/**
 	 * Define the joint impedance control stiffness (Nm/rad)
 	 * <p>
 	 * stiffness: [0, Inf)
@@ -491,7 +502,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 	
-	/** DONE
+	/**
 	 * Define the joint impedance control damping
 	 * <p>
 	 * damping: [0.0, 1.0] (default: 0.7)
@@ -509,7 +520,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 	
-	/** DONE
+	/**
 	 * Set the control interface
 	 * 
 	 * @param controlInterface control interface (CONTROL_INTERFACE_STANDARD, CONTROL_INTERFACE_SERVO)
@@ -533,7 +544,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 
-	/** DONE
+	/**
 	 * Set the motion type
 	 * 
 	 * @param motionType motion type (MOTION_TYPE_PTP, MOTION_TYPE_LIN, MOTION_TYPE_LIN_REL, MOTION_TYPE_CIRC)
@@ -590,6 +601,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		}
 		else {
 			if (VERBOSE) getLogger().warn("Invalid control mode: " + controlMode.getCode());
+			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 
@@ -597,7 +609,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 	
-	/** DONE
+	/**
 	 * Set the execution type
 	 * 
 	 * @param executionType execution type (EXECUTION_TYPE_ASYNCHRONOUS, EXECUTION_TYPE_SYNCHRONOUS)
@@ -621,7 +633,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 	
-	/** DONE
+	/**
 	 * Set the communication mode
 	 * 
 	 * @param communicationMode communication mode (COMMUNICATION_MODE_ON_DEMAND, COMMUNICATION_MODE_PERIODICAL)
@@ -651,10 +663,13 @@ public class LibIiwa extends RoboticsAPIApplication {
 
 	/**
 	 * Control robot using joint positions (in radians)
-	 *  
+	 * <p>
+	 * Joints not in range will be not controlled. Use this feature to move specific joints
+	 * 
 	 * @param joints joint positions (7)
+	 * @return true if the control was successful, otherwise false
 	 */
-	private void methGoToJointPosition(double[] joints) {
+	private boolean methGoToJointPosition(double[] joints) {
 		// TODO: add other BasicMotions
 		JointPosition jointPosition = lbr.getCurrentJointPosition();
 
@@ -666,19 +681,21 @@ public class LibIiwa extends RoboticsAPIApplication {
 		// move
 		if (enumControlInterface == LibIiwaEnum.CONTROL_INTERFACE_STANDARD) {
 			MotionBatch motionBatch = new MotionBatch(BasicMotions.ptp(jointPosition).setJointJerkRel(propDesiredJointJerkRel));
-			methMoveStandard(motionBatch);
+			return methMoveStandard(motionBatch);
 		}
 		else if (enumControlInterface == LibIiwaEnum.CONTROL_INTERFACE_SERVO) {
-			methMoveSmartServo(jointPosition);
+			return methMoveSmartServo(jointPosition);
 		}
+		return false;
 	}
 
 	/**
 	 * Control robot using Cartesian pose (in millimeters and radians)
 	 * 
 	 * @param pose Cartesian position (3) and orientation(3)
+	 * @return true if the control was successful, otherwise false
 	 */
-	private void methGoToCartesianPose(double[] pose) {
+	private boolean methGoToCartesianPose(double[] pose) {
 		// TODO: add LINREL
 		// TODO: check to use a large number for Cartesian validation (messages need to send numbers) 
 		Frame frame = lbr.getCurrentCartesianPosition(lbr.getFlange());
@@ -706,15 +723,17 @@ public class LibIiwa extends RoboticsAPIApplication {
 				motionBatch = new MotionBatch(BasicMotions.lin(frame).setJointJerkRel(propDesiredJointJerkRel).
 						setCartVelocity(propDesiredCartesianVelocity).setCartAcceleration(propDesiredCartesianAcceleration));
 			else
-				return;
-			methMoveStandard(motionBatch);
+				return false;
+			return methMoveStandard(motionBatch);
 		}
 		else if (enumControlInterface == LibIiwaEnum.CONTROL_INTERFACE_SERVO) {
 			if (enumMotionType == LibIiwaEnum.MOTION_TYPE_PTP)
-				methMoveSmartServo(frame);
+				return methMoveSmartServo(frame);
 			else if (enumMotionType == LibIiwaEnum.MOTION_TYPE_LIN)
-				methMoveSmartServoLIN(frame);
+				return methMoveSmartServoLIN(frame);
+			return false;
 		}
+		return false;
 	}
 
 	// ===========================================================
@@ -873,7 +892,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return false;
 	}
 
-	/** DONE
+	/**
 	 * Perform an on-demand communication
 	 * 
 	 * @return true if the application should continue, otherwise false
