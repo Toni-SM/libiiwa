@@ -362,7 +362,7 @@ class LibIiwa:
 
         Example::
 
-            >> libiiwa.set_desired_joint_velocity_rel(0.1)
+            >>> libiiwa.set_desired_joint_velocity_rel(0.1)
             True
 
         :param value: The relative velocity in % of maximum velocity [0, 1]
@@ -382,7 +382,7 @@ class LibIiwa:
 
         Example::
 
-            >> libiiwa.set_desired_joint_acceleration_rel(0.1)
+            >>> libiiwa.set_desired_joint_acceleration_rel(0.1)
             True
 
         :param value: The relative acceleration in % of maximum acceleration [0, 1]
@@ -402,7 +402,7 @@ class LibIiwa:
 
         Example::
 
-            >> libiiwa.set_desired_joint_jerk_rel(0.1)
+            >>> libiiwa.set_desired_joint_jerk_rel(0.1)
             True
 
         :param value: The relative jerk in % of maximum jerk [0, 1]
@@ -422,7 +422,7 @@ class LibIiwa:
 
         Example::
 
-            >> libiiwa.set_desired_cartesian_velocity(10)
+            >>> libiiwa.set_desired_cartesian_velocity(10)
             True
 
         The Cartesian velocity will be automatically converted to mm/s before sending to the robot
@@ -444,7 +444,7 @@ class LibIiwa:
 
         Example::
 
-            >> libiiwa.set_desired_cartesian_acceleration(10)
+            >>> libiiwa.set_desired_cartesian_acceleration(10)
             True
 
         The Cartesian acceleration will be automatically converted to mm/s^2 before sending to the robot
@@ -466,7 +466,7 @@ class LibIiwa:
 
         Example::
 
-            >> libiiwa.set_desired_cartesian_jerk(10)
+            >>> libiiwa.set_desired_cartesian_jerk(10)
             True
 
         The Cartesian jerk will be automatically converted to mm/s^3 before sending to the robot
@@ -485,10 +485,20 @@ class LibIiwa:
 
     # configuration commands (conditions)
 
-    def set_force_condition(self, 
+    def set_force_condition(self,  # DONE
                             threshold: Union[List[float], np.ndarray], 
                             tolerance: Optional[Union[List[float], np.ndarray]] = [10, 10, 10]) -> bool:
         """Define the force condition (threshold and tolerance) for each Cartesian axis
+
+        Example::
+
+            >>> # force conditon for all axes (x: 10 N, y: 20 N, z: 30 N) and default tolerance
+            >>> libiiwa.set_force_condition([10, 20, 30])
+            True
+
+            >>> # force conditon only for z axis (15 N) and tolerance of 1 N
+            >>> libiiwa.set_force_condition([np.inf, np.inf, 15], [np.inf, np.inf, 1])
+            True
 
         :param threshold: Maximum magnitude of force in N [0, Inf) 
         :type threshold: 3-element list or numpy.ndarray
@@ -512,10 +522,24 @@ class LibIiwa:
             + [0] * (self._communication.COMMAND_LENGTH - 7)
         return self._communication.set_command(command)
 
-    def set_joint_torque_condition(self, 
+    def set_joint_torque_condition(self,  # DONE
                                    lower_limits : Union[List[float], np.ndarray], 
                                    upper_limits : Union[List[float], np.ndarray]) -> bool:
         """Define the joint torque condition (lower and upper limits) for each joint axis
+
+        Example::
+
+            >>> # same limits for all joints (min: -2.5 Nm, max: 4.0 Nm)
+            >>> lower_limits = [-2.5, -2.5, -2.5, -2.5, -2.5, -2.5, -2.5]
+            >>> upper_limits = [4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]
+            >>> libiiwa.set_joint_torque_condition(lower_limits, upper_limits)
+            True
+
+            >>> # limits only for joint 4 (min: -2.5 Nm, max: 4.0 Nm)
+            >>> lower_limits = [-np.inf, -np.inf, -np.inf, -2.5, -np.inf, -np.inf, -np.inf]
+            >>> upper_limits = [np.inf, np.inf, np.inf, 4.0, np.inf, np.inf, np.inf]
+            >>> libiiwa.set_joint_torque_condition(lower_limits, upper_limits)
+            True
 
         :param lower_limits: Lower limit of torque in Nm (-Inf, Inf)
         :type lower_limits: 7-element list or numpy.ndarray
