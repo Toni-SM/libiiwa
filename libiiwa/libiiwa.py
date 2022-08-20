@@ -355,7 +355,7 @@ class LibIiwa:
             + [0] * (self._communication.COMMAND_LENGTH - 7)
         return self._communication.set_command(command)
 
-    # configuration commands (limits and constants)
+    # configuration commands (limits)
 
     def set_desired_joint_velocity_rel(self, value: float) -> bool:  # DONE
         """Define the axis-specific relative velocity (% of maximum velocity)
@@ -483,9 +483,11 @@ class LibIiwa:
         command = [COMMAND_SET_DESIRED_CARTESIAN_JERK] + [value * 1000.0] + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
 
+    # configuration commands (conditions)
+
     def set_force_condition(self, 
                             threshold: Union[List[float], np.ndarray], 
-                            tolerance: Union[List[float], np.ndarray] = [10, 10, 10]) -> bool:
+                            tolerance: Optional[Union[List[float], np.ndarray]] = [10, 10, 10]) -> bool:
         """Define the force condition (threshold and tolerance) for each Cartesian axis
 
         :param threshold: Maximum magnitude of force in N [0, Inf) 
@@ -509,6 +511,35 @@ class LibIiwa:
         command = [COMMAND_SET_FORCE_CONDITION] + threshold.tolist() + tolerance.tolist() \
             + [0] * (self._communication.COMMAND_LENGTH - 7)
         return self._communication.set_command(command)
+
+    def set_joint_torque_condition(self, 
+                                   lower_limits : Union[List[float], np.ndarray], 
+                                   upper_limits : Union[List[float], np.ndarray]) -> bool:
+        """Define the joint torque condition (lower and upper limits) for each joint axis
+
+        :param lower_limits: Lower limit of torque in Nm (-Inf, Inf)
+        :type lower_limits: 7-element list or numpy.ndarray
+        :param upper_limits: Upper limit of torque in Nm [-Inf, Inf)
+        :type upper_limits: 7-element list or numpy.ndarray
+
+        :raises AssertionError: If the length of the lower and upper limits is not equal to the number of axes
+        :raises AssertionError: If any of the lower limits is higher than the upper limits
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+        """
+        lower_limits = np.array(lower_limits, dtype=np.float32).flatten()
+        upper_limits = np.array(upper_limits, dtype=np.float32).flatten()
+        assert lower_limits.size == 7  # invalid length
+        assert (lower_limits <= upper_limits).all()  # invalid values (lower limits > upper limits)
+        status = True
+        for i in range(7):
+            command = [COMMAND_SET_JOINT_TORQUE_CONDITION] + [i + 1] + [lower_limits[i]] + [upper_limits[i]] \
+                + [0] * (self._communication.COMMAND_LENGTH - 4)
+            status = status and self._communication.set_command(command)
+        return status
+
+    # configuration commands (impedance control)
 
     def set_cartesian_stiffness(self, 
                                 translational : Union[List[float], np.ndarray] = [2000.0, 2000.0, 2000.0],
@@ -628,7 +659,7 @@ class LibIiwa:
         command = [COMMAND_SET_JOINT_DAMPING] + damping.tolist() + [0] * (self._communication.COMMAND_LENGTH - 8)
         return self._communication.set_command(command)
     
-    # configuration commands (control)
+    # configuration commands (motion and control)
 
     def set_control_interface(self, control_interface: ControlInterface) -> bool:  # DONE
         """Set the control interface
