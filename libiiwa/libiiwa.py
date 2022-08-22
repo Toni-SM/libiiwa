@@ -141,7 +141,7 @@ class LibIiwaCommunication:
 
     def _recv(self):
         if self._run_without_communication:
-            return [0] * self.STATE_LENGTH
+            return [1] * self.STATE_LENGTH
         data = self._connection.recv(self.STATE_LENGTH * 8)
         state = struct.unpack('!' + 'd' * self.STATE_LENGTH, data)
         return state
@@ -203,6 +203,9 @@ class LibIiwaCommunication:
                 "cartesian_orientation": state[33:36],
                 "cartesian_force": state[36:39],
                 "cartesian_torque": state[39:42]}
+
+    def get_last_error(self):
+        return "TODO" # TODO: implement error handling
 
     def init(self):
         if self._run_without_communication:
@@ -299,9 +302,17 @@ class LibIiwa:
         """
         return self._communication.get_state(refresh)
 
+    def get_last_error(self) -> str:
+        """Get the last error message from the robot
+
+        :return: The last error message from the robot
+        :rtype: str
+        """
+        return self._communication.get_last_error()
+
     # motion command
 
-    def command_joint_position(self, position: Union[List[float], np.ndarray], degrees: bool = False) -> bool:
+    def command_joint_position(self, position: Union[List[float], np.ndarray], degrees: bool = False) -> bool:  # DONE
         """Move the robot to the specified joint position
         
         :param position: The joint position to move to
@@ -313,6 +324,17 @@ class LibIiwa:
         
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            # move to joint position [0, 0, 0, -1.57, 0, 1.57, 0] in radians
+            robot.command_joint_position([0, 0, 0, -1.57, 0, 1.57, 0])
+
+            # move to joint position [0, 0, 0, -90, 0, 90, 0] in degrees
+            robot.command_joint_position([0, 0, 0, -90, 0, 90, 0], degrees=True)
+
+            # set only the joint number 4 to -1.57 in radians without moving the other joints
+            robot.command_joint_position([np.NaN, np.NaN, np.NaN, -1.57, np.NaN, np.NaN, np.NaN])
         """
         position = np.array(position, dtype=np.float32).flatten()
         assert position.size == 7  # invalid length
@@ -323,14 +345,14 @@ class LibIiwa:
 
     def command_cartesian_pose(self, 
                                position: Union[List[float], np.ndarray], 
-                               orientation: Union[List[float], np.ndarray] = [np.Inf, np.Inf, np.Inf],
+                               orientation: Union[List[float], np.ndarray] = [np.NaN, np.NaN, np.NaN],
                                millimeters: bool = False,
-                               degrees: bool = False) -> bool:
+                               degrees: bool = False) -> bool:  # DONE
         """Move the robot to the specified cartesian pose
 
         :param position: The cartesian position to move to
         :type position: List[float] or np.ndarray
-        :param orientation: The cartesian orientation to move to (default: [np.Inf, np.Inf, np.Inf])
+        :param orientation: The cartesian orientation to move to (default: [np.NaN, np.NaN, np.NaN])
         :type orientation: List[float] or np.ndarray
         :param millimeters: Whether the position is in millimeters or meters (default: meters)
         :type millimeters: bool
@@ -342,7 +364,16 @@ class LibIiwa:
 
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            # move to cartesian pose [0.65, 0, 0.2] in meters withouth changing the orientation
+            robot.command_cartesian_pose([0.65, 0, 0.2])
+
+            # move to cartesian pose [650, 0, 200] in millimeters withouth changing the orientation
+            robot.command_cartesian_pose([650, 0, 200], millimeters=True)
         """
+        # TODO: improve example
         position = np.array(position, dtype=np.float32).flatten()
         orientation = np.array(orientation, dtype=np.float32).flatten()
         assert len(position) == 3  # invalid length
@@ -360,11 +391,6 @@ class LibIiwa:
     def set_desired_joint_velocity_rel(self, value: float) -> bool:  # DONE
         """Define the axis-specific relative velocity (% of maximum velocity)
 
-        Example::
-
-            >>> libiiwa.set_desired_joint_velocity_rel(0.1)
-            True
-
         :param value: The relative velocity in % of maximum velocity [0, 1]
         :type value: float
 
@@ -372,6 +398,11 @@ class LibIiwa:
 
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            >>> libiiwa.set_desired_joint_velocity_rel(0.1)
+            True
         """
         assert 0 <= value <= 1  # invalid range
         command = [COMMAND_SET_DESIRED_JOINT_VELOCITY_REL] + [value] + [0] * (self._communication.COMMAND_LENGTH - 2)
@@ -380,11 +411,6 @@ class LibIiwa:
     def set_desired_joint_acceleration_rel(self, value: float) -> bool:  # DONE
         """Define the axis-specific relative acceleration (% of maximum acceleration)
 
-        Example::
-
-            >>> libiiwa.set_desired_joint_acceleration_rel(0.1)
-            True
-
         :param value: The relative acceleration in % of maximum acceleration [0, 1]
         :type value: float
 
@@ -392,6 +418,11 @@ class LibIiwa:
 
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            >>> libiiwa.set_desired_joint_acceleration_rel(0.1)
+            True
         """
         assert 0 <= value <= 1  # invalid range
         command = [COMMAND_SET_DESIRED_JOINT_ACCELERATION_REL] + [value] + [0] * (self._communication.COMMAND_LENGTH - 2)
@@ -400,11 +431,6 @@ class LibIiwa:
     def set_desired_joint_jerk_rel(self, value: float) -> bool:  # DONE
         """Define the axis-specific relative jerk (% of maximum jerk)
 
-        Example::
-
-            >>> libiiwa.set_desired_joint_jerk_rel(0.1)
-            True
-
         :param value: The relative jerk in % of maximum jerk [0, 1]
         :type value: float
 
@@ -412,6 +438,11 @@ class LibIiwa:
 
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            >>> libiiwa.set_desired_joint_jerk_rel(0.1)
+            True
         """
         assert 0 <= value <= 1  # invalid range
         command = [COMMAND_SET_DESIRED_JOINT_JERK_REL] + [value] + [0] * (self._communication.COMMAND_LENGTH - 2)
@@ -419,11 +450,6 @@ class LibIiwa:
 
     def set_desired_cartesian_velocity(self, value: float) -> bool:  # DONE
         """Define the absolute Cartesian velocity (m/s)
-
-        Example::
-
-            >>> libiiwa.set_desired_cartesian_velocity(10)
-            True
 
         The Cartesian velocity will be automatically converted to mm/s before sending to the robot
 
@@ -434,6 +460,11 @@ class LibIiwa:
 
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            >>> libiiwa.set_desired_cartesian_velocity(10)
+            True
         """
         assert value > 0  # invalid range
         command = [COMMAND_SET_DESIRED_CARTESIAN_VELOCITY] + [value * 1000.0] + [0] * (self._communication.COMMAND_LENGTH - 2)
@@ -441,11 +472,6 @@ class LibIiwa:
 
     def set_desired_cartesian_acceleration(self, value: float) -> bool:  # DONE
         """Define the absolute Cartesian acceleration (m/s^2)
-
-        Example::
-
-            >>> libiiwa.set_desired_cartesian_acceleration(10)
-            True
 
         The Cartesian acceleration will be automatically converted to mm/s^2 before sending to the robot
 
@@ -456,6 +482,11 @@ class LibIiwa:
 
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            >>> libiiwa.set_desired_cartesian_acceleration(10)
+            True
         """
         assert value > 0  # invalid range
         command = [COMMAND_SET_DESIRED_CARTESIAN_ACCELERATION] + [value * 1000.0] + [0] * (self._communication.COMMAND_LENGTH - 2)
@@ -463,11 +494,6 @@ class LibIiwa:
 
     def set_desired_cartesian_jerk(self, value: float) -> bool:  # DONE
         """Define the absolute Cartesian jerk (m/s^3)
-
-        Example::
-
-            >>> libiiwa.set_desired_cartesian_jerk(10)
-            True
 
         The Cartesian jerk will be automatically converted to mm/s^3 before sending to the robot
 
@@ -478,6 +504,11 @@ class LibIiwa:
 
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            >>> libiiwa.set_desired_cartesian_jerk(10)
+            True
         """
         assert value > 0  # invalid range
         command = [COMMAND_SET_DESIRED_CARTESIAN_JERK] + [value * 1000.0] + [0] * (self._communication.COMMAND_LENGTH - 2)
@@ -490,16 +521,6 @@ class LibIiwa:
                             tolerance: Optional[Union[List[float], np.ndarray]] = [10, 10, 10]) -> bool:
         """Define the force condition (threshold and tolerance) for each Cartesian axis
 
-        Example::
-
-            >>> # force conditon for all axes (x: 10 N, y: 20 N, z: 30 N) and default tolerance
-            >>> libiiwa.set_force_condition([10, 20, 30])
-            True
-
-            >>> # force conditon only for z axis (15 N) and tolerance of 1 N
-            >>> libiiwa.set_force_condition([np.inf, np.inf, 15], [np.inf, np.inf, 1])
-            True
-
         :param threshold: Maximum magnitude of force in N [0, Inf) 
         :type threshold: 3-element list or numpy.ndarray
         :param tolerance: Maximum permissible inaccuracy in N (0, Inf) (default: [10, 10, 10])
@@ -511,6 +532,16 @@ class LibIiwa:
 
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            >>> # force conditon for all axes (x: 10 N, y: 20 N, z: 30 N) and default tolerance
+            >>> libiiwa.set_force_condition([10, 20, 30])
+            True
+
+            >>> # force conditon only for z axis (15 N) and tolerance of 1 N
+            >>> libiiwa.set_force_condition([np.Inf, np.Inf, 15], [np.Inf, np.Inf, 1])
+            True
         """
         threshold = np.array(threshold, dtype=np.float32).flatten()
         tolerance = np.array(tolerance, dtype=np.float32).flatten()
@@ -527,20 +558,6 @@ class LibIiwa:
                                    upper_limits : Union[List[float], np.ndarray]) -> bool:
         """Define the joint torque condition (lower and upper limits) for each joint axis
 
-        Example::
-
-            >>> # same limits for all joints (min: -2.5 Nm, max: 4.0 Nm)
-            >>> lower_limits = [-2.5, -2.5, -2.5, -2.5, -2.5, -2.5, -2.5]
-            >>> upper_limits = [4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]
-            >>> libiiwa.set_joint_torque_condition(lower_limits, upper_limits)
-            True
-
-            >>> # limits only for joint 4 (min: -2.5 Nm, max: 4.0 Nm)
-            >>> lower_limits = [-np.inf, -np.inf, -np.inf, -2.5, -np.inf, -np.inf, -np.inf]
-            >>> upper_limits = [np.inf, np.inf, np.inf, 4.0, np.inf, np.inf, np.inf]
-            >>> libiiwa.set_joint_torque_condition(lower_limits, upper_limits)
-            True
-
         :param lower_limits: Lower limit of torque in Nm (-Inf, Inf)
         :type lower_limits: 7-element list or numpy.ndarray
         :param upper_limits: Upper limit of torque in Nm [-Inf, Inf)
@@ -551,6 +568,20 @@ class LibIiwa:
 
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            >>> # same limits for all joints (min: -2.5 Nm, max: 4.0 Nm)
+            >>> lower_limits = [-2.5, -2.5, -2.5, -2.5, -2.5, -2.5, -2.5]
+            >>> upper_limits = [4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]
+            >>> libiiwa.set_joint_torque_condition(lower_limits, upper_limits)
+            True
+
+            >>> # limits only for joint 4 (min: -2.5 Nm, max: 4.0 Nm)
+            >>> lower_limits = [-np.Inf, -np.Inf, -np.Inf, -2.5, -np.Inf, -np.Inf, -np.Inf]
+            >>> upper_limits = [np.Inf, np.Inf, np.Inf, 4.0, np.Inf, np.Inf, np.Inf]
+            >>> libiiwa.set_joint_torque_condition(lower_limits, upper_limits)
+            True
         """
         lower_limits = np.array(lower_limits, dtype=np.float32).flatten()
         upper_limits = np.array(upper_limits, dtype=np.float32).flatten()
@@ -688,11 +719,6 @@ class LibIiwa:
     def set_control_interface(self, control_interface: ControlInterface) -> bool:  # DONE
         """Set the control interface
 
-        Example::
-
-            >>> libiiwa.set_control_interface(libiiwa.ControlInterface.CONTROL_INTERFACE_SERVO)
-            True
-
         :param control_interface: Control interface
         :type control_interface: ControlInterface
 
@@ -700,6 +726,11 @@ class LibIiwa:
 
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            >>> libiiwa.set_control_interface(libiiwa.ControlInterface.CONTROL_INTERFACE_SERVO)
+            True
         """
         assert control_interface in ControlInterface  # invalid control interface
         command = [COMMAND_SET_CONTROL_INTERFACE] + [control_interface.value] + [0] * (self._communication.COMMAND_LENGTH - 2)
@@ -708,11 +739,6 @@ class LibIiwa:
     def set_motion_type(self, motion_type: MotionType) -> bool:  # DONE
         """Set the motion type
 
-        Example::
-
-            >>> libiiwa.set_motion_type(libiiwa.MotionType.MOTION_TYPE_LIN)
-            True
-
         :param motion_type: Motion type
         :type motion_type: MotionType
 
@@ -720,6 +746,11 @@ class LibIiwa:
 
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            >>> libiiwa.set_motion_type(libiiwa.MotionType.MOTION_TYPE_LIN)
+            True
         """
         assert motion_type in MotionType  # invalid motion type
         command = [COMMAND_SET_MOTION_TYPE] + [motion_type.value] + [0] * (self._communication.COMMAND_LENGTH - 2)
@@ -728,11 +759,6 @@ class LibIiwa:
     def set_control_mode(self, control_mode: ControlMode) -> bool:  # DONE
         """Set the control mode
 
-        Example::
-
-            >>> libiiwa.set_control_mode(libiiwa.ControlMode.CONTROL_MODE_POSITION)
-            True
-
         :param control_mode: Control mode
         :type control_mode: ControlMode
 
@@ -740,6 +766,11 @@ class LibIiwa:
 
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            >>> libiiwa.set_control_mode(libiiwa.ControlMode.CONTROL_MODE_POSITION)
+            True
         """
         assert control_mode in ControlMode  # invalid control mode
         command = [COMMAND_SET_CONTROL_MODE] + [control_mode.value] + [0] * (self._communication.COMMAND_LENGTH - 2)
@@ -748,11 +779,6 @@ class LibIiwa:
     def set_execution_type(self, execution_type: ExecutionType) -> bool:  # DONE
         """Set the execution type
 
-        Example::
-
-            >>> libiiwa.set_control_mode(libiiwa.ExecutionType.EXECUTION_TYPE_ASYNCHRONOUS)
-            True
-
         :param execution_type: Execution type
         :type execution_type: ExecutionType
 
@@ -760,6 +786,11 @@ class LibIiwa:
 
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            >>> libiiwa.set_control_mode(libiiwa.ExecutionType.EXECUTION_TYPE_ASYNCHRONOUS)
+            True
         """
         assert execution_type in ExecutionType  # invalid execution type
         command = [COMMAND_SET_EXECUTION_TYPE] + [execution_type.value] + [0] * (self._communication.COMMAND_LENGTH - 2)
