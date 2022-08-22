@@ -10,8 +10,8 @@ import control_msgs.msg
 from trajectory_msgs.msg import JointTrajectoryPoint
 from tf.transformations import euler_from_quaternion
 
-from libiiwa_msgs.srv import SetDouble, SetDoubleResponse
-from libiiwa_msgs.srv import SetString, SetStringResponse
+from libiiwa_msgs.srv import SetDouble, SetDoubleRequest, SetDoubleResponse
+from libiiwa_msgs.srv import SetString, SetStringRequest, SetStringResponse
 
 try:
     import libiiwa
@@ -96,12 +96,9 @@ class Iiwa:
         # initialize messages
         self._msg_joint_states.name = sorted(list(self._joints.keys()))
 
-    def _callback_joint_command(self, msg: sensor_msgs.msg.JointState) -> None:
-        """Callback for the joint command subscriber
+    # motion command
 
-        :param msg: ROS message
-        :type msg: sensor_msgs.msg.JointState
-        """
+    def _callback_joint_command(self, msg: sensor_msgs.msg.JointState) -> None:  # DONE
         names = msg.name
         positions = msg.position
 
@@ -140,12 +137,7 @@ class Iiwa:
         if self._verbose:
             rospy.loginfo('Commanded joint position to {} ({})'.format(target_positions, status))
 
-    def _callback_cartesian_command(self, msg: geometry_msgs.msg.Pose) -> None:
-        """Callback for the cartesian command subscriber
-
-        :param msg: ROS message
-        :type msg: geometry_msgs.msg.Pose
-        """
+    def _callback_cartesian_command(self, msg: geometry_msgs.msg.Pose) -> None:  # PARTIAL DONE
         position = msg.position
         quaternion = msg.orientation
 
@@ -179,58 +171,114 @@ class Iiwa:
         if self._verbose:
             rospy.loginfo('Commanded cartesian pose to {}, {} ({})'.format(position, orientation, status))
 
-    def _handler_set_desired_joint_velocity_rel(self, request):
+    # configuration commands (limits)
+
+    def _handler_set_desired_joint_velocity_rel(self, request: SetDoubleRequest) -> None:  # DONE
         response = SetDoubleResponse()
         try:
             response.success = self._interface.set_desired_joint_velocity_rel(request.data)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                rospy.logerr('Failed to set_desired_joint_velocity_rel to {}'.format(request.data))
+                rospy.logerr(self._interface.get_last_error())
         except Exception as e:
             response.success = False
             response.message = str(e)
+            rospy.logerr('Failed to set_desired_joint_velocity_rel to {}'.format(request.data))
+            rospy.logerr(e)
+        if self._verbose:
+            rospy.loginfo("Service set_desired_joint_velocity_rel to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
         return response
 
-    def _handler_set_desired_joint_acceleration_rel(self, request):
+    def _handler_set_desired_joint_acceleration_rel(self, request: SetDoubleRequest) -> None:  # DONE
         response = SetDoubleResponse()
         try:
             response.success = self._interface.set_desired_joint_acceleration_rel(request.data)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                rospy.logerr('Failed to set_desired_joint_acceleration_rel to {}'.format(request.data))
+                rospy.logerr(self._interface.get_last_error())
         except Exception as e:
             response.success = False
             response.message = str(e)
+            rospy.logerr('Failed to set_desired_joint_acceleration_rel to {}'.format(request.data))
+            rospy.logerr(e)
+        if self._verbose:
+            rospy.loginfo("Service set_desired_joint_acceleration_rel to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
         return response
 
-    def _handler_set_desired_joint_jerk_rel(self, request):
+    def _handler_set_desired_joint_jerk_rel(self, request: SetDoubleRequest) -> None:  # DONE
         response = SetDoubleResponse()
         try:
             response.success = self._interface.set_desired_joint_jerk_rel(request.data)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                rospy.logerr('Failed to set_desired_joint_jerk_rel to {}'.format(request.data))
+                rospy.logerr(self._interface.get_last_error())
         except Exception as e:
             response.success = False
             response.message = str(e)
+            rospy.logerr('Failed to set_desired_joint_jerk_rel to {}'.format(request.data))
+            rospy.logerr(e)
+        if self._verbose:
+            rospy.loginfo("Service set_desired_joint_jerk_rel to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
         return response
 
-    def _handler_set_desired_cartesian_velocity(self, request):
+    def _handler_set_desired_cartesian_velocity(self, request: SetDoubleRequest) -> None:  # DONE
         response = SetDoubleResponse()
         try:
             response.success = self._interface.set_desired_cartesian_velocity(request.data)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                rospy.logerr('Failed to set_desired_cartesian_velocity to {}'.format(request.data))
+                rospy.logerr(self._interface.get_last_error())
         except Exception as e:
             response.success = False
             response.message = str(e)
+            rospy.logerr('Failed to set_desired_cartesian_velocity to {}'.format(request.data))
+            rospy.logerr(e)
+        if self._verbose:
+            rospy.loginfo("Service set_desired_cartesian_velocity to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
         return response
 
-    def _handler_set_desired_cartesian_acceleration(self, request):
+    def _handler_set_desired_cartesian_acceleration(self, request: SetDoubleRequest) -> None:  # DONE
         response = SetDoubleResponse()
         try:
             response.success = self._interface.set_desired_cartesian_acceleration(request.data)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                rospy.logerr('Failed to set_desired_cartesian_acceleration to {}'.format(request.data))
+                rospy.logerr(self._interface.get_last_error())
         except Exception as e:
             response.success = False
             response.message = str(e)
+            rospy.logerr('Failed to set_desired_cartesian_acceleration to {}'.format(request.data))
+            rospy.logerr(e)
+        if self._verbose:
+            rospy.loginfo("Service set_desired_cartesian_acceleration to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
         return response
 
-    def _handler_set_desired_cartesian_jerk(self, request):
+    def _handler_set_desired_cartesian_jerk(self, request: SetDoubleRequest) -> None:  # DONE
         response = SetDoubleResponse()
         try:
             response.success = self._interface.set_desired_cartesian_jerk(request.data)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                rospy.logerr('Failed to set_desired_cartesian_jerk to {}'.format(request.data))
+                rospy.logerr(self._interface.get_last_error())
         except Exception as e:
             response.success = False
             response.message = str(e)
+            rospy.logerr('Failed to set_desired_cartesian_jerk to {}'.format(request.data))
+            rospy.logerr(e)
+        if self._verbose:
+            rospy.loginfo("Service set_desired_cartesian_jerk to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
         return response
 
     def _handler_set_control_interface(self, request):
