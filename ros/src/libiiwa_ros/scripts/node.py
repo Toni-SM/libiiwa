@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
+from typing import Optional, Mapping
 
+import math
 import rospy
 import actionlib
 import sensor_msgs.msg
@@ -45,12 +47,31 @@ JOINTS = {"iiwa_joint_1": {"index": 0, "type": "revolute", "has_limits": False, 
 
 
 class Iiwa:
-    def __init__(self, robot, joints: dict, names: dict = {}, queue_size: int = 10):
-        self._robot = robot
-        self._joints = joints
+    def __init__(self, 
+                 interface: libiiwa.LibIiwa, 
+                 joints: Mapping[str, dict], 
+                 names: Optional[Mapping[str, str]] = {}, 
+                 queue_size: int = 10,
+                 verbose: bool = False) -> None:
+        """ROS control interface for the KUKA LBR iiwa robot
 
+        :param interface: libiiwa.LibIiwa object
+        :type interface: libiiwa.LibIiwa
+        :param joints: Joint names and parameters
+        :type joints: Mapping[str, dict]
+        :param names: Topics and services mapping to the corresponding ROS names (default: {})
+        :type names: Mapping[str, str], optional
+        :param queue_size: Size of the ROS publisher and subscriber queues (default: 10)
+        :type queue_size: int, optional
+        :param verbose: Print additional information (default: False)
+        :type verbose: bool, optional
+        """
         self._names = names
+        self._joints = joints
+        self._interface = interface
         self._queue_size = queue_size
+        self._num_joints = len(joints)
+        self._verbose = verbose
 
         # publishers
         self._publishers = []
@@ -58,9 +79,13 @@ class Iiwa:
         self._pub_end_effector_pose = None
         self._pub_end_effector_wrench = None
 
+        # subscribers
+        self._subscribers = []
+        self._sub_joint_command = None
+        self._sub_cartesian_command = None
+
         # services
         self._services = []
-        self._srv_set_desired_joint_velocity_rel = None
 
         # messages
         self._msg_joint_states = sensor_msgs.msg.JointState()
@@ -70,10 +95,61 @@ class Iiwa:
         # initialize messages
         self._msg_joint_states.name = sorted(list(self._joints.keys()))
 
+    def _callback_joint_command(self, msg: sensor_msgs.msg.JointState) -> None:
+        """Callback for the joint command subscriber
+
+        :param msg: ROS message
+        :type msg: sensor_msgs.msg.JointState
+        """
+        names = msg.name
+        positions = msg.position
+
+        # validate message
+        if not len(names):
+            names = self._msg_joint_states.name.copy()
+            if len(positions) != self._num_joints:
+                rospy.logerr('Number of positions ({}) does not match number of joints ({})' \
+                    .format(len(positions), self._num_joints))
+                return
+        elif len(names) != len(positions):
+            rospy.logerr('The message has different number of names ({}) and positions ({})' \
+                .format(len(names), len(positions)))
+            return
+
+        # parse message
+        target_positions = [math.nan] * self._num_joints
+        for name, position in zip(names, positions):
+            if not name in self._joints:
+                rospy.logerr('Invalid joint name: {}'.format(name))
+                return
+            index = self._joints[name]['index']
+            target_positions[index] = position
+
+        # move the robot
+        try:
+            status = self._interface.command_joint_position(target_positions)
+        except Exception as e:
+            rospy.logerr('Failed to command joint position to {}'.format(target_positions))
+            rospy.logerr(e)
+
+        if not status:
+            rospy.logerr('Failed to command joint position to {}'.format(target_positions))
+            rospy.logerr(self._interface.get_last_error())
+        if self._verbose:
+            rospy.loginfo('Commanded joint position to {} ({})'.format(target_positions, status))
+
+    def _callback_cartesian_command(self, msg: geometry_msgs.msg.Pose) -> None:
+        """Callback for the cartesian command subscriber
+
+        :param msg: ROS message
+        :type msg: geometry_msgs.msg.Pose
+        """
+        print('cartesian command: {}'.format(msg))
+
     def _handler_set_desired_joint_velocity_rel(self, request):
         response = SetDoubleResponse()
         try:
-            response.success = self._robot.set_desired_joint_velocity_rel(request.data)
+            response.success = self._interface.set_desired_joint_velocity_rel(request.data)
         except Exception as e:
             response.success = False
             response.message = str(e)
@@ -82,7 +158,7 @@ class Iiwa:
     def _handler_set_desired_joint_acceleration_rel(self, request):
         response = SetDoubleResponse()
         try:
-            response.success = self._robot.set_desired_joint_acceleration_rel(request.data)
+            response.success = self._interface.set_desired_joint_acceleration_rel(request.data)
         except Exception as e:
             response.success = False
             response.message = str(e)
@@ -91,7 +167,7 @@ class Iiwa:
     def _handler_set_desired_joint_jerk_rel(self, request):
         response = SetDoubleResponse()
         try:
-            response.success = self._robot.set_desired_joint_jerk_rel(request.data)
+            response.success = self._interface.set_desired_joint_jerk_rel(request.data)
         except Exception as e:
             response.success = False
             response.message = str(e)
@@ -100,7 +176,7 @@ class Iiwa:
     def _handler_set_desired_cartesian_velocity(self, request):
         response = SetDoubleResponse()
         try:
-            response.success = self._robot.set_desired_cartesian_velocity(request.data)
+            response.success = self._interface.set_desired_cartesian_velocity(request.data)
         except Exception as e:
             response.success = False
             response.message = str(e)
@@ -109,7 +185,7 @@ class Iiwa:
     def _handler_set_desired_cartesian_acceleration(self, request):
         response = SetDoubleResponse()
         try:
-            response.success = self._robot.set_desired_cartesian_acceleration(request.data)
+            response.success = self._interface.set_desired_cartesian_acceleration(request.data)
         except Exception as e:
             response.success = False
             response.message = str(e)
@@ -118,7 +194,7 @@ class Iiwa:
     def _handler_set_desired_cartesian_jerk(self, request):
         response = SetDoubleResponse()
         try:
-            response.success = self._robot.set_desired_cartesian_jerk(request.data)
+            response.success = self._interface.set_desired_cartesian_jerk(request.data)
         except Exception as e:
             response.success = False
             response.message = str(e)
@@ -134,7 +210,7 @@ class Iiwa:
             response.message = "Unknown control interface: {}".format(request.data)
             return response
         try:
-            response.success = self._robot.set_control_interface(control_interface)
+            response.success = self._interface.set_control_interface(control_interface)
         except Exception as e:
             response.success = False
             response.message = str(e)
@@ -152,7 +228,7 @@ class Iiwa:
             response.message = "Unknown motion type: {}".format(request.data)
             return response
         try:
-            response.success = self._robot.set_motion_type(motion_type)
+            response.success = self._interface.set_motion_type(motion_type)
         except Exception as e:
             response.success = False
             response.message = str(e)
@@ -170,7 +246,7 @@ class Iiwa:
             response.message = "Unknown control mode: {}".format(request.data)
             return response
         try:
-            response.success = self._robot.set_control_mode(control_mode)
+            response.success = self._interface.set_control_mode(control_mode)
         except Exception as e:
             response.success = False
             response.message = str(e)
@@ -186,7 +262,7 @@ class Iiwa:
             response.message = "Unknown communication mode: {}".format(request.data)
             return response
         try:
-            response.success = self._robot.set_communication_mode(communication_mode)
+            response.success = self._interface.set_communication_mode(communication_mode)
         except Exception as e:
             response.success = False
             response.message = str(e)
@@ -211,6 +287,17 @@ class Iiwa:
         self._publishers = [self._pub_joint_states,
                             self._pub_end_effector_pose,
                             self._pub_end_effector_wrench]
+
+        # create subscribers
+        self._sub_joint_command = rospy.Subscriber(name=self._names.get("joint_command", "/iiwa/command/joint"),
+                                                   data_class=sensor_msgs.msg.JointState,
+                                                   callback=self._callback_joint_command)
+        self._sub_cartesian_command = rospy.Subscriber(name=self._names.get("cartesian_command", "/iiwa/command/cartesian"),
+                                                       data_class=geometry_msgs.msg.Pose,
+                                                       callback=self._callback_cartesian_command)
+
+        self._subscribers = [self._sub_joint_command,
+                             self._sub_cartesian_command]
 
         # create services
         name = self._names.get("set_desired_joint_velocity_rel", "/iiwa/set_desired_joint_velocity_rel")
@@ -268,12 +355,15 @@ class Iiwa:
         """
         for publisher in self._publishers:
             publisher.unregister()
+        for subscriber in self._subscribers:
+            subscriber.unregister()
 
         self._pub_joint_states = None
         self._pub_end_effector_pose = None
         self._pub_end_effector_wrench = None
 
         self._publishers = []
+        self._subscribers = []
         self._services = []
 
     def step(self, dt: float) -> None:
@@ -282,7 +372,7 @@ class Iiwa:
         :param dt: Delta time
         :type dt: float
         """
-        state = self._robot.get_state()
+        state = self._interface.get_state()
 
         # TODO: set header
 
@@ -323,7 +413,7 @@ class Iiwa:
 
 class FollowJointTrajectory:
     def __init__(self, robot, action_name: str, joints: dict):
-        self._robot = robot
+        self._interface = robot
         self._joints = joints
 
         self._action_name = action_name
@@ -487,10 +577,10 @@ class FollowJointTrajectory:
                             previous_point.positions[i])
                     joint_positions[i] = self._set_joint_position(
                         name, target_position)
-                    self._robot.command_joint_position(joint_positions)
+                    self._interface.command_joint_position(joint_positions)
             # send feedback
             else:
-                state = self._robot.get_state()["joint_position"]
+                state = self._interface.get_state()["joint_position"]
                 self._action_point_index += 1
                 self._action_feedback_message.actual.positions = [self._get_joint_position(name, state)
                                                                   for name in self._action_goal.trajectory.joint_names]
@@ -518,6 +608,7 @@ if __name__ == "__main__":
     libiiwa_ip = rospy.get_param("~libiiwa_ip", "0.0.0.0")
     libiiwa_port = rospy.get_param("~libiiwa_port", 12225)
     run_without_communication = rospy.get_param("~run_without_communication", False)
+    verbose = rospy.get_param("~verbose", False)
 
     # init robot interface
     robot = LibIiwa(ip=libiiwa_ip, port=libiiwa_port, run_without_communication=run_without_communication)
@@ -526,9 +617,11 @@ if __name__ == "__main__":
     robot.set_control_interface(libiiwa.ControlInterface.CONTROL_INTERFACE_SERVO)
     robot.set_desired_joint_velocity_rel(0.5)
 
-    controllers = [Iiwa(robot, JOINTS),
+    # load controllers
+    controllers = [Iiwa(robot, JOINTS, verbose=verbose),
                    FollowJointTrajectory(robot, f"/{controller_name}/{action_namespace}", JOINTS)]
 
+    # control loop
     for controller in controllers:
         controller.start()
 
