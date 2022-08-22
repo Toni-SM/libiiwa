@@ -1,0 +1,174 @@
+[start-command-line-joint-1]
+
+# name are specified
+$ rostopic pub -1 /iiwa/command/joint sensor_msgs/JointState "{name: ['iiwa_joint_1', 'iiwa_joint_2', 'iiwa_joint_3', 'iiwa_joint_4', 'iiwa_joint_5', 'iiwa_joint_6', 'iiwa_joint_7'], position: [0.0, 0.0, 0.0, -1.57, 0.0, 1.57, 0.0]}"
+
+# no need to specify message name if all joint positions are specified
+$ rostopic pub -1 /iiwa/command/joint sensor_msgs/JointState "{position: [0.0, 0.0, 0.0, -1.57, 0.0, 1.57, 0.0]}"
+
+[end-command-line-joint-1]
+
+
+[start-command-line-joint-2]
+
+# all names and positions are specified
+$ rostopic pub -1 /iiwa/command/joint sensor_msgs/JointState "{name: ['iiwa_joint_1', 'iiwa_joint_2', 'iiwa_joint_3', 'iiwa_joint_4', 'iiwa_joint_5', 'iiwa_joint_6', 'iiwa_joint_7'], position: [.nan, .nan, .nan, -1.57, .nan, 1.57, .nan]}"
+
+# all positions are specified
+$ rostopic pub -1 /iiwa/command/joint sensor_msgs/JointState "{position: [.nan, .nan, .nan, -1.57, .nan, 1.57, .nan]}"
+
+# only target joint names and positions are specified
+$ rostopic pub -1 /iiwa/command/joint sensor_msgs/JointState "{name: ['iiwa_joint_4', 'iiwa_joint_6'], position: [-1.57, 1.57]}"
+
+[end-command-line-joint-2]
+
+
+[start-python-joint-1]
+
+import rospy
+import sensor_msgs.msg
+
+# create a publisher
+pub = rospy.Publisher('/iiwa/command/joint', sensor_msgs.msg.JointState, queue_size=1)
+
+# initialize the ROS node
+rospy.init_node('test')
+
+# build a message
+msg = sensor_msgs.msg.JointState()
+msg.position = [0.0, 0.0, 0.0, -1.57, 0.0, 1.57, 0.0]
+# or
+msg = sensor_msgs.msg.JointState()
+msg.name = ['iiwa_joint_1', 'iiwa_joint_2', 'iiwa_joint_3', 'iiwa_joint_4', 'iiwa_joint_5', 'iiwa_joint_6', 'iiwa_joint_7']
+msg.position = [0.0, 0.0, 0.0, -1.57, 0.0, 1.57, 0.0]
+
+# publish the message
+pub.publish(msg)
+
+[end-python-joint-1]
+
+
+[start-python-joint-2]
+
+import math
+import rospy
+import sensor_msgs.msg
+
+# create a publisher
+pub = rospy.Publisher('/iiwa/command/joint', sensor_msgs.msg.JointState, queue_size=1)
+
+# initialize the ROS node
+rospy.init_node('test')
+
+# build a message
+# math.nan, float("nan"), np.nan and np.NaN are all equivalent
+msg = sensor_msgs.msg.JointState()
+msg.position = [math.nan, math.nan, math.nan, -1.57, math.nan, 1.57, math.nan]
+# or
+msg = sensor_msgs.msg.JointState()
+msg.name = ['iiwa_joint_4', 'iiwa_joint_6']
+msg.position = [-1.57, 1.57]
+
+# publish the message
+pub.publish(msg)
+
+[end-python-joint-2]
+
+
+[start-command-line-cartesian-1]
+
+$ rostopic pub -1 /iiwa/command/cartesian geometry_msgs/Pose "{position: {x: 0.65, y: 0.0, z: 0.2}, orientation: {x: 0.0, y: 1.0, z: 0.0, w: 0.0}}" 
+
+[end-command-line-cartesian-1]
+
+
+[start-command-line-cartesian-2]
+
+# case 1
+$ rostopic pub -1 /iiwa/command/cartesian geometry_msgs/Pose "{position: {x: 0.65, y: 0.0, z: 0.3}, orientation: {x: .nan, y: .nan, z: .nan, w: .nan}}" 
+
+# case 2
+$ rostopic pub -1 /iiwa/command/cartesian geometry_msgs/Pose "{position: {x: .nan, y: .nan, z: 0.4}, orientation: {x: .nan, y: .nan, z: .nan, w: .nan}}"
+
+# case 3
+$ rostopic pub -1 /iiwa/command/cartesian geometry_msgs/Pose "{position: {x: .nan, y: .nan, z: .nan}, orientation: {x: 0.0, y: -0.7071, z: 0.7071, w: 0.0}}"
+
+[end-command-line-cartesian-2]
+
+
+[start-python-cartesian-1]
+
+import rospy
+import geometry_msgs.msg
+
+# create a publisher
+pub = rospy.Publisher('/iiwa/command/cartesian', geometry_msgs.msg.Pose, queue_size=1)
+
+# initialize the ROS node
+rospy.init_node('test')
+
+# build a message
+msg = geometry_msgs.msg.Pose()
+msg.position.x = 0.65
+msg.position.y = 0.0
+msg.position.z = 0.2
+msg.orientation.x = 0.0
+msg.orientation.y = 1.0
+msg.orientation.z = 0.0
+msg.orientation.w = 0.0
+
+# publish the message
+pub.publish(msg)
+
+[end-python-cartesian-1]
+
+
+[start-python-cartesian-2]
+
+import math
+import rospy
+import geometry_msgs.msg
+
+# create a publisher
+pub = rospy.Publisher('/iiwa/command/cartesian', geometry_msgs.msg.Pose, queue_size=1)
+
+# initialize the ROS node
+rospy.init_node('test')
+
+# build a message 
+# math.nan, float("nan"), np.nan and np.NaN are all equivalent
+
+# case 1
+msg = geometry_msgs.msg.Pose()
+msg.position.x = 0.65
+msg.position.y = 0.0
+msg.position.z = 0.3
+msg.orientation.x = math.nan
+msg.orientation.y = math.nan
+msg.orientation.z = math.nan
+msg.orientation.w = math.nan
+
+# case 2
+msg = geometry_msgs.msg.Pose()
+msg.position.x = math.nan
+msg.position.y = math.nan
+msg.position.z = 0.4
+msg.orientation.x = math.nan
+msg.orientation.y = math.nan
+msg.orientation.z = math.nan
+msg.orientation.w = math.nan
+
+# case 3
+msg = geometry_msgs.msg.Pose()
+msg.position.x = math.nan
+msg.position.y = math.nan
+msg.position.z = math.nan
+msg.orientation.x = 0.0
+msg.orientation.y = -0.7071
+msg.orientation.z = 0.7071
+msg.orientation.w = 0.0
+
+# publish the message
+pub.publish(msg)
+
+[end-python-cartesian-2]
