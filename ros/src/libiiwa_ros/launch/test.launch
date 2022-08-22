@@ -18,6 +18,8 @@
 
         <param name="libiiwa_ip"        type="str"      value="$(arg libiiwa_ip)"/>
         <param name="libiiwa_port"      type="int"      value="$(arg libiiwa_port)"/>
+
+        <param name="verbose"                        type="bool"      value="true"/>
         <param name="run_without_communication"      type="bool"      value="true"/>
     </node>
 </launch>
