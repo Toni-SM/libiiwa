@@ -8,6 +8,7 @@ import sensor_msgs.msg
 import geometry_msgs.msg
 import control_msgs.msg
 from trajectory_msgs.msg import JointTrajectoryPoint
+from tf.transformations import euler_from_quaternion
 
 from libiiwa_msgs.srv import SetDouble, SetDoubleResponse
 from libiiwa_msgs.srv import SetString, SetStringResponse
@@ -131,6 +132,7 @@ class Iiwa:
         except Exception as e:
             rospy.logerr('Failed to command joint position to {}'.format(target_positions))
             rospy.logerr(e)
+            return
 
         if not status:
             rospy.logerr('Failed to command joint position to {}'.format(target_positions))
@@ -144,7 +146,38 @@ class Iiwa:
         :param msg: ROS message
         :type msg: geometry_msgs.msg.Pose
         """
-        print('cartesian command: {}'.format(msg))
+        position = msg.position
+        quaternion = msg.orientation
+
+        # validate message
+        parse_quaternion = True
+        if math.isnan(quaternion.x) or math.isnan(quaternion.y) or math.isnan(quaternion.z) or math.isnan(quaternion.w):
+            if not (math.isnan(quaternion.x) and math.isnan(quaternion.y) and math.isnan(quaternion.z) and math.isnan(quaternion.w)):
+                rospy.logerr('Invalid orientation: {}'.format([quaternion.x, quaternion.y, quaternion.z, quaternion.w]))
+                return
+            parse_quaternion = False
+
+        # convert message to expected format
+        position = [position.x, position.y, position.z]
+        if parse_quaternion:
+            quaternion = [quaternion.w, quaternion.x, quaternion.y, quaternion.z]
+            orientation = euler_from_quaternion(quaternion, 'sxyz')  # TODO: fix convertion
+        else:
+            orientation = [math.nan] * 3
+
+        # move the robot
+        try:
+            status = self._interface.command_cartesian_pose(position, orientation)
+        except Exception as e:
+            rospy.logerr('Failed to command cartesian pose to {}, {}'.format(position, orientation))
+            rospy.logerr(e)
+            return
+
+        if not status:
+            rospy.logerr('Failed to command cartesian pose to {}, {}'.format(position, orientation))
+            rospy.logerr(self._interface.get_last_error())
+        if self._verbose:
+            rospy.loginfo('Commanded cartesian pose to {}, {} ({})'.format(position, orientation, status))
 
     def _handler_set_desired_joint_velocity_rel(self, request):
         response = SetDoubleResponse()
