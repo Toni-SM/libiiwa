@@ -281,72 +281,154 @@ class Iiwa:
                 .format(request.data, response.success, response.message))
         return response
 
-    def _handler_set_control_interface(self, request):
+    # configuration commands (motion and control)
+
+    def _handler_set_control_interface(self, request: SetStringRequest) -> None:  # DONE
         response = SetStringResponse()
         control_interface = {"standard": libiiwa.ControlInterface.CONTROL_INTERFACE_STANDARD,
                              "servo": libiiwa.ControlInterface.CONTROL_INTERFACE_SERVO}
-        control_interface = control_interface.get(request.data, None)
+        control_interface = control_interface.get(request.data.lower(), None)
         if control_interface is None:
             response.success = False
             response.message = "Unknown control interface: {}".format(request.data)
+            rospy.logerr("Unknown control interface: {}".format(request.data))
+            if self._verbose:
+                rospy.loginfo("Service set_control_interface to {} ({}, {})" \
+                    .format(request.data, response.success, response.message))
             return response
         try:
             response.success = self._interface.set_control_interface(control_interface)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                rospy.logerr('Failed to set_control_interface to {}'.format(request.data))
+                rospy.logerr(self._interface.get_last_error())
         except Exception as e:
             response.success = False
             response.message = str(e)
+            rospy.logerr('Failed to set_control_interface to {}'.format(request.data))
+            rospy.logerr(e)
+        if self._verbose:
+            rospy.loginfo("Service set_control_interface to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
         return response
 
-    def _handler_set_motion_type(self, request):
+    def _handler_set_motion_type(self, request: SetStringRequest) -> None:  # DONE
         response = SetStringResponse()
         motion_type = {"ptp": libiiwa.MotionType.MOTION_TYPE_PTP,
                        "lin": libiiwa.MotionType.MOTION_TYPE_LIN,
                        "lin_rel": libiiwa.MotionType.MOTION_TYPE_LIN_REL,
                        "circ": libiiwa.MotionType.MOTION_TYPE_CIRC}
-        motion_type = motion_type.get(request.data, None)
+        motion_type = motion_type.get(request.data.lower(), None)
         if motion_type is None:
             response.success = False
             response.message = "Unknown motion type: {}".format(request.data)
+            rospy.logerr("Unknown motion type: {}".format(request.data))
+            if self._verbose:
+                rospy.loginfo("Service set_motion_type to {} ({}, {})" \
+                    .format(request.data, response.success, response.message))
             return response
         try:
             response.success = self._interface.set_motion_type(motion_type)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                rospy.logerr('Failed to set_motion_type to {}'.format(request.data))
+                rospy.logerr(self._interface.get_last_error())
         except Exception as e:
             response.success = False
             response.message = str(e)
+            rospy.logerr('Failed to set_motion_type to {}'.format(request.data))
+            rospy.logerr(e)
+        if self._verbose:
+            rospy.loginfo("Service set_motion_type to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
         return response
 
-    def _handler_set_control_mode(self, request):
+    def _handler_set_control_mode(self, request: SetStringRequest) -> None:  # DONE
         response = SetStringResponse()
         control_mode = {"position": libiiwa.ControlMode.CONTROL_MODE_POSITION,
                         "joint_impedance": libiiwa.ControlMode.CONTROL_MODE_JOINT_IMPEDANCE,
                         "cartesian_impedance": libiiwa.ControlMode.CONTROL_MODE_CARTESIAN_IMPEDANCE,
                         "cartesian_sine_impedance": libiiwa.ControlMode.CONTROL_MODE_CARTESIAN_SINE_IMPEDANCE}
-        control_mode = control_mode.get(request.data, None)
+        control_mode = control_mode.get(request.data.lower(), None)
         if control_mode is None:
             response.success = False
             response.message = "Unknown control mode: {}".format(request.data)
+            rospy.logerr("Unknown control mode: {}".format(request.data))
+            if self._verbose:
+                rospy.loginfo("Service set_control_mode to {} ({}, {})" \
+                    .format(request.data, response.success, response.message))
             return response
         try:
             response.success = self._interface.set_control_mode(control_mode)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                rospy.logerr('Failed to set_control_mode to {}'.format(request.data))
+                rospy.logerr(self._interface.get_last_error())
         except Exception as e:
             response.success = False
             response.message = str(e)
+            rospy.logerr('Failed to set_control_mode to {}'.format(request.data))
+            rospy.logerr(e)
+        if self._verbose:
+            rospy.loginfo("Service set_control_mode to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
+
+    def _handler_set_execution_type(self, request: SetStringRequest) -> None:  # DONE
+        response = SetStringResponse()
+        execution_type = {"asynchronous": libiiwa.ExecutionType.EXECUTION_TYPE_ASYNCHRONOUS,
+                          "synchronous": libiiwa.ExecutionType.EXECUTION_TYPE_SYNCHRONOUS}
+        execution_type = execution_type.get(request.data.lower(), None)
+        if execution_type is None:
+            response.success = False
+            response.message = "Unknown execution type: {}".format(request.data)
+            rospy.logerr("Unknown execution type: {}".format(request.data))
+            if self._verbose:
+                rospy.loginfo("Service set_execution_type to {} ({}, {})" \
+                    .format(request.data, response.success, response.message))
+            return response
+        try:
+            response.success = self._interface.set_execution_type(execution_type)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                rospy.logerr('Failed to set_execution_type to {}'.format(request.data))
+                rospy.logerr(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            rospy.logerr('Failed to set_execution_type to {}'.format(request.data))
+            rospy.logerr(e)
+        if self._verbose:
+            rospy.loginfo("Service set_execution_type to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
         return response
 
-    def _handler_set_communication_mode(self, request):
+    def _handler_set_communication_mode(self, request: SetStringRequest) -> None:  # DONE
         response = SetStringResponse()
         communication_mode = {"on-demand": libiiwa.CommunicationMode.COMMUNICATION_MODE_ON_DEMAND,
                               "periodical": libiiwa.CommunicationMode.COMMUNICATION_MODE_PERIODICAL}
-        communication_mode = communication_mode.get(request.data, None)
+        communication_mode = communication_mode.get(request.data.lower(), None)
         if communication_mode is None:
             response.success = False
             response.message = "Unknown communication mode: {}".format(request.data)
+            rospy.logerr("Unknown communication mode: {}".format(request.data))
+            if self._verbose:
+                rospy.loginfo("Service set_communication_mode to {} ({}, {})" \
+                    .format(request.data, response.success, response.message))
             return response
         try:
             response.success = self._interface.set_communication_mode(communication_mode)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                rospy.logerr('Failed to set_communication_mode to {}'.format(request.data))
+                rospy.logerr(self._interface.get_last_error())
         except Exception as e:
             response.success = False
             response.message = str(e)
+            rospy.logerr('Failed to set_communication_mode to {}'.format(request.data))
+            rospy.logerr(e)
+        if self._verbose:
+            rospy.loginfo("Service set_communication_mode to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
         return response
 
     def start(self) -> None:
@@ -425,6 +507,11 @@ class Iiwa:
         self._services.append(rospy.Service(name=name,
                                             service_class=SetString,
                                             handler=self._handler_set_control_mode))
+
+        name = self._names.get("set_execution_type", "/iiwa/set_execution_type")
+        self._services.append(rospy.Service(name=name,
+                                            service_class=SetString,
+                                            handler=self._handler_set_execution_type))
 
         name = self._names.get("set_communication_mode", "/iiwa/set_communication_mode")
         self._services.append(rospy.Service(name=name,
