@@ -14,7 +14,7 @@ Move the robot to the specified joint position
     :header-rows: 1
 
     * - Default topic name
-      - Message type
+      - Message type (msg)
       - Units
     * - :literal:`/iiwa/command/joint`
       - `sensor_msgs/JointState <http://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/JointState.html>`_
@@ -92,7 +92,7 @@ Move the robot to the specified Cartesian pose
     :header-rows: 1
 
     * - Default topic name
-      - Message type
+      - Message type (msg)
       - Units
     * - :literal:`/iiwa/command/cartesian`
       - `geometry_msgs/Pose <http://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Pose.html>`_
