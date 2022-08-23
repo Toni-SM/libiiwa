@@ -16,8 +16,8 @@ Define the axis-specific relative velocity (% of maximum velocity)
 .. list-table::
     :header-rows: 1
 
-    * - Default topic name
-      - Service type
+    * - Default service name
+      - Service type (srv)
       - Limits
       - Units
     * - :literal:`/iiwa/set_desired_joint_velocity_rel`
@@ -29,7 +29,7 @@ Example:
 
 .. tabs::
 
-    .. tab:: Command-line tool (rostopic)
+    .. tab:: Command-line tool (rosservice)
 
         .. literalinclude:: ../snippets/ros_limits.txt
             :language: bash
@@ -51,8 +51,8 @@ Define the axis-specific relative acceleration (% of maximum acceleration)
 .. list-table::
     :header-rows: 1
 
-    * - Default topic name
-      - Service type
+    * - Default service name
+      - Service type (srv)
       - Limits
       - Units
     * - :literal:`/iiwa/set_desired_joint_acceleration_rel`
@@ -64,7 +64,7 @@ Example:
 
 .. tabs::
 
-    .. tab:: Command-line tool (rostopic)
+    .. tab:: Command-line tool (rosservice)
 
         .. literalinclude:: ../snippets/ros_limits.txt
             :language: bash
@@ -86,8 +86,8 @@ Define the axis-specific relative jerk (% of maximum jerk)
 .. list-table::
     :header-rows: 1
 
-    * - Default topic name
-      - Service type
+    * - Default service name
+      - Service type (srv)
       - Limits
       - Units
     * - :literal:`/iiwa/set_desired_joint_jerk_rel`
@@ -99,7 +99,7 @@ Example:
 
 .. tabs::
 
-    .. tab:: Command-line tool (rostopic)
+    .. tab:: Command-line tool (rosservice)
 
         .. literalinclude:: ../snippets/ros_limits.txt
             :language: bash
@@ -128,8 +128,8 @@ Define the absolute Cartesian velocity
 .. list-table::
     :header-rows: 1
 
-    * - Default topic name
-      - Service type
+    * - Default service name
+      - Service type (srv)
       - Limits
       - Units
     * - :literal:`/iiwa/set_desired_cartesian_velocity`
@@ -141,7 +141,7 @@ Example:
 
 .. tabs::
 
-    .. tab:: Command-line tool (rostopic)
+    .. tab:: Command-line tool (rosservice)
 
         .. literalinclude:: ../snippets/ros_limits.txt
             :language: bash
@@ -163,8 +163,8 @@ Define the absolute Cartesian acceleration
 .. list-table::
     :header-rows: 1
 
-    * - Default topic name
-      - Service type
+    * - Default service name
+      - Service type (srv)
       - Limits
       - Units
     * - :literal:`/iiwa/set_desired_cartesian_acceleration`
@@ -176,7 +176,7 @@ Example:
 
 .. tabs::
 
-    .. tab:: Command-line tool (rostopic)
+    .. tab:: Command-line tool (rosservice)
 
         .. literalinclude:: ../snippets/ros_limits.txt
             :language: bash
@@ -198,8 +198,8 @@ Define the absolute Cartesian jerk
 .. list-table::
     :header-rows: 1
 
-    * - Default topic name
-      - Service type
+    * - Default service name
+      - Service type (srv)
       - Limits
       - Units
     * - :literal:`/iiwa/set_desired_cartesian_jerk`
@@ -211,7 +211,7 @@ Example:
 
 .. tabs::
 
-    .. tab:: Command-line tool (rostopic)
+    .. tab:: Command-line tool (rosservice)
 
         .. literalinclude:: ../snippets/ros_limits.txt
             :language: bash
