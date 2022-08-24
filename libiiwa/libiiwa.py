@@ -147,11 +147,11 @@ class LibIiwaCommunication:
         return state
 
     def set_timeout(self, timeout):
-        assert self._connection is not None  # initialized communication
+        assert self._connection is not None, "Uninitialized communication"
         self._connection.settimeout(timeout)
 
     def set_communication_mode(self, communication_mode):
-        assert communication_mode in CommunicationMode  # invalid communication type
+        assert communication_mode in CommunicationMode, "Invalid communication type"
         self._communication_mode = communication_mode
 
     def set_command(self, command=None):
@@ -159,7 +159,7 @@ class LibIiwaCommunication:
         if command is None:
             command = self._command[:]
         # validate
-        assert len(command) == self.COMMAND_LENGTH  # invalid command length
+        assert len(command) == self.COMMAND_LENGTH, "Invalid command length"
 
         # on-demand
         if self._communication_mode == CommunicationMode.COMMUNICATION_MODE_ON_DEMAND:
@@ -337,7 +337,7 @@ class LibIiwa:
             robot.command_joint_position([np.NaN, np.NaN, np.NaN, -1.57, np.NaN, np.NaN, np.NaN])
         """
         position = np.array(position, dtype=np.float32).flatten()
-        assert position.size == 7  # invalid length
+        assert position.size == 7, "Invalid position length"
         if degrees:
             position = np.radians(position)
         command = [COMMAND_JOINT_POSITION] + position.tolist() + [0] * (self._communication.COMMAND_LENGTH - 8)
@@ -376,8 +376,8 @@ class LibIiwa:
         # TODO: improve example
         position = np.array(position, dtype=np.float32).flatten()
         orientation = np.array(orientation, dtype=np.float32).flatten()
-        assert len(position) == 3  # invalid length
-        assert len(orientation) == 3  # invalid length
+        assert len(position) == 3, "Invalid position length"
+        assert len(orientation) == 3, "Invalid orientation length"
         if not millimeters:
             position *= 1000
         if degrees:
@@ -404,7 +404,7 @@ class LibIiwa:
             >>> libiiwa.set_desired_joint_velocity_rel(0.1)
             True
         """
-        assert 0 <= value <= 1  # invalid range
+        assert 0 <= value <= 1, "Invalid range [0, 1]"
         command = [COMMAND_SET_DESIRED_JOINT_VELOCITY_REL] + [value] + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
 
@@ -424,7 +424,7 @@ class LibIiwa:
             >>> libiiwa.set_desired_joint_acceleration_rel(0.1)
             True
         """
-        assert 0 <= value <= 1  # invalid range
+        assert 0 <= value <= 1, "Invalid range [0, 1]"
         command = [COMMAND_SET_DESIRED_JOINT_ACCELERATION_REL] + [value] + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
 
@@ -444,7 +444,7 @@ class LibIiwa:
             >>> libiiwa.set_desired_joint_jerk_rel(0.1)
             True
         """
-        assert 0 <= value <= 1  # invalid range
+        assert 0 <= value <= 1, "Invalid range [0, 1]"
         command = [COMMAND_SET_DESIRED_JOINT_JERK_REL] + [value] + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
 
@@ -466,7 +466,7 @@ class LibIiwa:
             >>> libiiwa.set_desired_cartesian_velocity(10)
             True
         """
-        assert value > 0  # invalid range
+        assert value > 0, "Invalid range (0, Inf)"
         command = [COMMAND_SET_DESIRED_CARTESIAN_VELOCITY] + [value * 1000.0] + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
 
@@ -488,7 +488,7 @@ class LibIiwa:
             >>> libiiwa.set_desired_cartesian_acceleration(10)
             True
         """
-        assert value > 0  # invalid range
+        assert value > 0, "Invalid range (0, Inf)"
         command = [COMMAND_SET_DESIRED_CARTESIAN_ACCELERATION] + [value * 1000.0] + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
 
@@ -510,7 +510,7 @@ class LibIiwa:
             >>> libiiwa.set_desired_cartesian_jerk(10)
             True
         """
-        assert value > 0  # invalid range
+        assert value > 0, "Invalid range (0, Inf)"
         command = [COMMAND_SET_DESIRED_CARTESIAN_JERK] + [value * 1000.0] + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
 
@@ -545,10 +545,10 @@ class LibIiwa:
         """
         threshold = np.array(threshold, dtype=np.float32).flatten()
         tolerance = np.array(tolerance, dtype=np.float32).flatten()
-        assert threshold.size == 3  # invalid length
-        assert tolerance.size == 3  # invalid length
-        assert np.all(threshold >= 0)  # invalid range
-        assert np.all(tolerance > 0)  # invalid range
+        assert threshold.size == 3, "Invalid threshold length"
+        assert tolerance.size == 3, "Invalid tolerance length"
+        assert np.all(threshold >= 0), "Invalid range [0, Inf)"
+        assert np.all(tolerance > 0), "Invalid range (0, Inf)"
         command = [COMMAND_SET_FORCE_CONDITION] + threshold.tolist() + tolerance.tolist() \
             + [0] * (self._communication.COMMAND_LENGTH - 7)
         return self._communication.set_command(command)
@@ -585,8 +585,9 @@ class LibIiwa:
         """
         lower_limits = np.array(lower_limits, dtype=np.float32).flatten()
         upper_limits = np.array(upper_limits, dtype=np.float32).flatten()
-        assert lower_limits.size == 7  # invalid length
-        assert (lower_limits <= upper_limits).all()  # invalid values (lower limits > upper limits)
+        assert lower_limits.size == 7, "Invalid lower_limits length"
+        assert upper_limits.size == 7, "Invalid upper_limits length"
+        assert (lower_limits <= upper_limits).all(), "Invalid values (lower limits > upper limits)"
         status = True
         for i in range(7):
             command = [COMMAND_SET_JOINT_TORQUE_CONDITION] + [i + 1] + [lower_limits[i]] + [upper_limits[i]] \
@@ -615,12 +616,12 @@ class LibIiwa:
         """
         translational = np.array(translational, dtype=np.float32).flatten()
         rotational = np.array(rotational, dtype=np.float32).flatten()
-        assert translational.size == 3  # invalid length
-        assert rotational.size == 3  # invalid length
-        assert np.all(translational >= 0)  # invalid range
-        assert np.all(translational <= 5000.0)  # invalid range
-        assert np.all(rotational >= 0)  # invalid range
-        assert np.all(rotational <= 300.0)  # invalid range
+        assert translational.size == 3, "Invalid translational length"
+        assert rotational.size == 3, "Invalid rotational length"
+        assert np.all(translational >= 0), "Invalid range [0.0, 5000.0]"
+        assert np.all(translational <= 5000.0), "Invalid range [0.0, 5000.0]"
+        assert np.all(rotational >= 0), "Invalid range [0.0, 300.0]"
+        assert np.all(rotational <= 300.0), "Invalid range [0.0, 300.0]"
         command = [COMMAND_SET_CARTESIAN_STIFFNESS] + translational.tolist() + rotational.tolist() \
             + [0] * (self._communication.COMMAND_LENGTH - 7)
         return self._communication.set_command(command)
@@ -644,12 +645,12 @@ class LibIiwa:
         """
         translational = np.array(translational, dtype=np.float32).flatten()
         rotational = np.array(rotational, dtype=np.float32).flatten()
-        assert translational.size == 3  # invalid length
-        assert rotational.size == 3  # invalid length
-        assert np.all(translational >= 0.1)  # invalid range
-        assert np.all(translational <= 1.0)  # invalid range
-        assert np.all(rotational >= 0.1)  # invalid range
-        assert np.all(rotational <= 1.0)  # invalid range
+        assert translational.size == 3, "Invalid translational length"
+        assert rotational.size == 3, "Invalid rotational length"
+        assert np.all(translational >= 0.1), "Invalid range [0.1, 1.0]"
+        assert np.all(translational <= 1.0), "Invalid range [0.1, 1.0]"
+        assert np.all(rotational >= 0.1), "Invalid range [0.1, 1.0]"
+        assert np.all(rotational <= 1.0), "Invalid range [0.1, 1.0]"
         command = [COMMAND_SET_CARTESIAN_DAMPING] + translational.tolist() + rotational.tolist() \
             + [0] * (self._communication.COMMAND_LENGTH - 7)
         return self._communication.set_command(command)
@@ -671,8 +672,8 @@ class LibIiwa:
         """
         translational = np.array(translational, dtype=np.float32).flatten()
         rotational = np.array(rotational, dtype=np.float32).flatten()
-        assert translational.size == 3  # invalid length
-        assert rotational.size == 3  # invalid length
+        assert translational.size == 3, "Invalid translational length"
+        assert rotational.size == 3, "Invalid rotational length"
         command = [COMMAND_SET_CARTESIAN_ADDITIONAL_CONTROL_FORCE] + translational.tolist() + rotational.tolist() \
             + [0] * (self._communication.COMMAND_LENGTH - 7)
         return self._communication.set_command(command)
@@ -690,8 +691,8 @@ class LibIiwa:
         :rtype: bool
         """
         stiffness = np.array(stiffness, dtype=np.float32).flatten()
-        assert stiffness.size == 7  # invalid length
-        assert np.all(stiffness >= 0)  # invalid range
+        assert stiffness.size == 7, "Invalid stiffness length"
+        assert np.all(stiffness >= 0), "Invalid range [0.0, Inf)"
         command = [COMMAND_SET_JOINT_STIFFNESS] + stiffness.tolist() + [0] * (self._communication.COMMAND_LENGTH - 8)
         return self._communication.set_command(command)
 
@@ -708,9 +709,9 @@ class LibIiwa:
         :rtype: bool
         """
         damping = np.array(damping, dtype=np.float32).flatten()
-        assert damping.size == 7  # invalid length
-        assert np.all(damping >= 0)  # invalid range
-        assert np.all(damping <= 1.0)  # invalid range
+        assert damping.size == 7, "Invalid damping length"
+        assert np.all(damping >= 0), "Invalid range [0.0, 1.0]"
+        assert np.all(damping <= 1.0), "Invalid range [0.0, 1.0]"
         command = [COMMAND_SET_JOINT_DAMPING] + damping.tolist() + [0] * (self._communication.COMMAND_LENGTH - 8)
         return self._communication.set_command(command)
     
@@ -732,7 +733,7 @@ class LibIiwa:
             >>> libiiwa.set_control_interface(libiiwa.ControlInterface.CONTROL_INTERFACE_SERVO)
             True
         """
-        assert control_interface in ControlInterface  # invalid control interface
+        assert control_interface in ControlInterface, "Invalid control interface"
         command = [COMMAND_SET_CONTROL_INTERFACE] + [control_interface.value] + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
 
@@ -752,7 +753,7 @@ class LibIiwa:
             >>> libiiwa.set_motion_type(libiiwa.MotionType.MOTION_TYPE_LIN)
             True
         """
-        assert motion_type in MotionType  # invalid motion type
+        assert motion_type in MotionType, "Invalid motion type"
         command = [COMMAND_SET_MOTION_TYPE] + [motion_type.value] + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
 
@@ -772,7 +773,7 @@ class LibIiwa:
             >>> libiiwa.set_control_mode(libiiwa.ControlMode.CONTROL_MODE_POSITION)
             True
         """
-        assert control_mode in ControlMode  # invalid control mode
+        assert control_mode in ControlMode, "Invalid control mode"
         command = [COMMAND_SET_CONTROL_MODE] + [control_mode.value] + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
     
@@ -792,7 +793,7 @@ class LibIiwa:
             >>> libiiwa.set_control_mode(libiiwa.ExecutionType.EXECUTION_TYPE_ASYNCHRONOUS)
             True
         """
-        assert execution_type in ExecutionType  # invalid execution type
+        assert execution_type in ExecutionType, "Invalid execution type"
         command = [COMMAND_SET_EXECUTION_TYPE] + [execution_type.value] + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
 
@@ -809,7 +810,7 @@ class LibIiwa:
         :return: True if successful, False otherwise
         :rtype: bool
         """
-        assert communication_mode in CommunicationMode  # invalid communication mode
+        assert communication_mode in CommunicationMode, "Invalid communication mode"
         command = [COMMAND_SET_COMMUNICATION_MODE] + [communication_mode.value] + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
 
