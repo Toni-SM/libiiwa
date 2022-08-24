@@ -368,6 +368,7 @@ class Iiwa:
         if self._verbose:
             self._node.get_logger().info("Service set_control_mode to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
+        return response
 
     def _handler_set_execution_type(self, request, response) -> None:  # DONE
         execution_type = {"asynchronous": libiiwa.ExecutionType.EXECUTION_TYPE_ASYNCHRONOUS,
