@@ -8,6 +8,10 @@ import sensor_msgs.msg
 import geometry_msgs.msg
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSPresetProfiles
+from rclpy.exceptions import ROSInterruptException
+
+from libiiwa_msgs.srv import SetDouble
+from libiiwa_msgs.srv import SetString
 
 try:
     import libiiwa
@@ -128,7 +132,7 @@ class Iiwa:
             status = self._interface.command_joint_position(target_positions)
         except Exception as e:
             self._node.get_logger().error('Failed to command joint position to {}'.format(target_positions))
-            self._node.get_logger().error(e)
+            self._node.get_logger().error(str(e))
             return
 
         if not status:
@@ -163,7 +167,7 @@ class Iiwa:
             status = self._interface.command_cartesian_pose(position, orientation)
         except Exception as e:
             self._node.get_logger().error('Failed to command cartesian pose to {}, {}'.format(position, orientation))
-            self._node.get_logger().error(e)
+            self._node.get_logger().error(str(e))
             return
 
         if not status:
@@ -171,6 +175,255 @@ class Iiwa:
             self._node.get_logger().error(self._interface.get_last_error())
         if self._verbose:
             self._node.get_logger().info('Commanded cartesian pose to {}, {} ({})'.format(position, orientation, status))
+
+ # configuration commands (limits)
+
+    def _handler_set_desired_joint_velocity_rel(self, request, response):  # DONE
+        try:
+            response.success = self._interface.set_desired_joint_velocity_rel(request.data)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                self._node.get_logger().error('Failed to set_desired_joint_velocity_rel to {}'.format(request.data))
+                self._node.get_logger().error(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            self._node.get_logger().error('Failed to set_desired_joint_velocity_rel to {}'.format(request.data))
+            self._node.get_logger().error(str(e))
+        if self._verbose:
+            self._node.get_logger().info("Service set_desired_joint_velocity_rel to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
+        return response
+
+    def _handler_set_desired_joint_acceleration_rel(self, request, response):  # DONE
+        try:
+            response.success = self._interface.set_desired_joint_acceleration_rel(request.data)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                self._node.get_logger().error('Failed to set_desired_joint_acceleration_rel to {}'.format(request.data))
+                self._node.get_logger().error(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            self._node.get_logger().error('Failed to set_desired_joint_acceleration_rel to {}'.format(request.data))
+            self._node.get_logger().error(str(e))
+        if self._verbose:
+            self._node.get_logger().info("Service set_desired_joint_acceleration_rel to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
+        return response
+
+    def _handler_set_desired_joint_jerk_rel(self, request, response):  # DONE
+        try:
+            response.success = self._interface.set_desired_joint_jerk_rel(request.data)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                self._node.get_logger().error('Failed to set_desired_joint_jerk_rel to {}'.format(request.data))
+                self._node.get_logger().error(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            self._node.get_logger().error('Failed to set_desired_joint_jerk_rel to {}'.format(request.data))
+            self._node.get_logger().error(str(e))
+        if self._verbose:
+            self._node.get_logger().info("Service set_desired_joint_jerk_rel to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
+        return response
+
+    def _handler_set_desired_cartesian_velocity(self, request, response):  # DONE
+        try:
+            response.success = self._interface.set_desired_cartesian_velocity(request.data)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                self._node.get_logger().error('Failed to set_desired_cartesian_velocity to {}'.format(request.data))
+                self._node.get_logger().error(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            self._node.get_logger().error('Failed to set_desired_cartesian_velocity to {}'.format(request.data))
+            self._node.get_logger().error(str(e))
+        if self._verbose:
+            self._node.get_logger().info("Service set_desired_cartesian_velocity to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
+        return response
+
+    def _handler_set_desired_cartesian_acceleration(self, request, response):  # DONE
+        try:
+            response.success = self._interface.set_desired_cartesian_acceleration(request.data)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                self._node.get_logger().error('Failed to set_desired_cartesian_acceleration to {}'.format(request.data))
+                self._node.get_logger().error(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            self._node.get_logger().error('Failed to set_desired_cartesian_acceleration to {}'.format(request.data))
+            self._node.get_logger().error(str(e))
+        if self._verbose:
+            self._node.get_logger().info("Service set_desired_cartesian_acceleration to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
+        return response
+
+    def _handler_set_desired_cartesian_jerk(self, request, response):  # DONE
+        try:
+            response.success = self._interface.set_desired_cartesian_jerk(request.data)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                self._node.get_logger().error('Failed to set_desired_cartesian_jerk to {}'.format(request.data))
+                self._node.get_logger().error(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            self._node.get_logger().error('Failed to set_desired_cartesian_jerk to {}'.format(request.data))
+            self._node.get_logger().error(str(e))
+        if self._verbose:
+            self._node.get_logger().info("Service set_desired_cartesian_jerk to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
+        return response
+
+    # configuration commands (motion and control)
+
+    def _handler_set_control_interface(self, request, response) -> None:  # DONE
+        control_interface = {"standard": libiiwa.ControlInterface.CONTROL_INTERFACE_STANDARD,
+                             "servo": libiiwa.ControlInterface.CONTROL_INTERFACE_SERVO}
+        control_interface = control_interface.get(request.data.lower(), None)
+        if control_interface is None:
+            response.success = False
+            response.message = "Unknown control interface: {}".format(request.data)
+            self._node.get_logger().error("Unknown control interface: {}".format(request.data))
+            if self._verbose:
+                self._node.get_logger().info("Service set_control_interface to {} ({}, {})" \
+                    .format(request.data, response.success, response.message))
+            return response
+        try:
+            response.success = self._interface.set_control_interface(control_interface)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                self._node.get_logger().error('Failed to set_control_interface to {}'.format(request.data))
+                self._node.get_logger().error(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            self._node.get_logger().error('Failed to set_control_interface to {}'.format(request.data))
+            self._node.get_logger().error(str(e))
+        if self._verbose:
+            self._node.get_logger().info("Service set_control_interface to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
+        return response
+
+    def _handler_set_motion_type(self, request, response) -> None:  # DONE
+        motion_type = {"ptp": libiiwa.MotionType.MOTION_TYPE_PTP,
+                       "lin": libiiwa.MotionType.MOTION_TYPE_LIN,
+                       "lin_rel": libiiwa.MotionType.MOTION_TYPE_LIN_REL,
+                       "circ": libiiwa.MotionType.MOTION_TYPE_CIRC}
+        motion_type = motion_type.get(request.data.lower(), None)
+        if motion_type is None:
+            response.success = False
+            response.message = "Unknown motion type: {}".format(request.data)
+            self._node.get_logger().error("Unknown motion type: {}".format(request.data))
+            if self._verbose:
+                self._node.get_logger().info("Service set_motion_type to {} ({}, {})" \
+                    .format(request.data, response.success, response.message))
+            return response
+        try:
+            response.success = self._interface.set_motion_type(motion_type)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                self._node.get_logger().error('Failed to set_motion_type to {}'.format(request.data))
+                self._node.get_logger().error(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            self._node.get_logger().error('Failed to set_motion_type to {}'.format(request.data))
+            self._node.get_logger().error(str(e))
+        if self._verbose:
+            self._node.get_logger().info("Service set_motion_type to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
+        return response
+
+    def _handler_set_control_mode(self, request, response) -> None:  # DONE
+        control_mode = {"position": libiiwa.ControlMode.CONTROL_MODE_POSITION,
+                        "joint_impedance": libiiwa.ControlMode.CONTROL_MODE_JOINT_IMPEDANCE,
+                        "cartesian_impedance": libiiwa.ControlMode.CONTROL_MODE_CARTESIAN_IMPEDANCE,
+                        "cartesian_sine_impedance": libiiwa.ControlMode.CONTROL_MODE_CARTESIAN_SINE_IMPEDANCE}
+        control_mode = control_mode.get(request.data.lower(), None)
+        if control_mode is None:
+            response.success = False
+            response.message = "Unknown control mode: {}".format(request.data)
+            self._node.get_logger().error("Unknown control mode: {}".format(request.data))
+            if self._verbose:
+                self._node.get_logger().info("Service set_control_mode to {} ({}, {})" \
+                    .format(request.data, response.success, response.message))
+            return response
+        try:
+            response.success = self._interface.set_control_mode(control_mode)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                self._node.get_logger().error('Failed to set_control_mode to {}'.format(request.data))
+                self._node.get_logger().error(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            self._node.get_logger().error('Failed to set_control_mode to {}'.format(request.data))
+            self._node.get_logger().error(str(e))
+        if self._verbose:
+            self._node.get_logger().info("Service set_control_mode to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
+
+    def _handler_set_execution_type(self, request, response) -> None:  # DONE
+        execution_type = {"asynchronous": libiiwa.ExecutionType.EXECUTION_TYPE_ASYNCHRONOUS,
+                          "synchronous": libiiwa.ExecutionType.EXECUTION_TYPE_SYNCHRONOUS}
+        execution_type = execution_type.get(request.data.lower(), None)
+        if execution_type is None:
+            response.success = False
+            response.message = "Unknown execution type: {}".format(request.data)
+            self._node.get_logger().error("Unknown execution type: {}".format(request.data))
+            if self._verbose:
+                self._node.get_logger().info("Service set_execution_type to {} ({}, {})" \
+                    .format(request.data, response.success, response.message))
+            return response
+        try:
+            response.success = self._interface.set_execution_type(execution_type)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                self._node.get_logger().error('Failed to set_execution_type to {}'.format(request.data))
+                self._node.get_logger().error(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            self._node.get_logger().error('Failed to set_execution_type to {}'.format(request.data))
+            self._node.get_logger().error(str(e))
+        if self._verbose:
+            self._node.get_logger().info("Service set_execution_type to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
+        return response
+
+    def _handler_set_communication_mode(self, request, response) -> None:  # DONE
+        communication_mode = {"on-demand": libiiwa.CommunicationMode.COMMUNICATION_MODE_ON_DEMAND,
+                              "periodical": libiiwa.CommunicationMode.COMMUNICATION_MODE_PERIODICAL}
+        communication_mode = communication_mode.get(request.data.lower(), None)
+        if communication_mode is None:
+            response.success = False
+            response.message = "Unknown communication mode: {}".format(request.data)
+            self._node.get_logger().error("Unknown communication mode: {}".format(request.data))
+            if self._verbose:
+                self._node.get_logger().info("Service set_communication_mode to {} ({}, {})" \
+                    .format(request.data, response.success, response.message))
+            return response
+        try:
+            response.success = self._interface.set_communication_mode(communication_mode)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                self._node.get_logger().error('Failed to set_communication_mode to {}'.format(request.data))
+                self._node.get_logger().error(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            self._node.get_logger().error('Failed to set_communication_mode to {}'.format(request.data))
+            self._node.get_logger().error(str(e))
+        if self._verbose:
+            self._node.get_logger().info("Service set_communication_mode to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
+        return response
 
     def start(self) -> None:
         """Start the publisher
@@ -206,61 +459,61 @@ class Iiwa:
                              self._sub_cartesian_command]
 
 
-        # # create services
-        # name = self._names.get("set_desired_joint_velocity_rel", "/iiwa/set_desired_joint_velocity_rel")
-        # self._services.append(rospy.Service(name=name,
-        #                                     service_class=SetDouble,
-        #                                     handler=self._handler_set_desired_joint_velocity_rel))
+        # create services
+        name = self._names.get("set_desired_joint_velocity_rel", "/iiwa/set_desired_joint_velocity_rel")
+        self._services.append(self._node.create_service(srv_type=SetDouble,
+                                                        srv_name=name,
+                                                        callback=self._handler_set_desired_joint_velocity_rel))
 
-        # name = self._names.get("set_desired_joint_acceleration_rel", "/iiwa/set_desired_joint_acceleration_rel")
-        # self._services.append(rospy.Service(name=name,
-        #                                     service_class=SetDouble,
-        #                                     handler=self._handler_set_desired_joint_acceleration_rel))
+        name = self._names.get("set_desired_joint_acceleration_rel", "/iiwa/set_desired_joint_acceleration_rel")
+        self._services.append(self._node.create_service(srv_type=SetDouble,
+                                                        srv_name=name,
+                                                        callback=self._handler_set_desired_joint_acceleration_rel))
 
-        # name = self._names.get("set_desired_joint_jerk_rel", "/iiwa/set_desired_joint_jerk_rel")
-        # self._services.append(rospy.Service(name=name,
-        #                                     service_class=SetDouble,
-        #                                     handler=self._handler_set_desired_joint_jerk_rel))
+        name = self._names.get("set_desired_joint_jerk_rel", "/iiwa/set_desired_joint_jerk_rel")
+        self._services.append(self._node.create_service(srv_type=SetDouble,
+                                                        srv_name=name,
+                                                        callback=self._handler_set_desired_joint_jerk_rel))
 
-        # name = self._names.get("set_desired_cartesian_velocity", "/iiwa/set_desired_cartesian_velocity")
-        # self._services.append(rospy.Service(name=name,
-        #                                     service_class=SetDouble,
-        #                                     handler=self._handler_set_desired_cartesian_velocity))
+        name = self._names.get("set_desired_cartesian_velocity", "/iiwa/set_desired_cartesian_velocity")
+        self._services.append(self._node.create_service(srv_type=SetDouble,
+                                                        srv_name=name,
+                                                        callback=self._handler_set_desired_cartesian_velocity))
 
-        # name = self._names.get("set_desired_cartesian_acceleration", "/iiwa/set_desired_cartesian_acceleration")
-        # self._services.append(rospy.Service(name=name,
-        #                                     service_class=SetDouble,
-        #                                     handler=self._handler_set_desired_cartesian_acceleration))
+        name = self._names.get("set_desired_cartesian_acceleration", "/iiwa/set_desired_cartesian_acceleration")
+        self._services.append(self._node.create_service(srv_type=SetDouble,
+                                                        srv_name=name,
+                                                        callback=self._handler_set_desired_cartesian_acceleration))
 
-        # name = self._names.get("set_desired_cartesian_jerk", "/iiwa/set_desired_cartesian_jerk")
-        # self._services.append(rospy.Service(name=name,
-        #                                     service_class=SetDouble,
-        #                                     handler=self._handler_set_desired_cartesian_jerk))
+        name = self._names.get("set_desired_cartesian_jerk", "/iiwa/set_desired_cartesian_jerk")
+        self._services.append(self._node.create_service(srv_type=SetDouble,
+                                                        srv_name=name,
+                                                        callback=self._handler_set_desired_cartesian_jerk))
 
-        # name = self._names.get("set_control_interface", "/iiwa/set_control_interface")
-        # self._services.append(rospy.Service(name=name,
-        #                                     service_class=SetString,
-        #                                     handler=self._handler_set_control_interface))
+        name = self._names.get("set_control_interface", "/iiwa/set_control_interface")
+        self._services.append(self._node.create_service(srv_type=SetString,
+                                                        srv_name=name,
+                                                        callback=self._handler_set_control_interface))
 
-        # name = self._names.get("set_motion_type", "/iiwa/set_motion_type")
-        # self._services.append(rospy.Service(name=name,
-        #                                     service_class=SetString,
-        #                                     handler=self._handler_set_motion_type))
+        name = self._names.get("set_motion_type", "/iiwa/set_motion_type")
+        self._services.append(self._node.create_service(srv_type=SetString,
+                                                        srv_name=name,
+                                                        callback=self._handler_set_motion_type))
 
-        # name = self._names.get("set_control_mode", "/iiwa/set_control_mode")
-        # self._services.append(rospy.Service(name=name,
-        #                                     service_class=SetString,
-        #                                     handler=self._handler_set_control_mode))
+        name = self._names.get("set_control_mode", "/iiwa/set_control_mode")
+        self._services.append(self._node.create_service(srv_type=SetString,
+                                                        srv_name=name,
+                                                        callback=self._handler_set_control_mode))
 
-        # name = self._names.get("set_execution_type", "/iiwa/set_execution_type")
-        # self._services.append(rospy.Service(name=name,
-        #                                     service_class=SetString,
-        #                                     handler=self._handler_set_execution_type))
+        name = self._names.get("set_execution_type", "/iiwa/set_execution_type")
+        self._services.append(self._node.create_service(srv_type=SetString,
+                                                        srv_name=name,
+                                                        callback=self._handler_set_execution_type))
 
-        # name = self._names.get("set_communication_mode", "/iiwa/set_communication_mode")
-        # self._services.append(rospy.Service(name=name,
-        #                                     service_class=SetString,
-        #                                     handler=self._handler_set_communication_mode))
+        name = self._names.get("set_communication_mode", "/iiwa/set_communication_mode")
+        self._services.append(self._node.create_service(srv_type=SetString,
+                                                        srv_name=name,
+                                                        callback=self._handler_set_communication_mode))
 
     def stop(self) -> None:
         """Stop the publisher
@@ -369,7 +622,10 @@ def main():
             robot.get_state(refresh=True)
             for controller in controllers:
                 controller.step(0)
-            rate.sleep()
+            try:
+                rate.sleep()
+            except ROSInterruptException:
+                break
 
         for controller in controllers:
             controller.stop()
@@ -377,4 +633,14 @@ def main():
     # start control loop
     threading.Thread(target=control_loop, args=(node,)).start()
     
-    rclpy.spin(node)
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+
+    # stop controllers
+    for controller in controllers:
+        controller.stop()
+
+    node.destroy_node()
+    rclpy.shutdown()
