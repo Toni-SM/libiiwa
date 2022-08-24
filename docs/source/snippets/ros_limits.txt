@@ -1,12 +1,12 @@
 
-:start-after: [start-command-line-desired_joint_velocity_rel-1]
+[start-command-line-desired_joint_velocity_rel-1]
 
 $ rosservice call /iiwa/set_desired_joint_velocity_rel "{data: 0.5}"
 
-:end-before: [end-command-line-desired_joint_velocity_rel-1]
+[end-command-line-desired_joint_velocity_rel-1]
 
 
-:start-after: [start-python-desired_joint_velocity_rel-1]
+[start-python-desired_joint_velocity_rel-1]
 
 import rospy
 import libiiwa_msgs.srv
@@ -23,17 +23,17 @@ response = proxy(0.5)
 print("success:", response.success)
 print("message:", response.message)
 
-:end-before: [end-python-desired_joint_velocity_rel-1]
+[end-python-desired_joint_velocity_rel-1]
 
 
-:start-after: [start-command-line-desired_joint_acceleration_rel-1]
+[start-command-line-desired_joint_acceleration_rel-1]
 
 $ rosservice call /iiwa/set_desired_joint_acceleration_rel "{data: 0.5}"
 
-:end-before: [end-command-line-desired_joint_acceleration_rel-1]
+[end-command-line-desired_joint_acceleration_rel-1]
 
 
-:start-after: [start-python-desired_joint_acceleration_rel-1]
+[start-python-desired_joint_acceleration_rel-1]
 
 import rospy
 import libiiwa_msgs.srv
@@ -50,17 +50,17 @@ response = proxy(0.5)
 print("success:", response.success)
 print("message:", response.message)
 
-:end-before: [end-python-desired_joint_acceleration_rel-1]
+[end-python-desired_joint_acceleration_rel-1]
 
 
-:start-after: [start-command-line-desired_joint_jerk_rel-1]
+[start-command-line-desired_joint_jerk_rel-1]
 
 $ rosservice call /iiwa/set_desired_joint_jerk_rel "{data: 0.5}"
 
-:end-before: [end-command-line-desired_joint_jerk_rel-1]
+[end-command-line-desired_joint_jerk_rel-1]
 
 
-:start-after: [start-python-desired_joint_jerk_rel-1]
+[start-python-desired_joint_jerk_rel-1]
 
 import rospy
 import libiiwa_msgs.srv
@@ -77,17 +77,17 @@ response = proxy(0.5)
 print("success:", response.success)
 print("message:", response.message)
 
-:end-before: [end-python-desired_joint_jerk_rel-1]
+[end-python-desired_joint_jerk_rel-1]
 
 
-:start-after: [start-command-line-desired_cartesian_velocity-1]
+[start-command-line-desired_cartesian_velocity-1]
 
 $ rosservice call /iiwa/set_desired_cartesian_velocity "{data: 0.25}"
 
-:end-before: [end-command-line-desired_cartesian_velocity-1]
+[end-command-line-desired_cartesian_velocity-1]
 
 
-:start-after: [start-python-desired_cartesian_velocity-1]
+[start-python-desired_cartesian_velocity-1]
 
 import rospy
 import libiiwa_msgs.srv
@@ -104,17 +104,17 @@ response = proxy(0.25)
 print("success:", response.success)
 print("message:", response.message)
 
-:end-before: [end-python-desired_cartesian_velocity-1]
+[end-python-desired_cartesian_velocity-1]
 
 
-:start-after: [start-command-line-desired_cartesian_acceleration-1]
+[start-command-line-desired_cartesian_acceleration-1]
 
 $ rosservice call /iiwa/set_desired_cartesian_acceleration "{data: 0.25}"
 
-:end-before: [end-command-line-desired_cartesian_acceleration-1]
+[end-command-line-desired_cartesian_acceleration-1]
 
 
-:start-after: [start-python-desired_cartesian_acceleration-1]
+[start-python-desired_cartesian_acceleration-1]
 
 import rospy
 import libiiwa_msgs.srv
@@ -131,17 +131,17 @@ response = proxy(0.25)
 print("success:", response.success)
 print("message:", response.message)
 
-:end-before: [end-python-desired_cartesian_acceleration-1]
+[end-python-desired_cartesian_acceleration-1]
 
 
-:start-after: [start-command-line-desired_cartesian_jerk-1]
+[start-command-line-desired_cartesian_jerk-1]
 
 $ rosservice call /iiwa/set_desired_cartesian_jerk "{data: 0.25}"
 
-:end-before: [end-command-line-desired_cartesian_jerk-1]
+[end-command-line-desired_cartesian_jerk-1]
 
 
-:start-after: [start-python-desired_cartesian_jerk-1]
+[start-python-desired_cartesian_jerk-1]
 
 import rospy
 import libiiwa_msgs.srv
@@ -158,4 +158,4 @@ response = proxy(0.25)
 print("success:", response.success)
 print("message:", response.message)
 
-:end-before: [end-python-desired_cartesian_jerk-1]
+[end-python-desired_cartesian_jerk-1]
