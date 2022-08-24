@@ -1,0 +1,115 @@
+
+[start-command-line-set_control_mode-1]
+
+$ rosservice call /iiwa/set_control_mode "{data: 'POSITION'}"
+# or
+$ rosservice call /iiwa/set_control_mode "{data: 'position'}"
+
+[end-command-line-set_control_mode-1]
+
+
+[start-python-set_control_mode-1]
+
+import rospy
+import libiiwa_msgs.srv
+
+# wait for service
+rospy.wait_for_service('/iiwa/set_control_mode')
+
+# create a handle for calling the service
+proxy = rospy.ServiceProxy('/iiwa/set_control_mode', libiiwa_msgs.srv.SetString)
+
+# call service
+response = proxy("POSITION")  # or "position"
+
+print("success:", response.success)
+print("message:", response.message)
+
+[end-python-set_control_mode-1]
+
+
+[start-command-line-set_motion_type-1]
+
+$ rosservice call /iiwa/set_motion_type "{data: 'LIN'}"
+# or
+$ rosservice call /iiwa/set_motion_type "{data: 'lin'}"
+
+[end-command-line-set_motion_type-1]
+
+
+[start-python-set_motion_type-1]
+
+import rospy
+import libiiwa_msgs.srv
+
+# wait for service
+rospy.wait_for_service('/iiwa/set_motion_type')
+
+# create a handle for calling the service
+proxy = rospy.ServiceProxy('/iiwa/set_motion_type', libiiwa_msgs.srv.SetString)
+
+# call service
+response = proxy("LIN")  # or "lin"
+
+print("success:", response.success)
+print("message:", response.message)
+
+[end-python-set_motion_type-1]
+
+
+[start-command-line-set_control_interface-1]
+
+$ rosservice call /iiwa/set_control_interface "{data: 'STANDARD'}"
+# or
+$ rosservice call /iiwa/set_control_interface "{data: 'standard'}"
+
+[end-command-line-set_control_interface-1]
+
+
+[start-python-set_control_interface-1]
+
+import rospy
+import libiiwa_msgs.srv
+
+# wait for service
+rospy.wait_for_service('/iiwa/set_control_interface')
+
+# create a handle for calling the service
+proxy = rospy.ServiceProxy('/iiwa/set_control_interface', libiiwa_msgs.srv.SetString)
+
+# call service
+response = proxy("STANDARD")  # or "standard"
+
+print("success:", response.success)
+print("message:", response.message)
+
+[end-python-set_control_interface-1]
+
+
+[start-command-line-set_execution_type-1]
+
+$ rosservice call /iiwa/set_execution_type "{data: 'ASYNCHRONOUS'}"
+# or
+$ rosservice call /iiwa/set_execution_type "{data: 'asynchronous'}"
+
+[end-command-line-set_execution_type-1]
+
+
+[start-python-set_execution_type-1]
+
+import rospy
+import libiiwa_msgs.srv
+
+# wait for service
+rospy.wait_for_service('/iiwa/set_execution_type')
+
+# create a handle for calling the service
+proxy = rospy.ServiceProxy('/iiwa/set_execution_type', libiiwa_msgs.srv.SetString)
+
+# call service
+response = proxy("ASYNCHRONOUS")  # or "asynchronous"
+
+print("success:", response.success)
+print("message:", response.message)
+
+[end-python-set_execution_type-1]
