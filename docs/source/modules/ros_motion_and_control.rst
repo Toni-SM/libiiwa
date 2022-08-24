@@ -24,14 +24,14 @@ Example:
 
 .. tabs::
 
-    .. tab:: Command-line tool (rosservice)
+    .. group-tab:: Command-line tool (rosservice)
 
         .. literalinclude:: ../snippets/ros_motion_and_control.txt
             :language: bash
             :start-after: [start-command-line-set_control_mode-1]
             :end-before: [end-command-line-set_control_mode-1]
 
-    .. tab:: Python
+    .. group-tab:: Python
 
         .. literalinclude:: ../snippets/ros_motion_and_control.txt
             :language: bash
@@ -61,14 +61,14 @@ Example:
 
 .. tabs::
 
-    .. tab:: Command-line tool (rosservice)
+    .. group-tab:: Command-line tool (rosservice)
 
         .. literalinclude:: ../snippets/ros_motion_and_control.txt
             :language: bash
             :start-after: [start-command-line-set_motion_type-1]
             :end-before: [end-command-line-set_motion_type-1]
 
-    .. tab:: Python
+    .. group-tab:: Python
 
         .. literalinclude:: ../snippets/ros_motion_and_control.txt
             :language: bash
@@ -98,14 +98,14 @@ Example:
 
 .. tabs::
 
-    .. tab:: Command-line tool (rosservice)
+    .. group-tab:: Command-line tool (rosservice)
 
         .. literalinclude:: ../snippets/ros_motion_and_control.txt
             :language: bash
             :start-after: [start-command-line-set_control_interface-1]
             :end-before: [end-command-line-set_control_interface-1]
 
-    .. tab:: Python
+    .. group-tab:: Python
 
         .. literalinclude:: ../snippets/ros_motion_and_control.txt
             :language: bash
@@ -135,14 +135,14 @@ Example:
 
 .. tabs::
 
-    .. tab:: Command-line tool (rosservice)
+    .. group-tab:: Command-line tool (rosservice)
 
         .. literalinclude:: ../snippets/ros_motion_and_control.txt
             :language: bash
             :start-after: [start-command-line-set_execution_type-1]
             :end-before: [end-command-line-set_execution_type-1]
 
-    .. tab:: Python
+    .. group-tab:: Python
 
         .. literalinclude:: ../snippets/ros_motion_and_control.txt
             :language: bash

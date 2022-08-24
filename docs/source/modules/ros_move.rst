@@ -42,14 +42,14 @@ Move all joints to their respective goal positions
 
 .. tabs::
 
-    .. tab:: Command-line tool (rostopic)
+    .. group-tab:: Command-line tool (rostopic)
 
         .. literalinclude:: ../snippets/ros_move.txt
             :language: bash
             :start-after: [start-command-line-joint-1]
             :end-before: [end-command-line-joint-1]
 
-    .. tab:: Python
+    .. group-tab:: Python
 
         .. literalinclude:: ../snippets/ros_move.txt
             :language: bash
@@ -65,14 +65,14 @@ Move only the specified joints to their respective goal positions
 
 .. tabs::
 
-    .. tab:: Command-line tool (rostopic)
+    .. group-tab:: Command-line tool (rostopic)
 
         .. literalinclude:: ../snippets/ros_move.txt
             :language: bash
             :start-after: [start-command-line-joint-2]
             :end-before: [end-command-line-joint-2]
 
-    .. tab:: Python
+    .. group-tab:: Python
 
         .. literalinclude:: ../snippets/ros_move.txt
             :language: bash
@@ -114,14 +114,14 @@ Move to the specified Cartesian pose (position and orientation)
 
 .. tabs::
 
-    .. tab:: Command-line tool (rostopic)
+    .. group-tab:: Command-line tool (rostopic)
 
         .. literalinclude:: ../snippets/ros_move.txt
             :language: bash
             :start-after: [start-command-line-cartesian-1]
             :end-before: [end-command-line-cartesian-1]
 
-    .. tab:: Python
+    .. group-tab:: Python
 
         .. literalinclude:: ../snippets/ros_move.txt
             :language: bash
@@ -143,14 +143,14 @@ Move to the specified Cartesian position or orientation
 
 .. tabs::
 
-    .. tab:: Command-line tool (rostopic)
+    .. group-tab:: Command-line tool (rostopic)
 
         .. literalinclude:: ../snippets/ros_move.txt
             :language: bash
             :start-after: [start-command-line-cartesian-2]
             :end-before: [end-command-line-cartesian-2]
 
-    .. tab:: Python
+    .. group-tab:: Python
 
         .. literalinclude:: ../snippets/ros_move.txt
             :language: bash

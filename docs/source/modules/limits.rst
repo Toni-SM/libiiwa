@@ -6,7 +6,7 @@ Velocities, accelerations and jerk limits
     <hr>
 
 Joint space
-^^^^^^^^^^^
+-----------
 
 .. automethod:: libiiwa.LibIiwa.set_desired_joint_velocity_rel
 
@@ -19,7 +19,7 @@ Joint space
     <hr>
 
 Cartesian space
-^^^^^^^^^^^^^^^
+---------------
 
 .. automethod:: libiiwa.LibIiwa.set_desired_cartesian_velocity
 

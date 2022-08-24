@@ -29,14 +29,14 @@ Example:
 
 .. tabs::
 
-    .. tab:: Command-line tool (rosservice)
+    .. group-tab:: Command-line tool (rosservice)
 
         .. literalinclude:: ../snippets/ros_limits.txt
             :language: bash
             :start-after: [start-command-line-desired_joint_velocity_rel-1]
             :end-before: [end-command-line-desired_joint_velocity_rel-1]
 
-    .. tab:: Python
+    .. group-tab:: Python
 
         .. literalinclude:: ../snippets/ros_limits.txt
             :language: bash
@@ -64,14 +64,14 @@ Example:
 
 .. tabs::
 
-    .. tab:: Command-line tool (rosservice)
+    .. group-tab:: Command-line tool (rosservice)
 
         .. literalinclude:: ../snippets/ros_limits.txt
             :language: bash
             :start-after: [start-command-line-desired_joint_acceleration_rel-1]
             :end-before: [end-command-line-desired_joint_acceleration_rel-1]
 
-    .. tab:: Python
+    .. group-tab:: Python
 
         .. literalinclude:: ../snippets/ros_limits.txt
             :language: bash
@@ -99,14 +99,14 @@ Example:
 
 .. tabs::
 
-    .. tab:: Command-line tool (rosservice)
+    .. group-tab:: Command-line tool (rosservice)
 
         .. literalinclude:: ../snippets/ros_limits.txt
             :language: bash
             :start-after: [start-command-line-desired_joint_jerk_rel-1]
             :end-before: [end-command-line-desired_joint_jerk_rel-1]
 
-    .. tab:: Python
+    .. group-tab:: Python
 
         .. literalinclude:: ../snippets/ros_limits.txt
             :language: bash
@@ -141,14 +141,14 @@ Example:
 
 .. tabs::
 
-    .. tab:: Command-line tool (rosservice)
+    .. group-tab:: Command-line tool (rosservice)
 
         .. literalinclude:: ../snippets/ros_limits.txt
             :language: bash
             :start-after: [start-command-line-desired_cartesian_velocity-1]
             :end-before: [end-command-line-desired_cartesian_velocity-1]
 
-    .. tab:: Python
+    .. group-tab:: Python
 
         .. literalinclude:: ../snippets/ros_limits.txt
             :language: bash
@@ -176,14 +176,14 @@ Example:
 
 .. tabs::
 
-    .. tab:: Command-line tool (rosservice)
+    .. group-tab:: Command-line tool (rosservice)
 
         .. literalinclude:: ../snippets/ros_limits.txt
             :language: bash
             :start-after: [start-command-line-desired_cartesian_acceleration-1]
             :end-before: [end-command-line-desired_cartesian_acceleration-1]
 
-    .. tab:: Python
+    .. group-tab:: Python
 
         .. literalinclude:: ../snippets/ros_limits.txt
             :language: bash
@@ -211,14 +211,14 @@ Example:
 
 .. tabs::
 
-    .. tab:: Command-line tool (rosservice)
+    .. group-tab:: Command-line tool (rosservice)
 
         .. literalinclude:: ../snippets/ros_limits.txt
             :language: bash
             :start-after: [start-command-line-desired_cartesian_jerk-1]
             :end-before: [end-command-line-desired_cartesian_jerk-1]
 
-    .. tab:: Python
+    .. group-tab:: Python
 
         .. literalinclude:: ../snippets/ros_limits.txt
             :language: bash

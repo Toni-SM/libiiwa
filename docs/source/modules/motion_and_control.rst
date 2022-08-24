@@ -6,7 +6,7 @@ Motion and control
     <hr>
 
 Control mode
-^^^^^^^^^^^^
+------------
 .. KUKA_SunriseOS_111: 17.2 Available controllers – overview
 
 The KUKA LBR iiwa can be operated with a number of different controllers
@@ -37,7 +37,7 @@ The KUKA LBR iiwa can be operated with a number of different controllers
     <hr>
 
 Motion type
-^^^^^^^^^^^
+-----------
 .. KUKA_SunriseOS_111: 15.6 Motion programming: PTP, LIN, CIRC
 
 The KUKA LBR iiwa can programmed to perform different types of motion
@@ -68,7 +68,7 @@ The KUKA LBR iiwa can programmed to perform different types of motion
     <hr>
 
 Control interface
-^^^^^^^^^^^^^^^^^
+-----------------
 .. KUKA_SunriseOS_111
 .. KUKA_SunriseServoing_116
 
@@ -98,7 +98,7 @@ The KUKA LBR iiwa can be operated with a number of different motion classes
     <hr>
 
 Execution type
-^^^^^^^^^^^^^^
+--------------
 .. KUKA_SunriseOS_111: 15.6.1 Synchronous and asynchronous motion execution
 
 Motion commands can be executed synchronously or asynchronously
