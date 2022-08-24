@@ -1,0 +1,161 @@
+
+:start-after: [start-command-line-desired_joint_velocity_rel-1]
+
+$ ros2 service call /iiwa/set_desired_joint_velocity_rel libiiwa_msgs/srv/SetDouble "{data: 0.5}"
+
+:end-before: [end-command-line-desired_joint_velocity_rel-1]
+
+
+:start-after: [start-python-desired_joint_velocity_rel-1]
+
+import rospy
+import libiiwa_msgs.srv
+
+# wait for service
+rospy.wait_for_service('/iiwa/set_desired_joint_velocity_rel')
+
+# create a handle for calling the service
+proxy = rospy.ServiceProxy('/iiwa/set_desired_joint_velocity_rel', libiiwa_msgs.srv.SetDouble)
+
+# call service
+response = proxy(0.5)
+
+print("success:", response.success)
+print("message:", response.message)
+
+:end-before: [end-python-desired_joint_velocity_rel-1]
+
+
+:start-after: [start-command-line-desired_joint_acceleration_rel-1]
+
+$ ros2 service call /iiwa/set_desired_joint_acceleration_rel libiiwa_msgs/srv/SetDouble "{data: 0.5}"
+
+:end-before: [end-command-line-desired_joint_acceleration_rel-1]
+
+
+:start-after: [start-python-desired_joint_acceleration_rel-1]
+
+import rospy
+import libiiwa_msgs.srv
+
+# wait for service
+rospy.wait_for_service('/iiwa/set_desired_joint_acceleration_rel')
+
+# create a handle for calling the service
+proxy = rospy.ServiceProxy('/iiwa/set_desired_joint_acceleration_rel', libiiwa_msgs.srv.SetDouble)
+
+# call service
+response = proxy(0.5)
+
+print("success:", response.success)
+print("message:", response.message)
+
+:end-before: [end-python-desired_joint_acceleration_rel-1]
+
+
+:start-after: [start-command-line-desired_joint_jerk_rel-1]
+
+$ ros2 service call /iiwa/set_desired_joint_jerk_rel libiiwa_msgs/srv/SetDouble "{data: 0.5}"
+
+:end-before: [end-command-line-desired_joint_jerk_rel-1]
+
+
+:start-after: [start-python-desired_joint_jerk_rel-1]
+
+import rospy
+import libiiwa_msgs.srv
+
+# wait for service
+rospy.wait_for_service('/iiwa/set_desired_joint_jerk_rel')
+
+# create a handle for calling the service
+proxy = rospy.ServiceProxy('/iiwa/set_desired_joint_jerk_rel', libiiwa_msgs.srv.SetDouble)
+
+# call service
+response = proxy(0.5)
+
+print("success:", response.success)
+print("message:", response.message)
+
+:end-before: [end-python-desired_joint_jerk_rel-1]
+
+
+:start-after: [start-command-line-desired_cartesian_velocity-1]
+
+$ ros2 service call /iiwa/set_desired_cartesian_velocity libiiwa_msgs/srv/SetDouble "{data: 0.25}"
+
+:end-before: [end-command-line-desired_cartesian_velocity-1]
+
+
+:start-after: [start-python-desired_cartesian_velocity-1]
+
+import rospy
+import libiiwa_msgs.srv
+
+# wait for service
+rospy.wait_for_service('/iiwa/set_desired_cartesian_velocity')
+
+# create a handle for calling the service
+proxy = rospy.ServiceProxy('/iiwa/set_desired_cartesian_velocity', libiiwa_msgs.srv.SetDouble)
+
+# call service
+response = proxy(0.25)
+
+print("success:", response.success)
+print("message:", response.message)
+
+:end-before: [end-python-desired_cartesian_velocity-1]
+
+
+:start-after: [start-command-line-desired_cartesian_acceleration-1]
+
+$ ros2 service call /iiwa/set_desired_cartesian_acceleration libiiwa_msgs/srv/SetDouble "{data: 0.25}"
+
+:end-before: [end-command-line-desired_cartesian_acceleration-1]
+
+
+:start-after: [start-python-desired_cartesian_acceleration-1]
+
+import rospy
+import libiiwa_msgs.srv
+
+# wait for service
+rospy.wait_for_service('/iiwa/set_desired_cartesian_acceleration')
+
+# create a handle for calling the service
+proxy = rospy.ServiceProxy('/iiwa/set_desired_cartesian_acceleration', libiiwa_msgs.srv.SetDouble)
+
+# call service
+response = proxy(0.25)
+
+print("success:", response.success)
+print("message:", response.message)
+
+:end-before: [end-python-desired_cartesian_acceleration-1]
+
+
+:start-after: [start-command-line-desired_cartesian_jerk-1]
+
+$ ros2 service call /iiwa/set_desired_cartesian_jerk libiiwa_msgs/srv/SetDouble "{data: 0.25}"
+
+:end-before: [end-command-line-desired_cartesian_jerk-1]
+
+
+:start-after: [start-python-desired_cartesian_jerk-1]
+
+import rospy
+import libiiwa_msgs.srv
+
+# wait for service
+rospy.wait_for_service('/iiwa/set_desired_cartesian_jerk')
+
+# create a handle for calling the service
+proxy = rospy.ServiceProxy('/iiwa/set_desired_cartesian_jerk', libiiwa_msgs.srv.SetDouble)
+
+# call service
+response = proxy(0.25)
+
+print("success:", response.success)
+print("message:", response.message)
+
+:end-before: [end-python-desired_cartesian_jerk-1]
