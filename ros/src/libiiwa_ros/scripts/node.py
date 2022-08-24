@@ -128,7 +128,7 @@ class Iiwa:
             status = self._interface.command_joint_position(target_positions)
         except Exception as e:
             rospy.logerr('Failed to command joint position to {}'.format(target_positions))
-            rospy.logerr(e)
+            rospy.logerr(str(e))
             return
 
         if not status:
@@ -162,7 +162,7 @@ class Iiwa:
             status = self._interface.command_cartesian_pose(position, orientation)
         except Exception as e:
             rospy.logerr('Failed to command cartesian pose to {}, {}'.format(position, orientation))
-            rospy.logerr(e)
+            rospy.logerr(str(e))
             return
 
         if not status:
@@ -185,7 +185,7 @@ class Iiwa:
             response.success = False
             response.message = str(e)
             rospy.logerr('Failed to set_desired_joint_velocity_rel to {}'.format(request.data))
-            rospy.logerr(e)
+            rospy.logerr(str(e))
         if self._verbose:
             rospy.loginfo("Service set_desired_joint_velocity_rel to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
@@ -203,7 +203,7 @@ class Iiwa:
             response.success = False
             response.message = str(e)
             rospy.logerr('Failed to set_desired_joint_acceleration_rel to {}'.format(request.data))
-            rospy.logerr(e)
+            rospy.logerr(str(e))
         if self._verbose:
             rospy.loginfo("Service set_desired_joint_acceleration_rel to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
@@ -221,7 +221,7 @@ class Iiwa:
             response.success = False
             response.message = str(e)
             rospy.logerr('Failed to set_desired_joint_jerk_rel to {}'.format(request.data))
-            rospy.logerr(e)
+            rospy.logerr(str(e))
         if self._verbose:
             rospy.loginfo("Service set_desired_joint_jerk_rel to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
@@ -239,7 +239,7 @@ class Iiwa:
             response.success = False
             response.message = str(e)
             rospy.logerr('Failed to set_desired_cartesian_velocity to {}'.format(request.data))
-            rospy.logerr(e)
+            rospy.logerr(str(e))
         if self._verbose:
             rospy.loginfo("Service set_desired_cartesian_velocity to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
@@ -257,7 +257,7 @@ class Iiwa:
             response.success = False
             response.message = str(e)
             rospy.logerr('Failed to set_desired_cartesian_acceleration to {}'.format(request.data))
-            rospy.logerr(e)
+            rospy.logerr(str(e))
         if self._verbose:
             rospy.loginfo("Service set_desired_cartesian_acceleration to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
@@ -275,7 +275,7 @@ class Iiwa:
             response.success = False
             response.message = str(e)
             rospy.logerr('Failed to set_desired_cartesian_jerk to {}'.format(request.data))
-            rospy.logerr(e)
+            rospy.logerr(str(e))
         if self._verbose:
             rospy.loginfo("Service set_desired_cartesian_jerk to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
@@ -306,7 +306,7 @@ class Iiwa:
             response.success = False
             response.message = str(e)
             rospy.logerr('Failed to set_control_interface to {}'.format(request.data))
-            rospy.logerr(e)
+            rospy.logerr(str(e))
         if self._verbose:
             rospy.loginfo("Service set_control_interface to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
@@ -337,7 +337,7 @@ class Iiwa:
             response.success = False
             response.message = str(e)
             rospy.logerr('Failed to set_motion_type to {}'.format(request.data))
-            rospy.logerr(e)
+            rospy.logerr(str(e))
         if self._verbose:
             rospy.loginfo("Service set_motion_type to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
@@ -368,7 +368,7 @@ class Iiwa:
             response.success = False
             response.message = str(e)
             rospy.logerr('Failed to set_control_mode to {}'.format(request.data))
-            rospy.logerr(e)
+            rospy.logerr(str(e))
         if self._verbose:
             rospy.loginfo("Service set_control_mode to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
@@ -396,7 +396,7 @@ class Iiwa:
             response.success = False
             response.message = str(e)
             rospy.logerr('Failed to set_execution_type to {}'.format(request.data))
-            rospy.logerr(e)
+            rospy.logerr(str(e))
         if self._verbose:
             rospy.loginfo("Service set_execution_type to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
@@ -425,7 +425,7 @@ class Iiwa:
             response.success = False
             response.message = str(e)
             rospy.logerr('Failed to set_communication_mode to {}'.format(request.data))
-            rospy.logerr(e)
+            rospy.logerr(str(e))
         if self._verbose:
             rospy.loginfo("Service set_communication_mode to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
