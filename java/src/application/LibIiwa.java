@@ -13,6 +13,7 @@ import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.conditionModel.ForceCondition;
 import com.kuka.roboticsAPI.conditionModel.JointTorqueCondition;
 
+import com.kuka.roboticsAPI.deviceModel.Device;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.deviceModel.JointEnum;
 import com.kuka.roboticsAPI.deviceModel.JointPosition;
@@ -29,9 +30,11 @@ import com.kuka.roboticsAPI.motionModel.controlModeModel.IMotionControlMode;
 import com.kuka.roboticsAPI.motionModel.controlModeModel.JointImpedanceControlMode;
 import com.kuka.roboticsAPI.motionModel.controlModeModel.PositionControlMode;
 
-import com.kuka.roboticsAPI.motionModel.MotionBatch;
 import com.kuka.roboticsAPI.motionModel.BasicMotions;
+import com.kuka.roboticsAPI.motionModel.ErrorHandlingAction;
+import com.kuka.roboticsAPI.motionModel.IErrorHandler;
 import com.kuka.roboticsAPI.motionModel.IMotionContainer;
+import com.kuka.roboticsAPI.motionModel.MotionBatch;
 
 import com.kuka.roboticsAPI.sensorModel.TorqueSensorData;
 import com.kuka.roboticsAPI.sensorModel.ForceSensorData;
@@ -45,6 +48,7 @@ import com.kuka.roboticsAPI.uiModel.userKeys.UserKeyLED;
 import com.kuka.roboticsAPI.uiModel.userKeys.UserKeyLEDSize;
 
 import java.util.Arrays;
+import java.util.List;
 
 import application.LibIiwaEnum;
 import application.LibIiwaCommunication;
@@ -77,7 +81,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	private static final String API_VERSION = "0.1.0-beta";
 
 	private static final int STATE_COMMAND_STATUS = 0;  		// vector(1)
-	private static final int STATE_ROBOT_STATUS = 1;  			// vector(1)
+	private static final int STATE_LAST_ERROR = 1;  			// vector(1)
 	private static final int STATE_JOINT_POSITION = 2;  		// vector(7)
 	private static final int STATE_JOINT_VELOCITY = 9;  		// vector(7)
 	private static final int STATE_JOINT_ACCELERATION = 16;  	// vector(7)
@@ -120,6 +124,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	
 	// errors
 	private LibIiwaEnum enumLastError = LibIiwaEnum.ERROR;
+	private IErrorHandler propErrorHandler;
 
 	// configuration
 	private LibIiwaEnum enumMotionType = LibIiwaEnum.MOTION_TYPE_PTP;
@@ -182,9 +187,9 @@ public class LibIiwa extends RoboticsAPIApplication {
 		propCurrentSmartServoLINRuntime = null;
 	}
 
-	private void methInitializeSmartServo() {
+	private boolean methInitializeSmartServo() {
 		if (this.propCurrentSmartServoRuntime != null)
-			return;
+			return true;
 
 		SmartServo smartServo = new SmartServo(lbr.getCurrentJointPosition());
 
@@ -192,16 +197,27 @@ public class LibIiwa extends RoboticsAPIApplication {
 		smartServo.setJointAccelerationRel(this.propDesiredJointAccelerationRel);
 
 		smartServo.setMinimumTrajectoryExecutionTime(this.propMinimumTrajectoryExecutionTime);
-		SmartServo.validateForImpedanceMode(lbr);
+		
+		// validate for impedance mode
+		if (this.enumControlMode != LibIiwaEnum.CONTROL_MODE && this.enumControlMode != LibIiwaEnum.CONTROL_MODE_POSITION)
+			try {
+				SmartServo.validateForImpedanceMode(lbr);
+			}
+			catch (Exception e) {
+				this.enumLastError = LibIiwaEnum.VALIDATION_FOR_IMPEDANCE_ERROR;
+				getLogger().warn(e.getMessage());
+				return false;
+			}
 		
 		lbr.getFlange().moveAsync(smartServo.setMode(this.propCurrentControlMode));
 
-		this.propCurrentSmartServoRuntime = smartServo.getRuntime(true);   
+		this.propCurrentSmartServoRuntime = smartServo.getRuntime(true);
+		return true;
 	}
 
-	private void methInitializeSmartServoLIN() {
+	private boolean methInitializeSmartServoLIN() {
 		if (this.propCurrentSmartServoLINRuntime != null)
-			return;
+			return true;
 
 		SmartServoLIN smartServoLIN = new SmartServoLIN(lbr.getCurrentCartesianPosition(lbr.getFlange()));
 
@@ -213,10 +229,22 @@ public class LibIiwa extends RoboticsAPIApplication {
 		//		smartServoLIN.setMaxNullSpaceAcceleration(...);
 
 		smartServoLIN.setMinimumTrajectoryExecutionTime(this.propMinimumTrajectoryExecutionTime);
-		SmartServoLIN.validateForImpedanceMode(lbr);
+
+		// validate for impedance mode
+		if (this.enumControlMode != LibIiwaEnum.CONTROL_MODE && this.enumControlMode != LibIiwaEnum.CONTROL_MODE_POSITION)
+			try {
+				SmartServo.validateForImpedanceMode(lbr);
+			}
+			catch (Exception e) {
+				this.enumLastError = LibIiwaEnum.VALIDATION_FOR_IMPEDANCE_ERROR;
+				getLogger().warn(e.getMessage());
+				return false;
+			}
+		
 		lbr.getFlange().moveAsync(smartServoLIN.setMode(this.propCurrentControlMode));
 
-		this.propCurrentSmartServoLINRuntime = smartServoLIN.getRuntime(true);   
+		this.propCurrentSmartServoLINRuntime = smartServoLIN.getRuntime(true); 
+		return true;
 	}
 
 	// ===========================================================
@@ -226,11 +254,12 @@ public class LibIiwa extends RoboticsAPIApplication {
 	private boolean methMoveStandard(MotionBatch motionBatch) {
 		if (lbr.isReadyToMove()) {
 			// set limits
-			motionBatch.setJointVelocityRel(propDesiredJointVelocityRel).setJointAccelerationRel(propDesiredJointAccelerationRel)
-				.breakWhen(this.propForceConditionX.or(this.propForceConditionY).or(this.propForceConditionZ))
-				.breakWhen(this.propJointTorqueConditionJ1.or(this.propJointTorqueConditionJ2).or(this.propJointTorqueConditionJ3)
-						.or(this.propJointTorqueConditionJ4).or(this.propJointTorqueConditionJ5).or(this.propJointTorqueConditionJ6)
-						.or(this.propJointTorqueConditionJ7));
+			motionBatch.setJointVelocityRel(propDesiredJointVelocityRel).setJointAccelerationRel(propDesiredJointAccelerationRel);
+			// TODO: see why it stops the robot
+//				.breakWhen(this.propForceConditionX.or(this.propForceConditionY).or(this.propForceConditionZ))
+//				.breakWhen(this.propJointTorqueConditionJ1.or(this.propJointTorqueConditionJ2).or(this.propJointTorqueConditionJ3)
+//						.or(this.propJointTorqueConditionJ4).or(this.propJointTorqueConditionJ5).or(this.propJointTorqueConditionJ6)
+//						.or(this.propJointTorqueConditionJ7));
 			// overwrite motion
 			if (propCurrentMotionContainer != null) {
 				if (!propCurrentMotionContainer.isFinished()) {
@@ -240,7 +269,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 				}
 			}
 			// execute motion
-			propCurrentMotionContainer = lbr.moveAsync(motionBatch);
+			propCurrentMotionContainer = lbr.moveAsync(motionBatch.setMode(this.propCurrentControlMode));
 			return true;
 		}
 		return false;
@@ -248,7 +277,8 @@ public class LibIiwa extends RoboticsAPIApplication {
 
 	private boolean methMoveSmartServo(JointPosition jointPosition) {
 		if (lbr.isReadyToMove()) {
-			methInitializeSmartServo();
+			if (!methInitializeSmartServo())
+				return false;
 			propCurrentSmartServoRuntime.setDestination(jointPosition);
 			return true;
 		}
@@ -257,7 +287,8 @@ public class LibIiwa extends RoboticsAPIApplication {
 
 	private boolean methMoveSmartServo(Frame frame) {
 		if (lbr.isReadyToMove()) {
-			methInitializeSmartServo();
+			if (!methInitializeSmartServo())
+				return false;
 			propCurrentSmartServoRuntime.setDestination(frame);
 			return true;
 		}
@@ -266,7 +297,8 @@ public class LibIiwa extends RoboticsAPIApplication {
 
 	private boolean methMoveSmartServoLIN(Frame frame) {
 		if (lbr.isReadyToMove()) {
-			methInitializeSmartServoLIN();
+			if (!methInitializeSmartServoLIN())
+				return false;
 			propCurrentSmartServoLINRuntime.setDestination(frame);
 			return true;
 		}
@@ -507,7 +539,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 			this.propControlModeCartesianImpedance.parametrize(CartDOF.B).setStiffness(stiffness[4]);
 		if (stiffness[5] >= 0.0 && stiffness[5] <= 300.0)
 			this.propControlModeCartesianImpedance.parametrize(CartDOF.C).setStiffness(stiffness[5]);
-		if (VERBOSE) getLogger().info("Cartesian stiffness: " + stiffness);
+		if (VERBOSE) getLogger().info("Cartesian stiffness: " + Arrays.toString(stiffness));
 		return true;
 	}
 	
@@ -536,7 +568,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 			this.propControlModeCartesianImpedance.parametrize(CartDOF.B).setDamping(damping[4]);
 		if (damping[5] >= 0.1 && damping[5] <= 1.0)
 			this.propControlModeCartesianImpedance.parametrize(CartDOF.C).setDamping(damping[5]);
-		if (VERBOSE) getLogger().info("Cartesian damping: " + damping);
+		if (VERBOSE) getLogger().info("Cartesian damping: " + Arrays.toString(damping));
 		return true;
 	}
 	
@@ -740,7 +772,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	// CONTROL METHODS
 	// ===========================================================
 
-	/**
+	/** PARTIAL
 	 * Control robot using joint positions (in radians)
 	 * <p>
 	 * Joints not in range will be not controlled. Use this feature to move specific joints
@@ -752,10 +784,15 @@ public class LibIiwa extends RoboticsAPIApplication {
 		// TODO: add other BasicMotions
 		JointPosition jointPosition = lbr.getCurrentJointPosition();
 
+		if (VERBOSE) getLogger().info(String.format("Joint position %1$s", Arrays.toString(joints)));
+
 		// validate
 		for (int i = 0; i < 7; i++)
-			if (joints[i] >= propMinJointPositionLimits.get(i) && joints[i] <= propMaxJointPositionLimits.get(i))
-				jointPosition.set(i, joints[i]);
+			if (!Double.isNaN(joints[i]))
+				if (joints[i] >= propMinJointPositionLimits.get(i) && joints[i] <= propMaxJointPositionLimits.get(i))
+					jointPosition.set(i, joints[i]);
+
+		if (VERBOSE) getLogger().info(String.format("Joint position %1$s", Arrays.toString(jointPosition.get())));
 
 		// move
 		if (enumControlInterface == LibIiwaEnum.CONTROL_INTERFACE_STANDARD) {
@@ -768,7 +805,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return false;
 	}
 
-	/**
+	/** PARTIAL
 	 * Control robot using Cartesian pose (in millimeters and radians)
 	 * 
 	 * @param pose Cartesian position (3) and orientation(3)
@@ -776,22 +813,27 @@ public class LibIiwa extends RoboticsAPIApplication {
 	 */
 	private boolean methGoToCartesianPose(double[] pose) {
 		// TODO: add LINREL
-		// TODO: check to use a large number for Cartesian validation (messages need to send numbers) 
 		Frame frame = lbr.getCurrentCartesianPosition(lbr.getFlange());
 
+		if (VERBOSE) getLogger().info(String.format("Cartesian pose [%.4f %.4f %.4f] [%.4f %.4f %.4f]", 
+				pose[0], pose[1], pose[2], pose[3], pose[4], pose[5]));
+
 		// validate
-		if (!Double.isInfinite(pose[0]))
+		if (!Double.isNaN(pose[0]))
 			frame.setX(pose[0]);
-		if (!Double.isInfinite(pose[1]))
+		if (!Double.isNaN(pose[1]))
 			frame.setY(pose[1]);
-		if (!Double.isInfinite(pose[2]))
+		if (!Double.isNaN(pose[2]))
 			frame.setZ(pose[2]);
-		if (!Double.isInfinite(pose[3]))
+		if (!Double.isNaN(pose[3]))
 			frame.setAlphaRad(pose[3]);
-		if (!Double.isInfinite(pose[4]))
+		if (!Double.isNaN(pose[4]))
 			frame.setBetaRad(pose[4]);
-		if (!Double.isInfinite(pose[5]))
+		if (!Double.isNaN(pose[5]))
 			frame.setGammaRad(pose[5]);
+
+		if (VERBOSE) getLogger().info(String.format("Cartesian pose [%.4f %.4f %.4f] [%.4f %.4f %.4f]", 
+				frame.getX(), frame.getY(), frame.getZ(), frame.getAlphaRad(), frame.getBetaRad(), frame.getGammaRad()));
 
 		// move
 		if (enumControlInterface == LibIiwaEnum.CONTROL_INTERFACE_STANDARD) {
@@ -877,7 +919,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_PASS.toString());
 			return true;
 		}
-		// control command
+		// move command
 		else if (commandCode == LibIiwaEnum.COMMAND_JOINT_POSITION.getCode()){
 			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_JOINT_POSITION.toString());
 			return this.methGoToJointPosition(Arrays.copyOfRange(command, 1, 1 + 7));
@@ -998,6 +1040,8 @@ public class LibIiwa extends RoboticsAPIApplication {
 		// build state
 		double[] state = methUpdateAndGetCurrentState();
 		state[STATE_COMMAND_STATUS] = commandStatus ? 1.0 : 0.0;
+		state[STATE_LAST_ERROR] = this.enumLastError.getCode();
+		if (VERBOSE) getLogger().info("STATE: " + state[STATE_COMMAND_STATUS] + " " + state[STATE_LAST_ERROR]);
 		// send state
 		if (!this.propCommunication.methSendData(state)){
 			this.propShouldContinue = false;
@@ -1060,6 +1104,20 @@ public class LibIiwa extends RoboticsAPIApplication {
 		this.propJointTorqueConditionJ5 = new JointTorqueCondition(JointEnum.J5, -1e6, 1e6);
 		this.propJointTorqueConditionJ6 = new JointTorqueCondition(JointEnum.J6, -1e6, 1e6);
 		this.propJointTorqueConditionJ7 = new JointTorqueCondition(JointEnum.J7, -1e6, 1e6);
+
+		// error handler
+		this.propErrorHandler = new IErrorHandler() {	
+			@Override
+			public ErrorHandlingAction handleError(Device device, IMotionContainer failedContainer, List<IMotionContainer> canceledContainers) {
+				enumLastError = LibIiwaEnum.ASYNCHRONOUS_MOTION_ERROR;
+				getLogger().warn("Excecution of the following motion failed: " + failedContainer.getCommand().toString());
+				getLogger().warn("The following motions will not be executed:");
+				for (int i = 0; i < canceledContainers.size(); i++)
+					getLogger().warn(" - " + canceledContainers.get(i).getCommand().toString());
+				return ErrorHandlingAction.Ignore;
+			}
+		};
+		getApplicationControl().registerMoveAsyncErrorHandler(this.propErrorHandler);
 
 		// GUI key
 		IUserKeyBar userKeyBar = getApplicationUI().createUserKeyBar("KEY");
