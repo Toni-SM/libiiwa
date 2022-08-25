@@ -23,6 +23,8 @@ __version__ = '0.1.0-beta'
 API_VERSION = "0.1.0-beta"
 
 # application errors
+VALIDATION_FOR_IMPEDANCE_ERROR = -14
+ASYNCHRONOUS_MOTION_ERROR = -13
 INVALID_JOINT_ERROR = -12
 VALUE_ERROR = -11
 ERROR = -10
@@ -132,6 +134,7 @@ class LibIiwaCommunication:
         self.COMMAND_LENGTH = 8
         self._state = [0] * self.STATE_LENGTH
         self._command = [0] * self.COMMAND_LENGTH
+        self._last_error = None
 
     def _send(self, command):
         if self._run_without_communication:
@@ -171,6 +174,8 @@ class LibIiwaCommunication:
             self._state_lock.acquire()
             self._state = state[:]
             self._state_lock.release()
+            # parse error
+            self._last_error = state[1]
             # return the command execution status
             return state[0] > 0
 
@@ -205,7 +210,7 @@ class LibIiwaCommunication:
                 "cartesian_torque": state[39:42]}
 
     def get_last_error(self):
-        return "TODO" # TODO: implement error handling
+        return str(self._last_error) # TODO: return string or enum
 
     def init(self):
         if self._run_without_communication:
@@ -224,9 +229,9 @@ class LibIiwaCommunication:
         self._sock.listen(1)
 
         # wait for a connection
-        print('[INFO] Waiting for a connection...')
+        print(f"[INFO] Waiting for a connection at {self._ip}:{self._port}")
         self._connection, client_address = self._sock.accept()
-        print('[INFO] Connection from', client_address)
+        print(f"[INFO] Connection from {client_address[0]}:{client_address[1]}")
 
     def start(self):
         self._running = True
@@ -252,10 +257,16 @@ class LibIiwaCommunication:
                 self._running = False
                 break
 
+        self._connection.close()
         self._sock.close()
 
     def stop(self):
         self._running = False
+
+    def close(self):
+        self._connection.close()
+        self._sock.close()
+        time.sleep(0.5)
 
 
 class LibIiwa:
@@ -287,6 +298,9 @@ class LibIiwa:
         #     self._communication_thread.start()
         # else:
         #     self._communication.start()
+
+    def shutdown(self):
+        self._communication.close()
 
     def stop(self):
         self._communication.stop()
@@ -401,7 +415,7 @@ class LibIiwa:
 
         Example::
 
-            >>> libiiwa.set_desired_joint_velocity_rel(0.1)
+            >>> iiwa.set_desired_joint_velocity_rel(0.1)
             True
         """
         assert 0 <= value <= 1, "Invalid range [0, 1]"
@@ -421,7 +435,7 @@ class LibIiwa:
 
         Example::
 
-            >>> libiiwa.set_desired_joint_acceleration_rel(0.1)
+            >>> iiwa.set_desired_joint_acceleration_rel(0.1)
             True
         """
         assert 0 <= value <= 1, "Invalid range [0, 1]"
@@ -441,7 +455,7 @@ class LibIiwa:
 
         Example::
 
-            >>> libiiwa.set_desired_joint_jerk_rel(0.1)
+            >>> iiwa.set_desired_joint_jerk_rel(0.1)
             True
         """
         assert 0 <= value <= 1, "Invalid range [0, 1]"
@@ -463,7 +477,7 @@ class LibIiwa:
 
         Example::
 
-            >>> libiiwa.set_desired_cartesian_velocity(10)
+            >>> iiwa.set_desired_cartesian_velocity(10)
             True
         """
         assert value > 0, "Invalid range (0, Inf)"
@@ -485,7 +499,7 @@ class LibIiwa:
 
         Example::
 
-            >>> libiiwa.set_desired_cartesian_acceleration(10)
+            >>> iiwa.set_desired_cartesian_acceleration(10)
             True
         """
         assert value > 0, "Invalid range (0, Inf)"
@@ -507,7 +521,7 @@ class LibIiwa:
 
         Example::
 
-            >>> libiiwa.set_desired_cartesian_jerk(10)
+            >>> iiwa.set_desired_cartesian_jerk(10)
             True
         """
         assert value > 0, "Invalid range (0, Inf)"
@@ -536,11 +550,11 @@ class LibIiwa:
         Example::
 
             >>> # force conditon for all axes (x: 10 N, y: 20 N, z: 30 N) and default tolerance
-            >>> libiiwa.set_force_condition([10, 20, 30])
+            >>> iiwa.set_force_condition([10, 20, 30])
             True
 
             >>> # force conditon only for z axis (15 N) and tolerance of 1 N
-            >>> libiiwa.set_force_condition([np.Inf, np.Inf, 15], [np.Inf, np.Inf, 1])
+            >>> iiwa.set_force_condition([np.Inf, np.Inf, 15], [np.Inf, np.Inf, 1])
             True
         """
         threshold = np.array(threshold, dtype=np.float32).flatten()
@@ -574,13 +588,13 @@ class LibIiwa:
             >>> # same limits for all joints (min: -2.5 Nm, max: 4.0 Nm)
             >>> lower_limits = [-2.5, -2.5, -2.5, -2.5, -2.5, -2.5, -2.5]
             >>> upper_limits = [4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]
-            >>> libiiwa.set_joint_torque_condition(lower_limits, upper_limits)
+            >>> iiwa.set_joint_torque_condition(lower_limits, upper_limits)
             True
 
             >>> # limits only for joint 4 (min: -2.5 Nm, max: 4.0 Nm)
             >>> lower_limits = [-np.Inf, -np.Inf, -np.Inf, -2.5, -np.Inf, -np.Inf, -np.Inf]
             >>> upper_limits = [np.Inf, np.Inf, np.Inf, 4.0, np.Inf, np.Inf, np.Inf]
-            >>> libiiwa.set_joint_torque_condition(lower_limits, upper_limits)
+            >>> iiwa.set_joint_torque_condition(lower_limits, upper_limits)
             True
         """
         lower_limits = np.array(lower_limits, dtype=np.float32).flatten()
@@ -730,7 +744,7 @@ class LibIiwa:
 
         Example::
 
-            >>> libiiwa.set_control_interface(libiiwa.ControlInterface.CONTROL_INTERFACE_SERVO)
+            >>> iiwa.set_control_interface(libiiwa.ControlInterface.CONTROL_INTERFACE_SERVO)
             True
         """
         assert control_interface in ControlInterface, "Invalid control interface"
@@ -750,7 +764,7 @@ class LibIiwa:
 
         Example::
 
-            >>> libiiwa.set_motion_type(libiiwa.MotionType.MOTION_TYPE_LIN)
+            >>> iiwa.set_motion_type(libiiwa.MotionType.MOTION_TYPE_LIN)
             True
         """
         assert motion_type in MotionType, "Invalid motion type"
@@ -770,7 +784,7 @@ class LibIiwa:
 
         Example::
 
-            >>> libiiwa.set_control_mode(libiiwa.ControlMode.CONTROL_MODE_POSITION)
+            >>> iiwa.set_control_mode(libiiwa.ControlMode.CONTROL_MODE_POSITION)
             True
         """
         assert control_mode in ControlMode, "Invalid control mode"
@@ -790,7 +804,7 @@ class LibIiwa:
 
         Example::
 
-            >>> libiiwa.set_control_mode(libiiwa.ExecutionType.EXECUTION_TYPE_ASYNCHRONOUS)
+            >>> iiwa.set_control_mode(libiiwa.ExecutionType.EXECUTION_TYPE_ASYNCHRONOUS)
             True
         """
         assert execution_type in ExecutionType, "Invalid execution type"
