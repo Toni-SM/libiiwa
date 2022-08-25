@@ -1,5 +1,5 @@
-ROS: Velocities, accelerations and jerk limits
-==============================================
+ROS & ROS2: Velocities, accelerations and jerk limits
+=====================================================
 
 .. raw:: html
   
@@ -29,19 +29,41 @@ Example:
 
 .. tabs::
 
-    .. group-tab:: Command-line tool (rosservice)
+    .. group-tab:: ROS
 
-        .. literalinclude:: ../snippets/ros_limits.txt
-            :language: bash
-            :start-after: [start-command-line-desired_joint_velocity_rel-1]
-            :end-before: [end-command-line-desired_joint_velocity_rel-1]
+        .. tabs::
 
-    .. group-tab:: Python
+            .. group-tab:: Command-line tool (rosservice)
 
-        .. literalinclude:: ../snippets/ros_limits.txt
-            :language: bash
-            :start-after: [start-python-desired_joint_velocity_rel-1]
-            :end-before: [end-python-desired_joint_velocity_rel-1]
+                .. literalinclude:: ../snippets/ros_limits.txt
+                    :language: bash
+                    :start-after: [start-command-line-desired_joint_velocity_rel-1]
+                    :end-before: [end-command-line-desired_joint_velocity_rel-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros_limits.txt
+                    :language: bash
+                    :start-after: [start-python-desired_joint_velocity_rel-1]
+                    :end-before: [end-python-desired_joint_velocity_rel-1]
+
+    .. group-tab:: ROS2
+
+        .. tabs::
+
+            .. group-tab:: Command-line tool (ros2 service)
+
+                .. literalinclude:: ../snippets/ros2_limits.txt
+                    :language: bash
+                    :start-after: [start-command-line-desired_joint_velocity_rel-1]
+                    :end-before: [end-command-line-desired_joint_velocity_rel-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros2_limits.txt
+                    :language: bash
+                    :start-after: [start-python-desired_joint_velocity_rel-1]
+                    :end-before: [end-python-desired_joint_velocity_rel-1]
 
 Desired relative joint acceleration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -64,19 +86,41 @@ Example:
 
 .. tabs::
 
-    .. group-tab:: Command-line tool (rosservice)
+    .. group-tab:: ROS
 
-        .. literalinclude:: ../snippets/ros_limits.txt
-            :language: bash
-            :start-after: [start-command-line-desired_joint_acceleration_rel-1]
-            :end-before: [end-command-line-desired_joint_acceleration_rel-1]
+        .. tabs::
 
-    .. group-tab:: Python
+            .. group-tab:: Command-line tool (rosservice)
 
-        .. literalinclude:: ../snippets/ros_limits.txt
-            :language: bash
-            :start-after: [start-python-desired_joint_acceleration_rel-1]
-            :end-before: [end-python-desired_joint_acceleration_rel-1]
+                .. literalinclude:: ../snippets/ros_limits.txt
+                    :language: bash
+                    :start-after: [start-command-line-desired_joint_acceleration_rel-1]
+                    :end-before: [end-command-line-desired_joint_acceleration_rel-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros_limits.txt
+                    :language: bash
+                    :start-after: [start-python-desired_joint_acceleration_rel-1]
+                    :end-before: [end-python-desired_joint_acceleration_rel-1]
+
+    .. group-tab:: ROS2
+
+        .. tabs::
+
+            .. group-tab:: Command-line tool (ros2 service)
+
+                .. literalinclude:: ../snippets/ros2_limits.txt
+                    :language: bash
+                    :start-after: [start-command-line-desired_joint_acceleration_rel-1]
+                    :end-before: [end-command-line-desired_joint_acceleration_rel-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros2_limits.txt
+                    :language: bash
+                    :start-after: [start-python-desired_joint_acceleration_rel-1]
+                    :end-before: [end-python-desired_joint_acceleration_rel-1]
 
 Desired relative joint jerk
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -99,19 +143,41 @@ Example:
 
 .. tabs::
 
-    .. group-tab:: Command-line tool (rosservice)
+    .. group-tab:: ROS
 
-        .. literalinclude:: ../snippets/ros_limits.txt
-            :language: bash
-            :start-after: [start-command-line-desired_joint_jerk_rel-1]
-            :end-before: [end-command-line-desired_joint_jerk_rel-1]
+        .. tabs::
 
-    .. group-tab:: Python
+            .. group-tab:: Command-line tool (rosservice)
 
-        .. literalinclude:: ../snippets/ros_limits.txt
-            :language: bash
-            :start-after: [start-python-desired_joint_jerk_rel-1]
-            :end-before: [end-python-desired_joint_jerk_rel-1]
+                .. literalinclude:: ../snippets/ros_limits.txt
+                    :language: bash
+                    :start-after: [start-command-line-desired_joint_jerk_rel-1]
+                    :end-before: [end-command-line-desired_joint_jerk_rel-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros_limits.txt
+                    :language: bash
+                    :start-after: [start-python-desired_joint_jerk_rel-1]
+                    :end-before: [end-python-desired_joint_jerk_rel-1]
+
+    .. group-tab:: ROS2
+
+        .. tabs::
+
+            .. group-tab:: Command-line tool (ros2 service)
+
+                .. literalinclude:: ../snippets/ros2_limits.txt
+                    :language: bash
+                    :start-after: [start-command-line-desired_joint_jerk_rel-1]
+                    :end-before: [end-command-line-desired_joint_jerk_rel-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros2_limits.txt
+                    :language: bash
+                    :start-after: [start-python-desired_joint_jerk_rel-1]
+                    :end-before: [end-python-desired_joint_jerk_rel-1]
 
 .. raw:: html
   
@@ -141,19 +207,41 @@ Example:
 
 .. tabs::
 
-    .. group-tab:: Command-line tool (rosservice)
+    .. group-tab:: ROS
 
-        .. literalinclude:: ../snippets/ros_limits.txt
-            :language: bash
-            :start-after: [start-command-line-desired_cartesian_velocity-1]
-            :end-before: [end-command-line-desired_cartesian_velocity-1]
+        .. tabs::
 
-    .. group-tab:: Python
+            .. group-tab:: Command-line tool (rosservice)
 
-        .. literalinclude:: ../snippets/ros_limits.txt
-            :language: bash
-            :start-after: [start-python-desired_cartesian_velocity-1]
-            :end-before: [end-python-desired_cartesian_velocity-1]
+                .. literalinclude:: ../snippets/ros_limits.txt
+                    :language: bash
+                    :start-after: [start-command-line-desired_cartesian_velocity-1]
+                    :end-before: [end-command-line-desired_cartesian_velocity-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros_limits.txt
+                    :language: bash
+                    :start-after: [start-python-desired_cartesian_velocity-1]
+                    :end-before: [end-python-desired_cartesian_velocity-1]
+
+    .. group-tab:: ROS2
+
+        .. tabs::
+
+            .. group-tab:: Command-line tool (ros2 service)
+
+                .. literalinclude:: ../snippets/ros2_limits.txt
+                    :language: bash
+                    :start-after: [start-command-line-desired_cartesian_velocity-1]
+                    :end-before: [end-command-line-desired_cartesian_velocity-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros2_limits.txt
+                    :language: bash
+                    :start-after: [start-python-desired_cartesian_velocity-1]
+                    :end-before: [end-python-desired_cartesian_velocity-1]
 
 Desired Cartesian acceleration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -176,19 +264,41 @@ Example:
 
 .. tabs::
 
-    .. group-tab:: Command-line tool (rosservice)
+    .. group-tab:: ROS
 
-        .. literalinclude:: ../snippets/ros_limits.txt
-            :language: bash
-            :start-after: [start-command-line-desired_cartesian_acceleration-1]
-            :end-before: [end-command-line-desired_cartesian_acceleration-1]
+        .. tabs::
 
-    .. group-tab:: Python
+            .. group-tab:: Command-line tool (rosservice)
 
-        .. literalinclude:: ../snippets/ros_limits.txt
-            :language: bash
-            :start-after: [start-python-desired_cartesian_acceleration-1]
-            :end-before: [end-python-desired_cartesian_acceleration-1]
+                .. literalinclude:: ../snippets/ros_limits.txt
+                    :language: bash
+                    :start-after: [start-command-line-desired_cartesian_acceleration-1]
+                    :end-before: [end-command-line-desired_cartesian_acceleration-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros_limits.txt
+                    :language: bash
+                    :start-after: [start-python-desired_cartesian_acceleration-1]
+                    :end-before: [end-python-desired_cartesian_acceleration-1]
+
+    .. group-tab:: ROS2
+
+        .. tabs::
+
+            .. group-tab:: Command-line tool (ros2 service)
+
+                .. literalinclude:: ../snippets/ros2_limits.txt
+                    :language: bash
+                    :start-after: [start-command-line-desired_cartesian_acceleration-1]
+                    :end-before: [end-command-line-desired_cartesian_acceleration-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros2_limits.txt
+                    :language: bash
+                    :start-after: [start-python-desired_cartesian_acceleration-1]
+                    :end-before: [end-python-desired_cartesian_acceleration-1]
 
 Desired Cartesian jerk
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -211,16 +321,38 @@ Example:
 
 .. tabs::
 
-    .. group-tab:: Command-line tool (rosservice)
+    .. group-tab:: ROS
 
-        .. literalinclude:: ../snippets/ros_limits.txt
-            :language: bash
-            :start-after: [start-command-line-desired_cartesian_jerk-1]
-            :end-before: [end-command-line-desired_cartesian_jerk-1]
+        .. tabs::
 
-    .. group-tab:: Python
+            .. group-tab:: Command-line tool (rosservice)
 
-        .. literalinclude:: ../snippets/ros_limits.txt
-            :language: bash
-            :start-after: [start-python-desired_cartesian_jerk-1]
-            :end-before: [end-python-desired_cartesian_jerk-1]
+                .. literalinclude:: ../snippets/ros_limits.txt
+                    :language: bash
+                    :start-after: [start-command-line-desired_cartesian_jerk-1]
+                    :end-before: [end-command-line-desired_cartesian_jerk-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros_limits.txt
+                    :language: bash
+                    :start-after: [start-python-desired_cartesian_jerk-1]
+                    :end-before: [end-python-desired_cartesian_jerk-1]
+
+    .. group-tab:: ROS2
+
+        .. tabs::
+
+            .. group-tab:: Command-line tool (ros2 service)
+
+                .. literalinclude:: ../snippets/ros2_limits.txt
+                    :language: bash
+                    :start-after: [start-command-line-desired_cartesian_jerk-1]
+                    :end-before: [end-command-line-desired_cartesian_jerk-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros2_limits.txt
+                    :language: bash
+                    :start-after: [start-python-desired_cartesian_jerk-1]
+                    :end-before: [end-python-desired_cartesian_jerk-1]

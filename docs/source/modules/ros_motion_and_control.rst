@@ -1,5 +1,5 @@
-ROS: Motion and control
-=======================
+ROS & ROS2: Motion and control
+==============================
 
 .. raw:: html
   
@@ -24,19 +24,41 @@ Example:
 
 .. tabs::
 
-    .. group-tab:: Command-line tool (rosservice)
+    .. group-tab:: ROS
 
-        .. literalinclude:: ../snippets/ros_motion_and_control.txt
-            :language: bash
-            :start-after: [start-command-line-set_control_mode-1]
-            :end-before: [end-command-line-set_control_mode-1]
+        .. tabs::
 
-    .. group-tab:: Python
+            .. group-tab:: Command-line tool (rosservice)
 
-        .. literalinclude:: ../snippets/ros_motion_and_control.txt
-            :language: bash
-            :start-after: [start-python-set_control_mode-1]
-            :end-before: [end-python-set_control_mode-1]
+                .. literalinclude:: ../snippets/ros_motion_and_control.txt
+                    :language: bash
+                    :start-after: [start-command-line-set_control_mode-1]
+                    :end-before: [end-command-line-set_control_mode-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros_motion_and_control.txt
+                    :language: bash
+                    :start-after: [start-python-set_control_mode-1]
+                    :end-before: [end-python-set_control_mode-1]
+
+    .. group-tab:: ROS2
+
+        .. tabs::
+
+            .. group-tab:: Command-line tool (ros2 service)
+
+                .. literalinclude:: ../snippets/ros2_motion_and_control.txt
+                    :language: bash
+                    :start-after: [start-command-line-set_control_mode-1]
+                    :end-before: [end-command-line-set_control_mode-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros2_motion_and_control.txt
+                    :language: bash
+                    :start-after: [start-python-set_control_mode-1]
+                    :end-before: [end-python-set_control_mode-1]
 
 .. raw:: html
   
@@ -61,19 +83,41 @@ Example:
 
 .. tabs::
 
-    .. group-tab:: Command-line tool (rosservice)
+    .. group-tab:: ROS
 
-        .. literalinclude:: ../snippets/ros_motion_and_control.txt
-            :language: bash
-            :start-after: [start-command-line-set_motion_type-1]
-            :end-before: [end-command-line-set_motion_type-1]
+        .. tabs::
 
-    .. group-tab:: Python
+            .. group-tab:: Command-line tool (rosservice)
 
-        .. literalinclude:: ../snippets/ros_motion_and_control.txt
-            :language: bash
-            :start-after: [start-python-set_motion_type-1]
-            :end-before: [end-python-set_motion_type-1]
+                .. literalinclude:: ../snippets/ros_motion_and_control.txt
+                    :language: bash
+                    :start-after: [start-command-line-set_motion_type-1]
+                    :end-before: [end-command-line-set_motion_type-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros_motion_and_control.txt
+                    :language: bash
+                    :start-after: [start-python-set_motion_type-1]
+                    :end-before: [end-python-set_motion_type-1]
+
+    .. group-tab:: ROS2
+
+        .. tabs::
+
+            .. group-tab:: Command-line tool (ros2 service)
+
+                .. literalinclude:: ../snippets/ros2_motion_and_control.txt
+                    :language: bash
+                    :start-after: [start-command-line-set_motion_type-1]
+                    :end-before: [end-command-line-set_motion_type-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros2_motion_and_control.txt
+                    :language: bash
+                    :start-after: [start-python-set_motion_type-1]
+                    :end-before: [end-python-set_motion_type-1]
 
 .. raw:: html
   
@@ -98,19 +142,41 @@ Example:
 
 .. tabs::
 
-    .. group-tab:: Command-line tool (rosservice)
+    .. group-tab:: ROS
 
-        .. literalinclude:: ../snippets/ros_motion_and_control.txt
-            :language: bash
-            :start-after: [start-command-line-set_control_interface-1]
-            :end-before: [end-command-line-set_control_interface-1]
+        .. tabs::
 
-    .. group-tab:: Python
+            .. group-tab:: Command-line tool (rosservice)
 
-        .. literalinclude:: ../snippets/ros_motion_and_control.txt
-            :language: bash
-            :start-after: [start-python-set_control_interface-1]
-            :end-before: [end-python-set_control_interface-1]
+                .. literalinclude:: ../snippets/ros_motion_and_control.txt
+                    :language: bash
+                    :start-after: [start-command-line-set_control_interface-1]
+                    :end-before: [end-command-line-set_control_interface-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros_motion_and_control.txt
+                    :language: bash
+                    :start-after: [start-python-set_control_interface-1]
+                    :end-before: [end-python-set_control_interface-1]
+
+    .. group-tab:: ROS2
+
+        .. tabs::
+
+            .. group-tab:: Command-line tool (ros2 service)
+
+                .. literalinclude:: ../snippets/ros2_motion_and_control.txt
+                    :language: bash
+                    :start-after: [start-command-line-set_control_interface-1]
+                    :end-before: [end-command-line-set_control_interface-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros2_motion_and_control.txt
+                    :language: bash
+                    :start-after: [start-python-set_control_interface-1]
+                    :end-before: [end-python-set_control_interface-1]
 
 .. raw:: html
   
@@ -135,16 +201,38 @@ Example:
 
 .. tabs::
 
-    .. group-tab:: Command-line tool (rosservice)
+    .. group-tab:: ROS
 
-        .. literalinclude:: ../snippets/ros_motion_and_control.txt
-            :language: bash
-            :start-after: [start-command-line-set_execution_type-1]
-            :end-before: [end-command-line-set_execution_type-1]
+        .. tabs::
 
-    .. group-tab:: Python
+            .. group-tab:: Command-line tool (rosservice)
 
-        .. literalinclude:: ../snippets/ros_motion_and_control.txt
-            :language: bash
-            :start-after: [start-python-set_execution_type-1]
-            :end-before: [end-python-set_execution_type-1]
+                .. literalinclude:: ../snippets/ros_motion_and_control.txt
+                    :language: bash
+                    :start-after: [start-command-line-set_execution_type-1]
+                    :end-before: [end-command-line-set_execution_type-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros_motion_and_control.txt
+                    :language: bash
+                    :start-after: [start-python-set_execution_type-1]
+                    :end-before: [end-python-set_execution_type-1]
+
+    .. group-tab:: ROS2
+
+        .. tabs::
+
+            .. group-tab:: Command-line tool (ros2 service)
+
+                .. literalinclude:: ../snippets/ros2_motion_and_control.txt
+                    :language: bash
+                    :start-after: [start-command-line-set_execution_type-1]
+                    :end-before: [end-command-line-set_execution_type-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros2_motion_and_control.txt
+                    :language: bash
+                    :start-after: [start-python-set_execution_type-1]
+                    :end-before: [end-python-set_execution_type-1]
