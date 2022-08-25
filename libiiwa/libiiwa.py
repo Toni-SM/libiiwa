@@ -23,11 +23,12 @@ __version__ = '0.1.0-beta'
 API_VERSION = "0.1.0-beta"
 
 # application errors
-VALIDATION_FOR_IMPEDANCE_ERROR = -14
-ASYNCHRONOUS_MOTION_ERROR = -13
-INVALID_JOINT_ERROR = -12
-VALUE_ERROR = -11
-ERROR = -10
+class Error(Enum):
+    VALIDATION_FOR_IMPEDANCE_ERROR = -14
+    ASYNCHRONOUS_MOTION_ERROR = -13
+    INVALID_JOINT_ERROR = -12
+    VALUE_ERROR = -11
+    NO_ERROR = -10
 
 # empty commands
 COMMAND_PASS = 0
@@ -134,7 +135,7 @@ class LibIiwaCommunication:
         self.COMMAND_LENGTH = 8
         self._state = [0] * self.STATE_LENGTH
         self._command = [0] * self.COMMAND_LENGTH
-        self._last_error = None
+        self._last_error = -10
 
     def _send(self, command):
         if self._run_without_communication:
@@ -144,7 +145,7 @@ class LibIiwaCommunication:
 
     def _recv(self):
         if self._run_without_communication:
-            return [1] * self.STATE_LENGTH
+            return [1, -10] + [0] * (self.STATE_LENGTH - 2)
         data = self._connection.recv(self.STATE_LENGTH * 8)
         state = struct.unpack('!' + 'd' * self.STATE_LENGTH, data)
         return state
@@ -209,8 +210,13 @@ class LibIiwaCommunication:
                 "cartesian_force": state[36:39],
                 "cartesian_torque": state[39:42]}
 
-    def get_last_error(self):
-        return str(self._last_error) # TODO: return string or enum
+    def get_last_error(self, clear_after_read=True):
+        # parse error
+        error = Error(self._last_error)
+        # clear error flag
+        if clear_after_read:
+            self._last_error = -10
+        return error
 
     def init(self):
         if self._run_without_communication:
@@ -308,7 +314,7 @@ class LibIiwa:
     def get_state(self, refresh: bool = False) -> dict:
         """Get the state of the robot
 
-        :param refresh: if True, the state is requested from the robot otherwise the last received state is returned
+        :param refresh: If True, the state is requested from the robot otherwise the last received state is returned
         :type refresh: bool
 
         :return: the state of the robot
@@ -316,13 +322,16 @@ class LibIiwa:
         """
         return self._communication.get_state(refresh)
 
-    def get_last_error(self) -> str:
+    def get_last_error(self, clear_after_read: bool = True) -> str:
         """Get the last error message from the robot
+
+        :param clear_after_read: If True, the internal error flag will be reset after this call (default: True)
+        :type clear_after_read: bool, optional
 
         :return: The last error message from the robot
         :rtype: str
         """
-        return self._communication.get_last_error()
+        return self._communication.get_last_error(clear_after_read)
 
     # motion command
 
