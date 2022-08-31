@@ -1,0 +1,44 @@
+:root {
+    --main-bg-color: #cccccc;
+    --link-color: #ec6a05;
+}
+
+.wy-side-nav-search, .wy-nav-top, .wy-nav-side {
+    background-color: var(--main-bg-color) !important;
+}
+
+.wy-menu a, .wy-menu a:hover, .wy-side-nav-search a, .wy-side-nav-search a:hover {
+    color: #2c2c2c;
+}
+
+.wy-menu-vertical a:hover {
+    background-color: #686868;
+    color: #dfdfdf;
+}
+
+a {
+    color: var(--link-color);
+}
+
+a:hover {
+    color: #b5330b;
+}
+
+p.caption, .version {
+    color: #ec6a05 !important;
+}
+
+.py.class > dt:first-of-type, .py.method > dt:first-of-type, .py.function > dt:first-of-type, .py.data > dt:first-of-type {
+    background: #dbdbdb !important;
+    color: #525252 !important;
+    border-top: 3px solid #2b2b2b !important;
+}
+
+ul a.icon.icon-home {
+    color: #4b4b4b;
+}
+
+/* override table no-wrap */
+.wy-table-responsive table td, .wy-table-responsive table th {
+    white-space: normal;
+}
