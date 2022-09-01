@@ -14,15 +14,15 @@ import com.kuka.roboticsAPI.conditionModel.ForceCondition;
 import com.kuka.roboticsAPI.conditionModel.JointTorqueCondition;
 
 import com.kuka.roboticsAPI.deviceModel.Device;
-import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.deviceModel.JointEnum;
 import com.kuka.roboticsAPI.deviceModel.JointPosition;
+import com.kuka.roboticsAPI.deviceModel.LBR;
 
 import com.kuka.roboticsAPI.geometricModel.math.CoordinateAxis;
 
 import com.kuka.roboticsAPI.geometricModel.CartDOF;
-import com.kuka.roboticsAPI.geometricModel.Tool;
 import com.kuka.roboticsAPI.geometricModel.Frame;
+import com.kuka.roboticsAPI.geometricModel.Tool;
 
 import com.kuka.roboticsAPI.motionModel.controlModeModel.CartesianImpedanceControlMode;
 import com.kuka.roboticsAPI.motionModel.controlModeModel.CartesianSineImpedanceControlMode;
@@ -78,6 +78,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	// CONSTANTS
 	// ===========================================================
 
+	@SuppressWarnings("unused")
 	private static final String API_VERSION = "0.1.0-beta";
 
 	private static final int STATE_COMMAND_STATUS = 0;  		// vector(1)
@@ -115,6 +116,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	private Tool tool;
 
 	private double propCurrentState[];
+	private double propCurrentJointVelocity[];
 	private boolean propShouldContinue = false;	// TODO: rename
 
 	private JointPosition propMinJointPositionLimits;
@@ -130,7 +132,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	private LibIiwaEnum enumMotionType = LibIiwaEnum.MOTION_TYPE_PTP;
 	private LibIiwaEnum enumControlInterface = LibIiwaEnum.CONTROL_INTERFACE_STANDARD;
 	private LibIiwaEnum enumControlMode = LibIiwaEnum.CONTROL_MODE_POSITION;
-	private LibIiwaEnum enumControlExecutionType = LibIiwaEnum.EXECUTION_TYPE_ASYNCHRONOUS;
+	private LibIiwaEnum enumExecutionType = LibIiwaEnum.EXECUTION_TYPE_ASYNCHRONOUS;
 
 	private IMotionControlMode propCurrentControlMode = null;
 	private IMotionContainer propCurrentMotionContainer = null;
@@ -162,8 +164,6 @@ public class LibIiwa extends RoboticsAPIApplication {
 	private ForceCondition propForceConditionY;
 	private ForceCondition propForceConditionZ;
 
-
-	private double propDesiredTorqueSensitivity = 100; // TODO: rename
 	private double propMinimumTrajectoryExecutionTime = 0.001;
 
 	private boolean propOverwriteMotion = true;
@@ -254,28 +254,46 @@ public class LibIiwa extends RoboticsAPIApplication {
 	private boolean methMoveStandard(MotionBatch motionBatch) {
 		if (lbr.isReadyToMove()) {
 			// set limits
-			motionBatch.setJointVelocityRel(propDesiredJointVelocityRel).setJointAccelerationRel(propDesiredJointAccelerationRel);
+			motionBatch.setJointVelocityRel(this.propDesiredJointVelocityRel).setJointAccelerationRel(this.propDesiredJointAccelerationRel);
 			// TODO: see why it stops the robot
 //				.breakWhen(this.propForceConditionX.or(this.propForceConditionY).or(this.propForceConditionZ))
 //				.breakWhen(this.propJointTorqueConditionJ1.or(this.propJointTorqueConditionJ2).or(this.propJointTorqueConditionJ3)
 //						.or(this.propJointTorqueConditionJ4).or(this.propJointTorqueConditionJ5).or(this.propJointTorqueConditionJ6)
 //						.or(this.propJointTorqueConditionJ7));
 			// overwrite motion
-			if (propCurrentMotionContainer != null) {
-				if (!propCurrentMotionContainer.isFinished()) {
-					if (!propOverwriteMotion)
+			if (this.propCurrentMotionContainer != null) {
+				if (!this.propCurrentMotionContainer.isFinished()) {
+					if (!this.propOverwriteMotion)
 						return false;
-					propCurrentMotionContainer.cancel();
+					this.propCurrentMotionContainer.cancel();
 				}
 			}
 			// execute motion
-			propCurrentMotionContainer = lbr.moveAsync(motionBatch.setMode(this.propCurrentControlMode));
+			if (this.enumExecutionType == LibIiwaEnum.EXECUTION_TYPE_SYNCHRONOUS) {
+				try {
+					this.propCurrentMotionContainer = this.lbr.move(motionBatch.setMode(this.propCurrentControlMode));
+				}
+				catch (Exception e) {
+					this.enumLastError = LibIiwaEnum.SYNCHRONOUS_MOTION_ERROR;
+					getLogger().warn(e.getMessage());
+					return false;
+				}
+			}
+			else if (this.enumExecutionType == LibIiwaEnum.EXECUTION_TYPE_ASYNCHRONOUS)	
+				this.propCurrentMotionContainer = lbr.moveAsync(motionBatch.setMode(this.propCurrentControlMode));
 			return true;
 		}
 		return false;
 	}
 
 	private boolean methMoveSmartServo(JointPosition jointPosition) {
+		// check for asynchronous execution
+		if (this.enumExecutionType == LibIiwaEnum.EXECUTION_TYPE_SYNCHRONOUS) {
+			this.enumLastError = LibIiwaEnum.INVALID_CONFIGURATION_ERROR;
+			getLogger().warn("Invalid configuration: Servo cannot run in synchronous execution");
+			return false;
+		}
+		// move
 		if (lbr.isReadyToMove()) {
 			if (!methInitializeSmartServo())
 				return false;
@@ -286,6 +304,13 @@ public class LibIiwa extends RoboticsAPIApplication {
 	}
 
 	private boolean methMoveSmartServo(Frame frame) {
+		// check for asynchronous execution
+		if (this.enumExecutionType == LibIiwaEnum.EXECUTION_TYPE_SYNCHRONOUS) {
+			this.enumLastError = LibIiwaEnum.INVALID_CONFIGURATION_ERROR;
+			getLogger().warn("Invalid configuration: Servo cannot run in synchronous execution");
+			return false;
+		}
+		// move
 		if (lbr.isReadyToMove()) {
 			if (!methInitializeSmartServo())
 				return false;
@@ -296,6 +321,13 @@ public class LibIiwa extends RoboticsAPIApplication {
 	}
 
 	private boolean methMoveSmartServoLIN(Frame frame) {
+		// check for asynchronous execution
+		if (this.enumExecutionType == LibIiwaEnum.EXECUTION_TYPE_SYNCHRONOUS) {
+			this.enumLastError = LibIiwaEnum.INVALID_CONFIGURATION_ERROR;
+			getLogger().warn("Invalid configuration: Servo cannot run in synchronous execution");
+			return false;
+		}
+		// move
 		if (lbr.isReadyToMove()) {
 			if (!methInitializeSmartServoLIN())
 				return false;
@@ -731,16 +763,16 @@ public class LibIiwa extends RoboticsAPIApplication {
 		
 		// set execution type
 		if (executionType.getCode() == LibIiwaEnum.EXECUTION_TYPE_ASYNCHRONOUS.getCode())
-			this.enumControlExecutionType = LibIiwaEnum.EXECUTION_TYPE_ASYNCHRONOUS;
+			this.enumExecutionType = LibIiwaEnum.EXECUTION_TYPE_ASYNCHRONOUS;
 		else if (executionType.getCode() == LibIiwaEnum.EXECUTION_TYPE_SYNCHRONOUS.getCode())
-			this.enumControlExecutionType = LibIiwaEnum.EXECUTION_TYPE_SYNCHRONOUS;
+			this.enumExecutionType = LibIiwaEnum.EXECUTION_TYPE_SYNCHRONOUS;
 		else {
 			if (VERBOSE) getLogger().warn("Invalid execution type: " + executionType.getCode());
 			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 
-		if (VERBOSE) getLogger().info("Execution type: " + this.enumControlExecutionType.toString());
+		if (VERBOSE) getLogger().info("Execution type: " + this.enumExecutionType.toString());
 		return true;
 	}
 	
@@ -808,7 +840,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	/** PARTIAL
 	 * Control robot using Cartesian pose (in millimeters and radians)
 	 * 
-	 * @param pose Cartesian position (3) and orientation(3)
+	 * @param pose Cartesian position (3) and orientation (3)
 	 * @return true if the control was successful, otherwise false
 	 */
 	private boolean methGoToCartesianPose(double[] pose) {
@@ -856,6 +888,35 @@ public class LibIiwa extends RoboticsAPIApplication {
 		}
 		return false;
 	}
+	
+	/** DONE
+	 * Perform a circular motion (in millimeters)
+	 * 
+	 * @param circ Auxiliary position (3) and end position (3)
+	 * @return true if the control was successful, otherwise false
+	 */
+	private boolean methGoToCirc(double[] circ) {
+		Frame frame = lbr.getCurrentCartesianPosition(lbr.getFlange());
+		
+		Frame auxiliaryPoint = new Frame(circ[0], circ[1], circ[2], frame.getAlphaRad(), frame.getBetaRad(), frame.getGammaRad());
+		Frame endPoint = new Frame(circ[3], circ[4], circ[5], frame.getAlphaRad(), frame.getBetaRad(), frame.getGammaRad());
+		MotionBatch motionBatch = new MotionBatch(BasicMotions.circ(auxiliaryPoint, endPoint).setJointJerkRel(this.propDesiredJointJerkRel).
+				setCartVelocity(this.propDesiredCartesianVelocity).setCartAcceleration(this.propDesiredCartesianAcceleration));
+		
+		if (VERBOSE) getLogger().info(String.format("CIRC motion [%.4f %.4f %.4f] [%.4f %.4f %.4f]", 
+				auxiliaryPoint.getX(), auxiliaryPoint.getY(), auxiliaryPoint.getZ(), endPoint.getX(), endPoint.getY(), endPoint.getZ()));
+		
+		// move
+		if (enumControlInterface == LibIiwaEnum.CONTROL_INTERFACE_STANDARD) {
+			return methMoveStandard(motionBatch);
+		}
+		else if (enumControlInterface == LibIiwaEnum.CONTROL_INTERFACE_SERVO) {
+			this.enumLastError = LibIiwaEnum.INVALID_CONFIGURATION_ERROR;
+			getLogger().warn("Invalid configuration: CIRC motion is not implemented for Servo");
+			return false;
+		}
+		return false;
+	}
 
 	// ===========================================================
 	// 
@@ -876,6 +937,10 @@ public class LibIiwa extends RoboticsAPIApplication {
 		this.propCurrentState[STATE_JOINT_POSITION + 5] = jointPosition.get(JointEnum.J6);
 		this.propCurrentState[STATE_JOINT_POSITION + 6] = jointPosition.get(JointEnum.J7);
 
+		// joint velocity
+		for (int i = 0; i < lbr.getJointCount(); i++)
+			this.propCurrentState[STATE_JOINT_VELOCITY + i] = this.propCurrentJointVelocity[i];
+		
 		// joint torque
 		this.propCurrentState[STATE_JOINT_TORQUE + 0] = torqueSensorData.getSingleTorqueValue(JointEnum.J1);
 		this.propCurrentState[STATE_JOINT_TORQUE + 1] = torqueSensorData.getSingleTorqueValue(JointEnum.J2);
@@ -927,6 +992,10 @@ public class LibIiwa extends RoboticsAPIApplication {
 		else if (commandCode == LibIiwaEnum.COMMAND_CARTESIAN_POSE.getCode()){
 			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_CARTESIAN_POSE.toString());
 			return this.methGoToCartesianPose(Arrays.copyOfRange(command, 1, 1 + 6));
+		}
+		else if (commandCode == LibIiwaEnum.COMMAND_CIRC_MOTION.getCode()){
+			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_CIRC_MOTION.toString());
+			return this.methGoToCirc(Arrays.copyOfRange(command, 1, 1 + 6));
 		}
 		// configuration commands (limits and constants)
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_DESIRED_JOINT_VELOCITY_REL.getCode()){
@@ -1055,15 +1124,27 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 
-	private Thread propThreadSendState = new Thread() {
+	private Thread propThreadComputeVelocity = new Thread() {
 		@Override
 		public void run() {
+			long previousTimeStamp = 0;
+			double[] previousPosition = new double[lbr.getJointCount()];
+
+			if (VERBOSE) getLogger().info("App.thread: ComputeVelocity started");
+			
 			while(propShouldContinue) {
-				double[] state = methUpdateAndGetCurrentState();
-				if (!propCommunication.methSendData(state))
-					propShouldContinue = false;
-				ThreadUtil.milliSleep(10);  // TODO: pass time as class argument
+				long currentTimeStamp = System.nanoTime();
+				double[] currentPosition = lbr.getCurrentJointPosition().getInternalArray();	
+			    if (previousTimeStamp != 0) {
+			      for (int i = 0; i < lbr.getJointCount(); i++)
+			    	  propCurrentJointVelocity[i] = (currentPosition[i] - previousPosition[i]) / ((double)(currentTimeStamp - previousTimeStamp) / 1000000000);
+			    }
+			    previousPosition = currentPosition;
+			    previousTimeStamp = currentTimeStamp;
+				ThreadUtil.milliSleep(10);
 			}
+			
+			if (VERBOSE) getLogger().info("App.thread: ComputeVelocity stopped");
 		}
 	};
 
@@ -1084,6 +1165,8 @@ public class LibIiwa extends RoboticsAPIApplication {
 		this.propMinJointPositionLimits = lbr.getJointLimits().getMinJointPosition();
 
 		this.propCurrentState = new double[STATE_LENGTH];
+		this.propCurrentJointVelocity = new double[lbr.getJointCount()];
+
 		this.propCommunication = new LibIiwaCommunication(getLogger(), COMMAND_LENGTH);
 		
 		this.propControlModePosition = new PositionControlMode();
@@ -1142,18 +1225,21 @@ public class LibIiwa extends RoboticsAPIApplication {
 
 	@Override
 	public void dispose() {
-		getLogger().info("Disposal request");
+		getLogger().info("App: Disposal request");
 		// stop application loop
 		this.propShouldContinue = false;
 		// stop robot
 		this.methStopAndResetMotion();
 		// close socket
 		this.propCommunication.methCloseSocketConnection();
-		getLogger().info("Bye!");
+		getLogger().info("App: Bye!");
 	}
 
 	@Override
 	public void run() {
+		getLogger().info("");
+		getLogger().info("App: application started");
+		
 		// initialize communication
 		String address = this.propApplicationData.getProcessData("controller_ip").getValue();
 		int port = this.propApplicationData.getProcessData("controller_port").getValue();
@@ -1161,6 +1247,9 @@ public class LibIiwa extends RoboticsAPIApplication {
 		this.propShouldContinue = this.propCommunication.methInitializeSocketConnection(address, port, false, 0, 1000);  // as client
 		this.propCommunicationMode = LibIiwaEnum.COMMUNICATION_MODE_ON_DEMAND;
 		this.propCommunication.methSetSocketTimeout(0);
+		
+		// start velocity computation thread
+		this.propThreadComputeVelocity.start();
 
 		// application loop
 		while(this.propShouldContinue) {
@@ -1184,6 +1273,6 @@ public class LibIiwa extends RoboticsAPIApplication {
 		this.methStopAndResetMotion();
 		// close socket
 		this.propCommunication.methCloseSocketConnection();
-		getLogger().info("Application stopped");
+		getLogger().info("App: application stopped");
 	}
 }
