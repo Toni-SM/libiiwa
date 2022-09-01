@@ -15,6 +15,7 @@ __all__ = [
     'ControlMode',
     'ExecutionType',
     'ControlInterface',
+    'Error',
     'API_VERSION',
 ]
 
@@ -352,14 +353,17 @@ class LibIiwa:
 
         Example::
 
-            # move to joint position [0, 0, 0, -1.57, 0, 1.57, 0] in radians
-            robot.command_joint_position([0, 0, 0, -1.57, 0, 1.57, 0])
+            >>> # move to joint position [0, 0, 0, -1.57, 0, 1.57, 0] in radians
+            >>> iiwa.command_joint_position([0, 0, 0, -1.57, 0, 1.57, 0])
+            True
 
-            # move to joint position [0, 0, 0, -90, 0, 90, 0] in degrees
-            robot.command_joint_position([0, 0, 0, -90, 0, 90, 0], degrees=True)
+            >>> # move to joint position [0, 0, 0, -90, 0, 90, 0] in degrees
+            >>> iiwa.command_joint_position([0, 0, 0, -90, 0, 90, 0], degrees=True)
+            True
 
-            # set only the joint number 4 to -1.57 in radians without moving the other joints
-            robot.command_joint_position([np.NaN, np.NaN, np.NaN, -1.57, np.NaN, np.NaN, np.NaN])
+            >>> # set only the joint number 4 to -1.57 in radians without moving the other joints
+            >>> iiwa.command_joint_position([np.NaN, np.NaN, np.NaN, -1.57, np.NaN, np.NaN, np.NaN])
+            True
         """
         position = np.array(position, dtype=np.float32).flatten()
         assert position.size == 7, "Invalid position length"
@@ -392,11 +396,13 @@ class LibIiwa:
 
         Example::
 
-            # move to cartesian pose [0.65, 0, 0.2] in meters withouth changing the orientation
-            robot.command_cartesian_pose([0.65, 0, 0.2])
+            >>> # move to cartesian pose [0.65, 0, 0.2] in meters withouth changing the orientation
+            >>> iiwa.command_cartesian_pose([0.65, 0, 0.2])
+            True
 
-            # move to cartesian pose [650, 0, 200] in millimeters withouth changing the orientation
-            robot.command_cartesian_pose([650, 0, 200], millimeters=True)
+            >>> # move to cartesian pose [650, 0, 200] in millimeters withouth changing the orientation
+            >>> iiwa.command_cartesian_pose([650, 0, 200], millimeters=True)
+            True
         """
         # TODO: improve example
         position = np.array(position, dtype=np.float32).flatten()
@@ -411,7 +417,7 @@ class LibIiwa:
             + [0] * (self._communication.COMMAND_LENGTH - 7)
         return self._communication.set_command(command)
 
-    def command_circular_motion(self, 
+    def command_circular_motion(self,  # DONE
                                 auxiliary_position: Union[List[float], np.ndarray], 
                                 end_position: Union[List[float], np.ndarray], 
                                 millimeters: bool = False) -> bool:
@@ -435,6 +441,15 @@ class LibIiwa:
         :rtype: bool
 
         Example::
+
+            >>> # assuming the robot this joint configuration in degrees: [0, 0, 0, -90, 0, 90, 0]
+            >>> # perfom a circular motion to [0.5, 0.2, 0.65] with auxiliary position [0.6, 0.1, 0.65]
+            >>> iiwa.command_circular_motion([0.6, 0.1, 0.65], [0.5, 0.2, 0.65])
+            True
+
+            >>> # same circular motion in millimeters
+            >>> iiwa.command_circular_motion([0.6, 0.1, 0.65], [0.5, 0.2, 0.65], millimeters=True)
+            True
         """
         # TODO: improve example
         auxiliary_position = np.array(auxiliary_position, dtype=np.float32).flatten()
