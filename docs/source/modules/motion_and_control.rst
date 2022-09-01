@@ -1,5 +1,5 @@
-Motion and control
-==================
+Motion and control configuration
+================================
 
 .. raw:: html
   

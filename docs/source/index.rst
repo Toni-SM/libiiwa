@@ -36,6 +36,7 @@ User guide
     :maxdepth: 2
     :caption: libiiwa (Python)
 
+    modules/state
     modules/move
     modules/motion_and_control
     modules/limits

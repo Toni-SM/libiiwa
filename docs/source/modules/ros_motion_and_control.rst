@@ -1,5 +1,5 @@
-ROS & ROS2: Motion and control
-==============================
+ROS & ROS2: Motion and control configuration
+============================================
 
 .. raw:: html
   
