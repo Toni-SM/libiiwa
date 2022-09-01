@@ -11,11 +11,10 @@ from enum import Enum
 
 __all__ = [
     'LibIiwa',
-    'CommunicationMode',
     'MotionType',
-    'ControlInterface',
     'ControlMode',
     'ExecutionType',
+    'ControlInterface',
     'API_VERSION',
 ]
 
@@ -24,8 +23,10 @@ API_VERSION = "0.1.0-beta"
 
 # application errors
 class Error(Enum):
-    VALIDATION_FOR_IMPEDANCE_ERROR = -14
-    ASYNCHRONOUS_MOTION_ERROR = -13
+    INVALID_CONFIGURATION_ERROR = -16
+    VALIDATION_FOR_IMPEDANCE_ERROR = -15
+    ASYNCHRONOUS_MOTION_ERROR = -14
+    SYNCHRONOUS_MOTION_ERROR = -13
     INVALID_JOINT_ERROR = -12
     VALUE_ERROR = -11
     NO_ERROR = -10
@@ -74,6 +75,7 @@ class ExecutionType(Enum):
 # control command
 COMMAND_JOINT_POSITION = 101
 COMMAND_CARTESIAN_POSE = 102
+COMMAND_CIRC_MOTION = 103
 
 # configuration commands (limits)
 COMMAND_SET_DESIRED_JOINT_VELOCITY_REL = 201
@@ -406,6 +408,43 @@ class LibIiwa:
         if degrees:
             orientation = np.radians(orientation)
         command = [COMMAND_CARTESIAN_POSE] + position.tolist() + orientation.tolist() \
+            + [0] * (self._communication.COMMAND_LENGTH - 7)
+        return self._communication.set_command(command)
+
+    def command_circular_motion(self, 
+                                auxiliary_position: Union[List[float], np.ndarray], 
+                                end_position: Union[List[float], np.ndarray], 
+                                millimeters: bool = False) -> bool:
+        """Perform a circular motion
+
+        Circular motion is deined by an auxiliary position and an end position. 
+        The coordinates of the auxiliary position and end position are Cartesian and absolute.
+        The current frame orientation will be used to calculate the circular motion
+
+        :param auxiliary_position: The auxiliary cartesian position with respect to World
+        :type auxiliary_position: List[float] or np.ndarray
+        :param end_position: The end cartesian position with respect to World
+        :type end_position: List[float] or np.ndarray
+        :param millimeters: Whether the position is in millimeters or meters (default: meters)
+        :type millimeters: bool
+
+        :raises AssertionError: If the auxiliary position is not a list or numpy array of length 3
+        :raises AssertionError: If the end position is not a list or numpy array of length 3
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+
+        Example::
+        """
+        # TODO: improve example
+        auxiliary_position = np.array(auxiliary_position, dtype=np.float32).flatten()
+        end_position = np.array(end_position, dtype=np.float32).flatten()
+        assert len(auxiliary_position) == 3, "Invalid auxiliary position length"
+        assert len(end_position) == 3, "Invalid end position length"
+        if not millimeters:
+            auxiliary_position *= 1000
+            end_position *= 1000
+        command = [COMMAND_CIRC_MOTION] + auxiliary_position.tolist() + end_position.tolist() \
             + [0] * (self._communication.COMMAND_LENGTH - 7)
         return self._communication.set_command(command)
 
