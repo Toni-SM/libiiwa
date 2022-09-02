@@ -2,6 +2,8 @@
 from typing import Optional, Mapping
 
 import math
+import numpy as np
+
 import rospy
 import actionlib
 import sensor_msgs.msg
@@ -581,9 +583,16 @@ class Iiwa:
 
 
 class FollowJointTrajectory:
-    def __init__(self, robot, action_name: str, joints: dict):
-        self._interface = robot
+    def __init__(self, 
+                 interface, 
+                 action_name: str, 
+                 joints: dict, 
+                 follow_all_trajectory: bool = True, 
+                 verbose: bool = False):
+        self._interface = interface
         self._joints = joints
+        self._follow_all_trajectory = follow_all_trajectory
+        self._verbose = verbose
 
         self._action_name = action_name
         self._action_server = None
@@ -612,7 +621,6 @@ class FollowJointTrajectory:
         """Stop the action server
         """
         # noetic/lib/python3/dist-packages/actionlib/action_server.py
-        print("FollowJointTrajectory: destroying action server")
         if self._action_server:
             if self._action_server.started:
                 self._action_server.started = False
@@ -680,16 +688,21 @@ class FollowJointTrajectory:
             goal_handle.set_rejected(self._action_result_message, "")
             return
 
+        # use specified trajectory points
+        if not self._follow_all_trajectory:
+            goal.trajectory.points = [goal.trajectory.points[-1]]
+
         # check initial position
         if goal.trajectory.points[0].time_from_start.to_sec():
-            initial_point = JointTrajectoryPoint(positions=[self._get_joint_position(name) for name in goal.trajectory.joint_names],
-                                                 time_from_start=rospy.Duration())
+            state = self._interface.get_state()["joint_position"]
+            initial_point = JointTrajectoryPoint(positions=[self._get_joint_position(name, state) \
+                for name in goal.trajectory.joint_names], time_from_start=rospy.Duration())
             goal.trajectory.points.insert(0, initial_point)
 
         # store goal data
         self._action_goal = goal
         self._action_goal_handle = goal_handle
-        self._action_point_index = 1
+        self._action_point_index = 0
         self._action_start_time = rospy.get_time()
         self._action_feedback_message.joint_names = list(
             goal.trajectory.joint_names)
@@ -717,47 +730,49 @@ class FollowJointTrajectory:
         :type dt: float
         """
         if self._action_goal is not None and self._action_goal_handle is not None:
-            # end of trajectory
-            if self._action_point_index >= len(self._action_goal.trajectory.points):
-                self._action_goal = None
-                self._action_result_message.error_code = self._action_result_message.SUCCESSFUL
-                if self._action_goal_handle is not None:
-                    self._action_goal_handle.set_succeeded(
-                        self._action_result_message)
-                    self._action_goal_handle = None
-                return
-
-            previous_point = self._action_goal.trajectory.points[self._action_point_index - 1]
             current_point = self._action_goal.trajectory.points[self._action_point_index]
             time_passed = rospy.get_time() - self._action_start_time
 
-            # set target using linear interpolation
-            if time_passed <= current_point.time_from_start.to_sec():
-                ratio = (time_passed - previous_point.time_from_start.to_sec()) \
-                    / (current_point.time_from_start.to_sec() - previous_point.time_from_start.to_sec())
-                joint_positions = [0] * \
-                    len(self._action_goal.trajectory.joint_names)
-                for i, name in enumerate(self._action_goal.trajectory.joint_names):
-                    side = - \
-                        1 if current_point.positions[i] < previous_point.positions[i] else 1
-                    target_position = previous_point.positions[i] \
-                        + side * ratio * \
-                        abs(current_point.positions[i] -
-                            previous_point.positions[i])
-                    joint_positions[i] = self._set_joint_position(
-                        name, target_position)
-                    self._interface.command_joint_position(joint_positions)
-            # send feedback
-            else:
-                state = self._interface.get_state()["joint_position"]
+            state = self._interface.get_state()["joint_position"]
+            current_position = np.array([self._get_joint_position(name, state) 
+                                         for name in self._action_goal.trajectory.joint_names])
+            
+            diff = np.abs(np.array(current_point.positions) - current_position).sum()
+            # diff execution value when reaching: 0.000235
+            threshold = 0.005 # rel vel: 0.02
+            # threshold = 0.1   # rel vel: 0.25
+            # threshold = 0.5   # rel vel: 0.5
+            # threshold = 0.75   # rel vel: 0.75
+            # threshold = 1.25   # rel vel: 1.0
+            if diff <= threshold:
                 self._action_point_index += 1
+                # end of trajectory
+                if self._action_point_index >= len(self._action_goal.trajectory.points):
+                    if self._verbose:
+                        rospy.loginfo("FollowJointTrajectory: set succeeded trajectory")
+                    self._action_goal = None
+                    self._action_result_message.error_code = self._action_result_message.SUCCESSFUL
+                    if self._action_goal_handle is not None:
+                        self._action_goal_handle.set_succeeded(self._action_result_message)
+                        self._action_goal_handle = None
+                    return
+                # update target
+                if self._verbose:
+                    rospy.loginfo("FollowJointTrajectory: update trajectory {}/{} points ({})" \
+                        .format(self._action_point_index, len(self._action_goal.trajectory.points), diff))
+                current_point = self._action_goal.trajectory.points[self._action_point_index]
+                joint_positions = [0] * len(self._action_goal.trajectory.joint_names)
+                for i, name in enumerate(self._action_goal.trajectory.joint_names):
+                    joint_positions[i] = self._set_joint_position(name, current_point.positions[i])
+                self._interface.command_joint_position(joint_positions)
+                # send feedback
+                if self._verbose:
+                    rospy.loginfo("FollowJointTrajectory: send feedback after {} seconds".format(time_passed))
                 self._action_feedback_message.actual.positions = [self._get_joint_position(name, state)
                                                                   for name in self._action_goal.trajectory.joint_names]
-                self._action_feedback_message.actual.time_from_start = rospy.Duration.from_sec(
-                    time_passed)
+                self._action_feedback_message.actual.time_from_start = rospy.Duration.from_sec(time_passed)
                 if self._action_goal_handle is not None:
-                    self._action_goal_handle.publish_feedback(
-                        self._action_feedback_message)
+                    self._action_goal_handle.publish_feedback(self._action_feedback_message)
 
 
 
@@ -774,9 +789,12 @@ if __name__ == "__main__":
     robot_name = rospy.get_param("~robot_name", "iiwa")
     controller_name = rospy.get_param("~controller_name", "iiwa_controller")
     action_namespace = rospy.get_param("~action_namespace", "follow_joint_trajectory")
+    follow_all_trajectory = rospy.get_param("~follow_all_trajectory", True)
+
     libiiwa_ip = rospy.get_param("~libiiwa_ip", "0.0.0.0")
     libiiwa_port = rospy.get_param("~libiiwa_port", 12225)
     run_without_communication = rospy.get_param("~run_without_communication", False)
+    
     verbose = rospy.get_param("~verbose", False)
 
     # init robot interface
@@ -787,8 +805,14 @@ if __name__ == "__main__":
     robot.set_desired_joint_velocity_rel(0.5)
 
     # load controllers
-    controllers = [Iiwa(robot, JOINTS, verbose=verbose),
-                   FollowJointTrajectory(robot, f"/{controller_name}/{action_namespace}", JOINTS)]
+    controllers = [Iiwa(interface=robot, 
+                        joints=JOINTS, 
+                        verbose=verbose),
+                   FollowJointTrajectory(interface=robot, 
+                                         action_name=f"/{controller_name}/{action_namespace}", 
+                                         joints=JOINTS, 
+                                         follow_all_trajectory=follow_all_trajectory, 
+                                         verbose=verbose)]
 
     # control loop
     for controller in controllers:
