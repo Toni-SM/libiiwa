@@ -15,31 +15,31 @@ Robot state
       - Dictionary key
       - Unit
       - Data type
-    * - TODO
+    * - Axis-specific (joint) actual position
       - :literal:`joint_position`
       - :literal:`radians`
       - :literal:`np.ndarray` :literal:`shape=(7,)` :literal:`dtype=np.float32`
-    * - TODO
+    * - Axis-specific (joint) actual velocity internally calculated as the position difference in 1/100 second interval
       - :literal:`joint_velocity`
       - :literal:`radians/s`
       - :literal:`np.ndarray` :literal:`shape=(7,)` :literal:`dtype=np.float32`
-    * - TODO
+    * - External acting torques without the component resulting from the robot weight and mass inertias during motion
       - :literal:`joint_torque`
       - :literal:`Nm`
       - :literal:`np.ndarray` :literal:`shape=(7,)` :literal:`dtype=np.float32`
-    * - TODO
+    * - Cartesian position (X,Y,Z)
       - :literal:`cartesian_position`
       - :literal:`m`
       - :literal:`np.ndarray` :literal:`shape=(3,)` :literal:`dtype=np.float32`
-    * - TODO
+    * - Cartesian orientation (A,B,C)
       - :literal:`cartesian_orientation`
       - :literal:`radians`
       - :literal:`np.ndarray` :literal:`shape=(3,)` :literal:`dtype=np.float32`
-    * - TODO
+    * - External Cartesian forces
       - :literal:`cartesian_force`
       - :literal:`N`
       - :literal:`np.ndarray` :literal:`shape=(3,)` :literal:`dtype=np.float32`
-    * - TODO
+    * - External Cartesian torques
       - :literal:`cartesian_torque`
       - :literal:`Nm`
       - :literal:`np.ndarray` :literal:`shape=(3,)` :literal:`dtype=np.float32`
