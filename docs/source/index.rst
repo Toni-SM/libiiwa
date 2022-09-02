@@ -50,3 +50,4 @@ User guide
     modules/ros_move
     modules/ros_motion_and_control
     modules/ros_limits
+    modules/ros_moveit
