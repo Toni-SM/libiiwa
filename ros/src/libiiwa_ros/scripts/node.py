@@ -588,10 +588,12 @@ class FollowJointTrajectory:
                  action_name: str, 
                  joints: dict, 
                  follow_all_trajectory: bool = True, 
+                 trajectory_update_threshold = 0.5,
                  verbose: bool = False):
         self._interface = interface
         self._joints = joints
         self._follow_all_trajectory = follow_all_trajectory
+        self._trajectory_update_threshold = trajectory_update_threshold
         self._verbose = verbose
 
         self._action_name = action_name
@@ -675,17 +677,21 @@ class FollowJointTrajectory:
         # reject if joints don't match
         for name in goal.trajectory.joint_names:
             if name not in self._joints:
-                print("[Warning]FollowJointTrajectory: joints don't match ({} not in {})"
-                      .format(name, list(self._joints.keys())))
+                rospy.logwarn("FollowJointTrajectory: joints don't match ({} not in {})" \
+                    .format(name, list(self._joints.keys())))
                 self._action_result_message.error_code = self._action_result_message.INVALID_JOINTS
                 goal_handle.set_rejected(self._action_result_message, "")
+                if self._verbose:
+                    rospy.loginfo("FollowJointTrajectory: goal request rejected")
                 return
 
         # reject if there is an active goal
         if self._action_goal is not None:
-            print("[Warning]FollowJointTrajectory: multiple goals not supported")
+            rospy.logwarn("FollowJointTrajectory: multiple goals not supported")
             self._action_result_message.error_code = self._action_result_message.INVALID_GOAL
             goal_handle.set_rejected(self._action_result_message, "")
+            if self._verbose:
+                rospy.loginfo("FollowJointTrajectory: goal request rejected")
             return
 
         # use specified trajectory points
@@ -708,6 +714,8 @@ class FollowJointTrajectory:
             goal.trajectory.joint_names)
 
         goal_handle.set_accepted()
+        if self._verbose:
+            rospy.loginfo("FollowJointTrajectory: goal request accepted")
 
     def _on_cancel(self, goal_handle: 'actionlib.ServerGoalHandle') -> None:
         """Callback function for handling cancel requests
@@ -717,11 +725,15 @@ class FollowJointTrajectory:
         """
         if self._action_goal is None:
             goal_handle.set_rejected()
+            if self._verbose:
+                rospy.loginfo("FollowJointTrajectory: cancel request rejected")
             return
         self._action_goal = None
         self._action_goal_handle = None
         self._action_start_time = None
         goal_handle.set_canceled()
+        if self._verbose:
+            rospy.loginfo("FollowJointTrajectory: cancel request accepted")
 
     def step(self, dt: float) -> None:
         """Update step
@@ -738,13 +750,7 @@ class FollowJointTrajectory:
                                          for name in self._action_goal.trajectory.joint_names])
             
             diff = np.abs(np.array(current_point.positions) - current_position).sum()
-            # diff execution value when reaching: 0.000235
-            threshold = 0.005 # rel vel: 0.02
-            # threshold = 0.1   # rel vel: 0.25
-            # threshold = 0.5   # rel vel: 0.5
-            # threshold = 0.75   # rel vel: 0.75
-            # threshold = 1.25   # rel vel: 1.0
-            if diff <= threshold:
+            if diff <= self._trajectory_update_threshold:
                 self._action_point_index += 1
                 # end of trajectory
                 if self._action_point_index >= len(self._action_goal.trajectory.points):
@@ -787,9 +793,11 @@ if __name__ == "__main__":
 
     # get launch parameters
     robot_name = rospy.get_param("~robot_name", "iiwa")
+
     controller_name = rospy.get_param("~controller_name", "iiwa_controller")
     action_namespace = rospy.get_param("~action_namespace", "follow_joint_trajectory")
     follow_all_trajectory = rospy.get_param("~follow_all_trajectory", True)
+    trajectory_update_threshold = rospy.get_param("~trajectory_update_threshold", 0.5)
 
     libiiwa_ip = rospy.get_param("~libiiwa_ip", "0.0.0.0")
     libiiwa_port = rospy.get_param("~libiiwa_port", 12225)
@@ -812,6 +820,7 @@ if __name__ == "__main__":
                                          action_name=f"/{controller_name}/{action_namespace}", 
                                          joints=JOINTS, 
                                          follow_all_trajectory=follow_all_trajectory, 
+                                         trajectory_update_threshold=trajectory_update_threshold,
                                          verbose=verbose)]
 
     # control loop
