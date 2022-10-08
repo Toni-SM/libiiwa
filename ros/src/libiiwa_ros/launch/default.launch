@@ -1,24 +1,26 @@
 <launch>
-    <arg name="robot_name"          default="iiwa"/>
+    <arg name="robot_name"                      default="iiwa"/>
 
     <!-- FollowJointTrajectory action: /controller_name/action_namespace -->
-    <arg name="controller_name"         default="iiwa_controller"/>
-    <arg name="action_namespace"        default="follow_joint_trajectory"/>
-    <arg name="follow_all_trajectory"   default="true"/>
+    <arg name="controller_name"                 default="iiwa_controller"/>
+    <arg name="action_namespace"                default="follow_joint_trajectory"/>
+    <arg name="follow_all_trajectory"           default="true"/>
+    <arg name="trajectory_update_threshold"     default="0.5"/>
 
     <!-- libiiwa configuration (see LibIiwa class) -->
-    <arg name="libiiwa_ip"          default="0.0.0.0"/>
-    <arg name="libiiwa_port"        default="12225"/>
+    <arg name="libiiwa_ip"                      default="0.0.0.0"/>
+    <arg name="libiiwa_port"                    default="12225"/>
 
     <!-- launch ROS node -->
     <node name="libiiwa_ros" pkg="libiiwa_ros" type="node.py" output="screen" cwd="node">
-        <param name="robot_name"        type="str"      value="$(arg robot_name)"/>
+        <param name="robot_name"                    type="str"      value="$(arg robot_name)"/>
 
-        <param name="controller_name"           type="str"      value="$(arg controller_name)"/>
-        <param name="action_namespace"          type="str"      value="$(arg action_namespace)"/>
-        <param name="follow_all_trajectory"     type="bool"      value="$(arg follow_all_trajectory)"/>
+        <param name="controller_name"               type="str"      value="$(arg controller_name)"/>
+        <param name="action_namespace"              type="str"      value="$(arg action_namespace)"/>
+        <param name="follow_all_trajectory"         type="bool"     value="$(arg follow_all_trajectory)"/>
+        <param name="trajectory_update_threshold"   type="double"   value="$(arg trajectory_update_threshold)"/>
 
-        <param name="libiiwa_ip"        type="str"      value="$(arg libiiwa_ip)"/>
-        <param name="libiiwa_port"      type="int"      value="$(arg libiiwa_port)"/>
+        <param name="libiiwa_ip"                    type="str"      value="$(arg libiiwa_ip)"/>
+        <param name="libiiwa_port"                  type="int"      value="$(arg libiiwa_port)"/>
     </node>
 </launch>
