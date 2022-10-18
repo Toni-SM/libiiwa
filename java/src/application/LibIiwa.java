@@ -803,7 +803,16 @@ public class LibIiwa extends RoboticsAPIApplication {
 	// ===========================================================
 	// CONTROL METHODS
 	// ===========================================================
-
+	/** PARTIAL
+	 * Stop the robot
+	 * 
+	 * @return true if the control was successful, otherwise false
+	 */
+	private boolean methStop() {
+		this.methStopAndResetMotion();
+		return true;
+	}
+ 
 	/** PARTIAL
 	 * Control robot using joint positions (in radians)
 	 * <p>
@@ -985,6 +994,10 @@ public class LibIiwa extends RoboticsAPIApplication {
 			return true;
 		}
 		// move command
+		else if (commandCode == LibIiwaEnum.COMMAND_STOP.getCode()){
+			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_STOP.toString());
+			return this.methStop();
+		}
 		else if (commandCode == LibIiwaEnum.COMMAND_JOINT_POSITION.getCode()){
 			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_JOINT_POSITION.toString());
 			return this.methGoToJointPosition(Arrays.copyOfRange(command, 1, 1 + 7));
@@ -1110,7 +1123,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		double[] state = methUpdateAndGetCurrentState();
 		state[STATE_COMMAND_STATUS] = commandStatus ? 1.0 : 0.0;
 		state[STATE_LAST_ERROR] = this.enumLastError.getCode();
-		if (VERBOSE) getLogger().info("STATE: " + state[STATE_COMMAND_STATUS] + " " + state[STATE_LAST_ERROR]);
+		// if (VERBOSE) getLogger().info("STATE: " + state[STATE_COMMAND_STATUS] + " " + state[STATE_LAST_ERROR]);
 		// send state
 		if (!this.propCommunication.methSendData(state)){
 			this.propShouldContinue = false;
