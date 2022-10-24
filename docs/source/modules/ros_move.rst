@@ -1,6 +1,28 @@
 ROS & ROS2: Move the robot
 ==========================
 
+.. contents:: Table of Contents
+   :depth: 2
+   :local:
+   :backlinks: none
+
+.. raw:: html
+  
+    <hr>
+
+Stop the robot
+--------------
+
+Stop the current motion
+
+.. list-table::
+    :header-rows: 1
+
+    * - Default topic name
+      - Message type (msg)
+    * - :literal:`/iiwa/command/stop`
+      - `std_msgs/Empty <http://docs.ros.org/en/noetic/api/std_msgs/html/msg/Empty.html>`_
+
 .. raw:: html
   
     <hr>
