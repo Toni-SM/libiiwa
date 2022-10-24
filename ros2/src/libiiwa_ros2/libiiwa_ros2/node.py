@@ -4,6 +4,7 @@ from typing import Optional, Mapping
 import math
 import rclpy
 import threading
+import std_msgs.msg
 import sensor_msgs.msg
 import geometry_msgs.msg
 from rclpy.node import Node
@@ -86,6 +87,7 @@ class Iiwa:
 
         # subscribers
         self._subscribers = []
+        self._sub_stop_command = None
         self._sub_joint_command = None
         self._sub_cartesian_command = None
 
@@ -102,6 +104,21 @@ class Iiwa:
 
     # motion command
 
+    def _callback_stop_command(self, msg: std_msgs.msg.Empty) -> None:
+        # stop the robot
+        try:
+            status = self._interface.command_stop()
+        except Exception as e:
+            self._node.get_logger().error('Failed to stop the robot')
+            self._node.get_logger().error(str(e))
+            return
+
+        if not status:
+            self._node.get_logger().error('Failed to stop the robot')
+            self._node.get_logger().error(self._interface.get_last_error())
+        if self._verbose:
+            self._node.get_logger().info('Stop robot')
+        
     def _callback_joint_command(self, msg: sensor_msgs.msg.JointState) -> None:  # DONE
         names = msg.name
         positions = msg.position
@@ -447,6 +464,10 @@ class Iiwa:
                             self._pub_end_effector_wrench]
 
         # create subscribers
+        self._sub_stop_command = self._node.create_subscription(msg_type=std_msgs.msg.Empty,
+                                                                topic=self._names.get("stop_command", "/iiwa/command/stop"),
+                                                                callback=self._callback_stop_command,
+                                                                qos_profile=self._qos_profile)
         self._sub_joint_command = self._node.create_subscription(msg_type=sensor_msgs.msg.JointState,
                                                                  topic=self._names.get("joint_command", "/iiwa/command/joint"),
                                                                  callback=self._callback_joint_command,
@@ -456,9 +477,9 @@ class Iiwa:
                                                                      callback=self._callback_cartesian_command,
                                                                      qos_profile=self._qos_profile)
 
-        self._subscribers = [self._sub_joint_command,
+        self._subscribers = [self._sub_stop_command,
+                             self._sub_joint_command,
                              self._sub_cartesian_command]
-
 
         # create services
         name = self._names.get("set_desired_joint_velocity_rel", "/iiwa/set_desired_joint_velocity_rel")
