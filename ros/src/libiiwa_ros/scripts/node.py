@@ -6,6 +6,7 @@ import numpy as np
 
 import rospy
 import actionlib
+import std_msgs.msg
 import sensor_msgs.msg
 import geometry_msgs.msg
 import control_msgs.msg
@@ -84,6 +85,7 @@ class Iiwa:
 
         # subscribers
         self._subscribers = []
+        self._sub_stop_command = None
         self._sub_joint_command = None
         self._sub_cartesian_command = None
 
@@ -99,6 +101,21 @@ class Iiwa:
         self._msg_joint_states.name = sorted(list(self._joints.keys()))
 
     # motion command
+
+    def _callback_stop_command(self, msg: std_msgs.msg.Empty) -> None:
+        # stop the robot
+        try:
+            status = self._interface.command_stop()
+        except Exception as e:
+            rospy.logerr('Failed to stop the robot')
+            rospy.logerr(str(e))
+            return
+
+        if not status:
+            rospy.logerr('Failed to stop the robot')
+            rospy.logerr(self._interface.get_last_error())
+        if self._verbose:
+            rospy.loginfo('Stop robot')
 
     def _callback_joint_command(self, msg: sensor_msgs.msg.JointState) -> None:  # DONE
         names = msg.name
@@ -455,6 +472,9 @@ class Iiwa:
                             self._pub_end_effector_wrench]
 
         # create subscribers
+        self._sub_stop_command = rospy.Subscriber(name=self._names.get("stop_command", "/iiwa/command/stop"),
+                                                  data_class=std_msgs.msg.Empty,
+                                                  callback=self._callback_stop_command)
         self._sub_joint_command = rospy.Subscriber(name=self._names.get("joint_command", "/iiwa/command/joint"),
                                                    data_class=sensor_msgs.msg.JointState,
                                                    callback=self._callback_joint_command)
@@ -462,7 +482,8 @@ class Iiwa:
                                                        data_class=geometry_msgs.msg.Pose,
                                                        callback=self._callback_cartesian_command)
 
-        self._subscribers = [self._sub_joint_command,
+        self._subscribers = [self._sub_stop_command,
+                             self._sub_joint_command,
                              self._sub_cartesian_command]
 
         # create services
