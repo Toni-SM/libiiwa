@@ -74,9 +74,10 @@ class ExecutionType(Enum):
     EXECUTION_TYPE_SYNCHRONOUS = 52
 
 # control command
-COMMAND_JOINT_POSITION = 101
-COMMAND_CARTESIAN_POSE = 102
-COMMAND_CIRC_MOTION = 103
+COMMAND_STOP = 101
+COMMAND_JOINT_POSITION = 102
+COMMAND_CARTESIAN_POSE = 103
+COMMAND_CIRC_MOTION = 104
 
 # configuration commands (limits)
 COMMAND_SET_DESIRED_JOINT_VELOCITY_REL = 201
@@ -337,6 +338,18 @@ class LibIiwa:
         return self._communication.get_last_error(clear_after_read)
 
     # motion command
+
+    def command_stop(self) -> bool:
+        """Stop the robot
+
+        Example::
+
+            >>> # stop the robot
+            >>> iiwa.command_stop()
+            True
+        """
+        command = [COMMAND_STOP] + [0] * (self._communication.COMMAND_LENGTH - 1)
+        return self._communication.set_command(command)
 
     def command_joint_position(self, position: Union[List[float], np.ndarray], degrees: bool = False) -> bool:  # DONE
         """Move the robot to the specified joint position
