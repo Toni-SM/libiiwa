@@ -782,6 +782,88 @@ class LibIiwa:
             + [0] * (self._communication.COMMAND_LENGTH - 7)
         return self._communication.set_command(command)
 
+    def set_cartesian_max_control_force(self,
+                                        translational : Union[List[float], np.ndarray] = [1e6, 1e6, 1e6],
+                                        rotational : Union[List[float], np.ndarray] = [1e6, 1e6, 1e6],
+                                        add_stop_condition: bool = False) -> bool:
+        """Define the limitation of the maximum force (translational) / torque (rotational) on the TCP
+
+        :param translational: Maximum force in N (default: [1e6, 1e6, 1e6])
+        :type translational: 3-element list or numpy.ndarray
+        :param rotational: Maximum torque in Nm (default: [1e6, 1e6, 1e6])
+        :type rotational: 3-element list or numpy.ndarray
+
+        :raises AssertionError: If the length of the translational and rotational is not equal to the number of axes
+        :raises AssertionError: If the translational is not in the range [0.0, Inf)
+        :raises AssertionError: If the rotational is not in the range [0.0, Inf)
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+        """
+        translational = np.array(translational, dtype=np.float32).flatten()
+        rotational = np.array(rotational, dtype=np.float32).flatten()
+        assert translational.size == 3, "Invalid translational length"
+        assert rotational.size == 3, "Invalid rotational length"
+        assert np.all(translational >= 0.0), "Invalid range [0.0, Inf)"
+        assert np.all(rotational >= 0.0), "Invalid range [0.0, Inf)"
+        command = [COMMAND_SET_CARTESIAN_MAX_CONTROL_FORCE] + translational.tolist() + rotational.tolist() \
+            + [float(add_stop_condition)] + [0] * (self._communication.COMMAND_LENGTH - 8)
+        return self._communication.set_command(command)
+
+    def set_cartesian_max_velocity(self,
+                                   translational : Union[List[float], np.ndarray] = [1e6, 1e6, 1e6],
+                                   rotational : Union[List[float], np.ndarray] = [1e6, 1e6, 1e6]) -> bool:
+        """Define the maximum Cartesian velocity at which motion is aborted if the limit is exceeded
+
+        :param translational: Maximum Cartesian velocity in mm/s (default: [1e6, 1e6, 1e6])
+        :type translational: 3-element list or numpy.ndarray
+        :param rotational: Maximum Cartesian velocity in rad/s (default: [1e6, 1e6, 1e6])
+        :type rotational: 3-element list or numpy.ndarray
+
+        :raises AssertionError: If the length of the translational and rotational is not equal to the number of axes
+        :raises AssertionError: If the translational is not in the range [0.0, Inf)
+        :raises AssertionError: If the rotational is not in the range [0.0, Inf)
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+        """
+        translational = np.array(translational, dtype=np.float32).flatten()
+        rotational = np.array(rotational, dtype=np.float32).flatten()
+        assert translational.size == 3, "Invalid translational length"
+        assert rotational.size == 3, "Invalid rotational length"
+        assert np.all(translational >= 0.0), "Invalid range [0.0, Inf)"
+        assert np.all(rotational >= 0.0), "Invalid range [0.0, Inf)"
+        command = [COMMAND_SET_CARTESIAN_MAX_CARTESIAN_VELOCITY] + translational.tolist() + rotational.tolist() \
+            + [0] * (self._communication.COMMAND_LENGTH - 7)
+        return self._communication.set_command(command)
+
+    def set_cartesian_max_path_deviation(self,
+                                         translational : Union[List[float], np.ndarray] = [1e6, 1e6, 1e6],
+                                         rotational : Union[List[float], np.ndarray] = [1e6, 1e6, 1e6]) -> bool:
+        """Define the maximum permissible Cartesian path deviation at which motion is aborted if the limit is exceeded
+
+        :param translational: Maximum path deviation in mm (default: [1e6, 1e6, 1e6])
+        :type translational: 3-element list or numpy.ndarray
+        :param rotational: Maximum path deviation in rad (default: [1e6, 1e6, 1e6])
+        :type rotational: 3-element list or numpy.ndarray
+
+        :raises AssertionError: If the length of the translational and rotational is not equal to the number of axes
+        :raises AssertionError: If the translational is not in the range [0.0, Inf)
+        :raises AssertionError: If the rotational is not in the range [0.0, Inf)
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+        """
+        translational = np.array(translational, dtype=np.float32).flatten()
+        rotational = np.array(rotational, dtype=np.float32).flatten()
+        assert translational.size == 3, "Invalid translational length"
+        assert rotational.size == 3, "Invalid rotational length"
+        assert np.all(translational >= 0.0), "Invalid range [0.0, Inf)"
+        assert np.all(rotational >= 0.0), "Invalid range [0.0, Inf)"
+        command = [COMMAND_SET_CARTESIAN_MAX_PATH_DEVIATION] + translational.tolist() + rotational.tolist() \
+            + [0] * (self._communication.COMMAND_LENGTH - 7)
+        return self._communication.set_command(command)
+
     def set_joint_stiffness(self, stiffness: Union[List[float], np.ndarray]) -> bool:
         """Define the stiffness for joint impedance control 
 
