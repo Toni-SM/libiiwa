@@ -689,17 +689,21 @@ class LibIiwa:
 
     def set_cartesian_stiffness(self, 
                                 translational : Union[List[float], np.ndarray] = [2000.0, 2000.0, 2000.0],
-                                rotational : Union[List[float], np.ndarray] = [200.0, 200.0, 200.0]) -> bool:
+                                rotational : Union[List[float], np.ndarray] = [200.0, 200.0, 200.0],
+                                null_space: float = 100) -> bool:
         """Define the stiffness (translational and rotational) for Cartesian impedance control 
 
         :param  translational: Translational stiffness in N/m [0.0, 5000.0] (default: [2000.0, 2000.0, 2000.0])
         :type translational: 3-element list or numpy.ndarray
         :param rotational: Rotational stiffness in Nm/rad [0.0, 300.0] (default: [200.0, 200.0, 200.0])
         :type rotational: 3-element list or numpy.ndarray
+        :type null_space: Spring stiffness of the redundancy degree of freedom in Nm/rad [0.0, Inf) (default: 100)
+        :type null_space: float
 
         :raises AssertionError: If the length of the translational and rotational is not equal to the number of axes
         :raises AssertionError: If the translational is not in the range [0.0, 5000.0]
         :raises AssertionError: If the rotational is not in the range [0.0, 300.0]
+        :raises AssertionError: If the null_space is not in the range [0.0, Inf)
 
         :return: True if successful, False otherwise
         :rtype: bool
@@ -712,23 +716,28 @@ class LibIiwa:
         assert np.all(translational <= 5000.0), "Invalid range [0.0, 5000.0]"
         assert np.all(rotational >= 0), "Invalid range [0.0, 300.0]"
         assert np.all(rotational <= 300.0), "Invalid range [0.0, 300.0]"
+        assert null_space >= 0, "Invalid range [0.0, Inf)"
         command = [COMMAND_SET_CARTESIAN_STIFFNESS] + translational.tolist() + rotational.tolist() \
-            + [0] * (self._communication.COMMAND_LENGTH - 7)
+            + [null_space] + [0] * (self._communication.COMMAND_LENGTH - 8)
         return self._communication.set_command(command)
 
     def set_cartesian_damping(self,
                               translational : Union[List[float], np.ndarray] = [0.7, 0.7, 0.7],
-                              rotational : Union[List[float], np.ndarray] = [0.7, 0.7, 0.7]) -> bool:
+                              rotational : Union[List[float], np.ndarray] = [0.7, 0.7, 0.7],
+                              null_space: float = 0.7) -> bool:
         """Define the damping (translational and rotational) for Cartesian impedance control 
 
         :param  translational: Translational damping [0.1, 1.0] (default: [0.7, 0.7, 0.7])
         :type translational: 3-element list or numpy.ndarray
         :param rotational: Rotational damping [0.1, 1.0] (default: [0.7, 0.7, 0.7])
         :type rotational: 3-element list or numpy.ndarray
+        :type null_space: Spring damping of the redundancy degree of freedom in Nm/rad [0.3, 1.0] (default: 0.7)
+        :type null_space: float
 
         :raises AssertionError: If the length of the translational and rotational is not equal to the number of axes
         :raises AssertionError: If the translational is not in the range [0.1, 1.0]
         :raises AssertionError: If the rotational is not in the range [0.1, 1.0]
+        :raises AssertionError: If the null_space is not in the range [0.3, 1.0]
 
         :return: True if successful, False otherwise
         :rtype: bool
@@ -741,8 +750,9 @@ class LibIiwa:
         assert np.all(translational <= 1.0), "Invalid range [0.1, 1.0]"
         assert np.all(rotational >= 0.1), "Invalid range [0.1, 1.0]"
         assert np.all(rotational <= 1.0), "Invalid range [0.1, 1.0]"
+        assert null_space >= 0.3 and null_space <= 1.0, "Invalid range [0.3, 1.0]"
         command = [COMMAND_SET_CARTESIAN_DAMPING] + translational.tolist() + rotational.tolist() \
-            + [0] * (self._communication.COMMAND_LENGTH - 7)
+            + [null_space] + [0] * (self._communication.COMMAND_LENGTH - 8)
         return self._communication.set_command(command)
 
     def set_cartesian_additional_control_force(self,
