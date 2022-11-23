@@ -662,21 +662,77 @@ public class LibIiwa extends RoboticsAPIApplication {
 		this.propControlModeCartesianImpedance.parametrize(CartDOF.A).setAdditionalControlForce(force[3]);
 		this.propControlModeCartesianImpedance.parametrize(CartDOF.B).setAdditionalControlForce(force[4]);
 		this.propControlModeCartesianImpedance.parametrize(CartDOF.C).setAdditionalControlForce(force[5]);
-		if (VERBOSE) getLogger().info("Cartesian additional control force: " + force);
+		if (VERBOSE) getLogger().info("Cartesian additional control force: " + Arrays.toString(force));
 		return true;
 	}
 	
-	public boolean methSetCartesianMaxControlForce(double[] force) {
-		getLogger().info(Arrays.toString(this.propControlModeCartesianImpedance.getMaxCartesianVelocity()));
-		// this.propControlModeCartesianImpedance.setMaxCartesianVelocity(x, y, z, a, b, c);
+	/**
+	 * Define the limitation of the maximum force / torque on the TCP (translational: N, rotational: Nm)
+	 * <p>
+	 * translational: [0.0, Inf) (default: 1e6)
+	 * <p>
+	 * rotational: [0.0, Inf) (default: 1e6)
+	 * 
+	 * @param force translational (3) and rotational (3) limits (force / torque)
+	 * @param addStopCondition cancelation of the motion if the maximum force at the TCP is exceeded
+	 * @return true
+	 */
+	public boolean methSetCartesianMaxControlForce(double[] force, boolean addStopCondition) {
+		double x = force[0] >= 0 ? force[0] : 1e6;
+		double y = force[1] >= 0 ? force[1] : 1e6;
+		double z = force[2] >= 0 ? force[2] : 1e6;
+		double a = force[3] >= 0 ? force[3] : 1e6;
+		double b = force[4] >= 0 ? force[4] : 1e6;
+		double c = force[5] >= 0 ? force[5] : 1e6;
+
+		this.propControlModeCartesianImpedance.setMaxControlForce(x, y, z, a, b, c, addStopCondition);
+		if (VERBOSE) getLogger().info("Max Cartesian control force: " + Arrays.toString(force));
 		return true;
 	}
 	
+	/**
+	 * Define the maximum Cartesian velocity at which motion is aborted if the limit is exceeded (translational: mm/s, rotational: rad/s)
+	 * <p>
+	 * translational: [0.0, Inf) (default if invalid: 1e6)
+	 * <p>
+	 * rotational: [0.0, Inf) (default if invalid: 1e6)
+	 * 
+	 * @param velocity translational (3) and rotational (3) limits
+	 * @return true
+	 */
 	public boolean methSetCartesianMaxCartesianVelocity(double[] velocity) {
+		double x = velocity[0] >= 0 ? velocity[0] : 1e6;
+		double y = velocity[1] >= 0 ? velocity[1] : 1e6;
+		double z = velocity[2] >= 0 ? velocity[2] : 1e6;
+		double a = velocity[3] >= 0 ? velocity[3] : 1e6;
+		double b = velocity[4] >= 0 ? velocity[4] : 1e6;
+		double c = velocity[5] >= 0 ? velocity[5] : 1e6;
+		
+		this.propControlModeCartesianImpedance.setMaxCartesianVelocity(x, y, z, a, b, c);
+		if (VERBOSE) getLogger().info("Max Cartesian velocity: " + Arrays.toString(velocity));
 		return true;
 	}
 	
+	/**
+	 * Define the maximum permissible Cartesian path deviation at which motion is aborted if the limit is exceeded (translational: mm, rotational: rad)
+	 * <p>
+	 * translational: [0.0, Inf) (default if invalid: 1e6)
+	 * <p>
+	 * rotational: [0.0, Inf) (default if invalid: 1e6)
+	 * 
+	 * @param deviation translational (3) and rotational (3) limits
+	 * @return true
+	 */
 	public boolean methSetCartesianMaxPathDeviation(double[] deviation) {
+		double x = deviation[0] >= 0 ? deviation[0] : 1e6;
+		double y = deviation[1] >= 0 ? deviation[1] : 1e6;
+		double z = deviation[2] >= 0 ? deviation[2] : 1e6;
+		double a = deviation[3] >= 0 ? deviation[3] : 1e6;
+		double b = deviation[4] >= 0 ? deviation[4] : 1e6;
+		double c = deviation[5] >= 0 ? deviation[5] : 1e6;
+		
+		this.propControlModeCartesianImpedance.setMaxPathDeviation(x, y, z, a, b, c);
+		if (VERBOSE) getLogger().info("Max path deviation: " + Arrays.toString(deviation));
 		return true;
 	}
 	
@@ -1115,7 +1171,8 @@ public class LibIiwa extends RoboticsAPIApplication {
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_MAX_CONTROL_FORCE.getCode()){
 			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_MAX_CONTROL_FORCE.toString());
-			return this.methSetCartesianMaxControlForce(Arrays.copyOfRange(command, 1, 1 + 7));
+			boolean addStopCondition = command[7] > 0;
+			return this.methSetCartesianMaxControlForce(Arrays.copyOfRange(command, 1, 1 + 6), addStopCondition);
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_MAX_CARTESIAN_VELOCITY.getCode()){
 			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_MAX_CARTESIAN_VELOCITY.toString());
