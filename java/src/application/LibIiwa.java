@@ -174,17 +174,17 @@ public class LibIiwa extends RoboticsAPIApplication {
 
 	private void methStopAndResetMotion() {
 		// stop motions
-		if (propCurrentMotionContainer != null)
-			propCurrentMotionContainer.cancel();
-		if (propCurrentSmartServoRuntime != null)
-			propCurrentSmartServoRuntime.stopMotion();
-		if (propCurrentSmartServoLINRuntime != null)
-			propCurrentSmartServoLINRuntime.stopMotion();
+		if (this.propCurrentMotionContainer != null)
+			this.propCurrentMotionContainer.cancel();
+		if (this.propCurrentSmartServoRuntime != null)
+			this.propCurrentSmartServoRuntime.stopMotion();
+		if (this.propCurrentSmartServoLINRuntime != null)
+			this.propCurrentSmartServoLINRuntime.stopMotion();
 
 		// reset variables
-		propCurrentMotionContainer = null;
-		propCurrentSmartServoRuntime = null;
-		propCurrentSmartServoLINRuntime = null;
+		this.propCurrentMotionContainer = null;
+		this.propCurrentSmartServoRuntime = null;
+		this.propCurrentSmartServoLINRuntime = null;
 	}
 
 	private boolean methInitializeSmartServo() {
@@ -297,7 +297,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		if (lbr.isReadyToMove()) {
 			if (!methInitializeSmartServo())
 				return false;
-			propCurrentSmartServoRuntime.setDestination(jointPosition);
+			this.propCurrentSmartServoRuntime.setDestination(jointPosition);
 			return true;
 		}
 		return false;
@@ -314,7 +314,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		if (lbr.isReadyToMove()) {
 			if (!methInitializeSmartServo())
 				return false;
-			propCurrentSmartServoRuntime.setDestination(frame);
+			this.propCurrentSmartServoRuntime.setDestination(frame);
 			return true;
 		}
 		return false;
@@ -331,7 +331,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		if (lbr.isReadyToMove()) {
 			if (!methInitializeSmartServoLIN())
 				return false;
-			propCurrentSmartServoLINRuntime.setDestination(frame);
+			this.propCurrentSmartServoLINRuntime.setDestination(frame);
 			return true;
 		}
 		return false;
@@ -547,13 +547,15 @@ public class LibIiwa extends RoboticsAPIApplication {
 	}
 	
 	/**
-	 * Define the Cartesian impedance control stiffness (translational: Nm, rotational: Nm/rad)
+	 * Define the Cartesian impedance control stiffness (translational: Nm, rotational: Nm/rad, null space: Nm/rad)
 	 * <p>
 	 * translational: [0.0, 5000.0] (default: 2000.0)
 	 * <p>
 	 * rotational: [0.0, 300.0] (default: 200.0)
+	 * <p>
+	 * null space: [0.0, Inf) (default: 100.0)
 	 * 
-	 * @param stiffness translational (3) and rotational (3) stiffness 
+	 * @param stiffness translational (3), rotational (3) and null space (1) stiffness 
 	 * @return true
 	 */
 	public boolean methSetCartesianStiffness(double[] stiffness) {
@@ -571,6 +573,25 @@ public class LibIiwa extends RoboticsAPIApplication {
 			this.propControlModeCartesianImpedance.parametrize(CartDOF.B).setStiffness(stiffness[4]);
 		if (stiffness[5] >= 0.0 && stiffness[5] <= 300.0)
 			this.propControlModeCartesianImpedance.parametrize(CartDOF.C).setStiffness(stiffness[5]);
+		// null space
+		if (stiffness[6] >= 0.0)
+			this.propControlModeCartesianImpedance.setNullSpaceStiffness(stiffness[6]);
+		
+		// update smart servo
+		if (this.enumControlInterface == LibIiwaEnum.CONTROL_INTERFACE_SERVO) {
+			if (this.enumControlMode == LibIiwaEnum.CONTROL_MODE_CARTESIAN_IMPEDANCE) {
+				if (this.propCurrentSmartServoRuntime != null){
+					try {
+						this.propCurrentSmartServoRuntime.changeControlModeSettings(this.propControlModeCartesianImpedance);
+					} 
+					catch (Exception e) {
+						this.enumLastError = LibIiwaEnum.ASYNCHRONOUS_MOTION_ERROR;
+						getLogger().warn(e.getMessage());
+						return false;
+					}
+				}
+			}
+		}
 		if (VERBOSE) getLogger().info("Cartesian stiffness: " + Arrays.toString(stiffness));
 		return true;
 	}
@@ -581,6 +602,8 @@ public class LibIiwa extends RoboticsAPIApplication {
 	 * translational: [0.1, 1.0] (default: 0.7)
 	 * <p>
 	 * rotational: [0.1, 1.0] (default: 0.7)
+	 * <p>
+	 * null space: [0.3, 1.0] (default: 0.7)
 	 * 
 	 * @param damping translational (3) and rotational (3) damping 
 	 * @return true
@@ -600,6 +623,25 @@ public class LibIiwa extends RoboticsAPIApplication {
 			this.propControlModeCartesianImpedance.parametrize(CartDOF.B).setDamping(damping[4]);
 		if (damping[5] >= 0.1 && damping[5] <= 1.0)
 			this.propControlModeCartesianImpedance.parametrize(CartDOF.C).setDamping(damping[5]);
+		// null space
+		if (damping[6] >= 0.3 && damping[6] <= 1.0)
+			this.propControlModeCartesianImpedance.setNullSpaceDamping(damping[6]);
+		
+		// update smart servo
+		if (this.enumControlInterface == LibIiwaEnum.CONTROL_INTERFACE_SERVO) {
+			if (this.enumControlMode == LibIiwaEnum.CONTROL_MODE_CARTESIAN_IMPEDANCE) {
+				if (this.propCurrentSmartServoRuntime != null){
+					try {
+						this.propCurrentSmartServoRuntime.changeControlModeSettings(this.propControlModeCartesianImpedance);
+					} 
+					catch (Exception e) {
+						this.enumLastError = LibIiwaEnum.ASYNCHRONOUS_MOTION_ERROR;
+						getLogger().warn(e.getMessage());
+						return false;
+					}
+				}
+			}
+		}
 		if (VERBOSE) getLogger().info("Cartesian damping: " + Arrays.toString(damping));
 		return true;
 	}
@@ -621,6 +663,20 @@ public class LibIiwa extends RoboticsAPIApplication {
 		this.propControlModeCartesianImpedance.parametrize(CartDOF.B).setAdditionalControlForce(force[4]);
 		this.propControlModeCartesianImpedance.parametrize(CartDOF.C).setAdditionalControlForce(force[5]);
 		if (VERBOSE) getLogger().info("Cartesian additional control force: " + force);
+		return true;
+	}
+	
+	public boolean methSetCartesianMaxControlForce(double[] force) {
+		getLogger().info(Arrays.toString(this.propControlModeCartesianImpedance.getMaxCartesianVelocity()));
+		// this.propControlModeCartesianImpedance.setMaxCartesianVelocity(x, y, z, a, b, c);
+		return true;
+	}
+	
+	public boolean methSetCartesianMaxCartesianVelocity(double[] velocity) {
+		return true;
+	}
+	
+	public boolean methSetCartesianMaxPathDeviation(double[] deviation) {
 		return true;
 	}
 	
@@ -812,7 +868,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		this.methStopAndResetMotion();
 		return true;
 	}
- 
+	
 	/** PARTIAL
 	 * Control robot using joint positions (in radians)
 	 * <p>
@@ -1047,15 +1103,27 @@ public class LibIiwa extends RoboticsAPIApplication {
 		// configuration commands (impedance control)
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_STIFFNESS.getCode()){
 			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_STIFFNESS.toString());
-			return this.methSetCartesianStiffness(Arrays.copyOfRange(command, 1, 1 + 6));
+			return this.methSetCartesianStiffness(Arrays.copyOfRange(command, 1, 1 + 7));
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_DAMPING.getCode()){
 			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_DAMPING.toString());
-			return this.methSetCartesianDamping(Arrays.copyOfRange(command, 1, 1 + 6));
+			return this.methSetCartesianDamping(Arrays.copyOfRange(command, 1, 1 + 7));
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_ADDITIONAL_CONTROL_FORCE.getCode()){
 			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_ADDITIONAL_CONTROL_FORCE.toString());
 			return this.methSetCartesianAdditionalControlForce(Arrays.copyOfRange(command, 1, 1 + 6));
+		}
+		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_MAX_CONTROL_FORCE.getCode()){
+			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_MAX_CONTROL_FORCE.toString());
+			return this.methSetCartesianMaxControlForce(Arrays.copyOfRange(command, 1, 1 + 7));
+		}
+		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_MAX_CARTESIAN_VELOCITY.getCode()){
+			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_MAX_CARTESIAN_VELOCITY.toString());
+			return this.methSetCartesianMaxCartesianVelocity(Arrays.copyOfRange(command, 1, 1 + 6));
+		}
+		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_MAX_PATH_DEVIATION.getCode()){
+			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_MAX_PATH_DEVIATION.toString());
+			return this.methSetCartesianMaxPathDeviation(Arrays.copyOfRange(command, 1, 1 + 6));
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_JOINT_STIFFNESS.getCode()){
 			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_JOINT_STIFFNESS.toString());
