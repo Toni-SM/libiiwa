@@ -15,6 +15,8 @@ from trajectory_msgs.msg import JointTrajectoryPoint
 
 from libiiwa_msgs.srv import SetDouble, SetDoubleRequest, SetDoubleResponse
 from libiiwa_msgs.srv import SetString, SetStringRequest, SetStringResponse
+from libiiwa_msgs.srv import SetXYZABC, SetXYZABCRequest, SetXYZABCResponse
+from libiiwa_msgs.srv import SetXYZABCParam, SetXYZABCParamRequest, SetXYZABCParamResponse
 
 try:
     import libiiwa
@@ -300,6 +302,129 @@ class Iiwa:
                 .format(request.data, response.success, response.message))
         return response
 
+    def _handler_set_cartesian_additional_control_force(self, request: SetXYZABCRequest) -> None:
+        response = SetXYZABCResponse()
+        translational = [request.x, request.y, request.z]
+        rotational = [request.a, request.b, request.c]
+        try:
+            response.success = self._interface.set_cartesian_additional_control_force(translational, rotational)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                rospy.logerr('Failed to set_cartesian_additional_control_force to {}{}'.format(translational, rotational))
+                rospy.logerr(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            rospy.logerr('Failed to set_cartesian_additional_control_force to {}{}'.format(translational, rotational))
+            rospy.logerr(str(e))
+        if self._verbose:
+            rospy.loginfo("Service set_cartesian_additional_control_force to {}{} ({}, {})" \
+                .format(translational, rotational, response.success, response.message))
+        return response
+
+    def _handler_set_cartesian_max_velocity(self, request: SetXYZABCRequest) -> None:
+        response = SetXYZABCResponse()
+        translational = [request.x, request.y, request.z]
+        rotational = [request.a, request.b, request.c]
+        try:
+            response.success = self._interface.set_cartesian_max_velocity(translational, rotational)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                rospy.logerr('Failed to set_cartesian_max_velocity to {}{}'.format(translational, rotational))
+                rospy.logerr(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            rospy.logerr('Failed to set_cartesian_max_velocity to {}{}'.format(translational, rotational))
+            rospy.logerr(str(e))
+        if self._verbose:
+            rospy.loginfo("Service set_cartesian_max_velocity to {}{} ({}, {})" \
+                .format(translational, rotational, response.success, response.message))
+        return response
+
+    def _handler_set_cartesian_max_path_deviation(self, request: SetXYZABCRequest) -> None:
+        response = SetXYZABCResponse()
+        translational = [request.x, request.y, request.z]
+        rotational = [request.a, request.b, request.c]
+        try:
+            response.success = self._interface.set_cartesian_max_path_deviation(translational, rotational)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                rospy.logerr('Failed to set_cartesian_max_path_deviation to {}{}'.format(translational, rotational))
+                rospy.logerr(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            rospy.logerr('Failed to set_cartesian_max_path_deviation to {}{}'.format(translational, rotational))
+            rospy.logerr(str(e))
+        if self._verbose:
+            rospy.loginfo("Service set_cartesian_max_path_deviation to {}{} ({}, {})" \
+                .format(translational, rotational, response.success, response.message))
+        return response
+
+    def _handler_set_cartesian_stiffness(self, request: SetXYZABCParamRequest):
+        response = SetXYZABCParamResponse()
+        translational = [request.x, request.y, request.z]
+        rotational = [request.a, request.b, request.c]
+        null_space = request.float_param
+        try:
+            response.success = self._interface.set_cartesian_stiffness(translational, rotational, null_space)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                rospy.logerr('Failed to set_cartesian_stiffness to {}{}({})'.format(translational, rotational, null_space))
+                rospy.logerr(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            rospy.logerr('Failed to set_cartesian_stiffness to {}{}({})'.format(translational, rotational, null_space))
+            rospy.logerr(str(e))
+        if self._verbose:
+            rospy.loginfo("Service set_cartesian_stiffness to {}{}({}) ({}, {})" \
+                .format(translational, rotational, null_space, response.success, response.message))
+        return response
+
+    def _handler_set_cartesian_damping(self, request: SetXYZABCParamRequest):
+        response = SetXYZABCParamResponse()
+        translational = [request.x, request.y, request.z]
+        rotational = [request.a, request.b, request.c]
+        null_space = request.float_param
+        try:
+            response.success = self._interface.set_cartesian_damping(translational, rotational, null_space)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                rospy.logerr('Failed to set_cartesian_damping to {}{}({})'.format(translational, rotational, null_space))
+                rospy.logerr(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            rospy.logerr('Failed to set_cartesian_damping to {}{}({})'.format(translational, rotational, null_space))
+            rospy.logerr(str(e))
+        if self._verbose:
+            rospy.loginfo("Service set_cartesian_damping to {}{}({}) ({}, {})" \
+                .format(translational, rotational, null_space, response.success, response.message))
+        return response
+
+    def _handler_set_cartesian_max_control_force(self, request: SetXYZABCParamRequest):
+        response = SetXYZABCParamResponse()
+        translational = [request.x, request.y, request.z]
+        rotational = [request.a, request.b, request.c]
+        add_stop_condition = request.boolean_param
+        try:
+            response.success = self._interface.set_cartesian_max_control_force(translational, rotational, add_stop_condition)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                rospy.logerr('Failed to set_cartesian_max_control_force to {}{}({})'.format(translational, rotational, add_stop_condition))
+                rospy.logerr(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            rospy.logerr('Failed to set_cartesian_max_control_force to {}{}({})'.format(translational, rotational, add_stop_condition))
+            rospy.logerr(str(e))
+        if self._verbose:
+            rospy.loginfo("Service set_cartesian_max_control_force to {}{}({}) ({}, {})" \
+                .format(translational, rotational, add_stop_condition, response.success, response.message))
+        return response
+
     # configuration commands (motion and control)
 
     def _handler_set_control_interface(self, request: SetStringRequest) -> None:  # DONE
@@ -516,6 +641,36 @@ class Iiwa:
         self._services.append(rospy.Service(name=name,
                                             service_class=SetDouble,
                                             handler=self._handler_set_desired_cartesian_jerk))
+
+        name = self._names.get("set_cartesian_additional_control_force", "/iiwa/set_cartesian_additional_control_force")
+        self._services.append(rospy.Service(name=name,
+                                            service_class=SetXYZABC,
+                                            handler=self._handler_set_cartesian_additional_control_force))
+
+        name = self._names.get("set_cartesian_max_velocity", "/iiwa/set_cartesian_max_velocity")
+        self._services.append(rospy.Service(name=name,
+                                            service_class=SetXYZABC,
+                                            handler=self._handler_set_cartesian_max_velocity))
+
+        name = self._names.get("set_cartesian_max_path_deviation", "/iiwa/set_cartesian_max_path_deviation")
+        self._services.append(rospy.Service(name=name,
+                                            service_class=SetXYZABC,
+                                            handler=self._handler_set_cartesian_max_path_deviation))
+
+        name = self._names.get("set_cartesian_stiffness", "/iiwa/set_cartesian_stiffness")
+        self._services.append(rospy.Service(name=name,
+                                            service_class=SetXYZABCParam,
+                                            handler=self._handler_set_cartesian_stiffness))
+
+        name = self._names.get("set_cartesian_damping", "/iiwa/set_cartesian_damping")
+        self._services.append(rospy.Service(name=name,
+                                            service_class=SetXYZABCParam,
+                                            handler=self._handler_set_cartesian_damping))
+
+        name = self._names.get("set_cartesian_max_control_force", "/iiwa/set_cartesian_max_control_force")
+        self._services.append(rospy.Service(name=name,
+                                            service_class=SetXYZABCParam,
+                                            handler=self._handler_set_cartesian_max_control_force))
 
         name = self._names.get("set_control_interface", "/iiwa/set_control_interface")
         self._services.append(rospy.Service(name=name,
