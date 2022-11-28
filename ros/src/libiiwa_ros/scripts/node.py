@@ -3,6 +3,7 @@ from typing import Optional, Mapping
 
 import math
 import numpy as np
+from scipy.spatial.transform import Rotation
 
 import rospy
 import actionlib
@@ -11,7 +12,6 @@ import sensor_msgs.msg
 import geometry_msgs.msg
 import control_msgs.msg
 from trajectory_msgs.msg import JointTrajectoryPoint
-from tf.transformations import euler_from_quaternion
 
 from libiiwa_msgs.srv import SetDouble, SetDoubleRequest, SetDoubleResponse
 from libiiwa_msgs.srv import SetString, SetStringRequest, SetStringResponse
@@ -171,8 +171,8 @@ class Iiwa:
         # convert message to expected format
         position = [position.x, position.y, position.z]
         if parse_quaternion:
-            quaternion = [quaternion.w, quaternion.x, quaternion.y, quaternion.z]
-            orientation = euler_from_quaternion(quaternion, 'sxyz')  # TODO: fix convertion
+            orientation = Rotation.from_quat([quaternion.x, quaternion.y, quaternion.z, quaternion.w]).as_euler("xyz", degrees=False)
+            orientation = [orientation[2], orientation[1], orientation[0]]  # alpha (z), beta (y), gamma (z)
         else:
             orientation = [math.nan] * 3
 
@@ -579,12 +579,12 @@ class Iiwa:
         self._msg_end_effector_pose.position.y = position[1]
         self._msg_end_effector_pose.position.z = position[2]
 
-        # TODO: convert to quaternion
-        orientation = state["cartesian_orientation"]
-        self._msg_end_effector_pose.orientation.x = orientation[0]
-        self._msg_end_effector_pose.orientation.y = orientation[1]
-        self._msg_end_effector_pose.orientation.z = orientation[2]
-        self._msg_end_effector_pose.orientation.w = orientation[0]
+        orientation = state["cartesian_orientation"]  # alpha (z), beta (y), gamma (x)
+        quaternion = Rotation.from_euler('xyz', [orientation[2], orientation[1], orientation[0]], degrees=False).as_quat()  # xyzw
+        self._msg_end_effector_pose.orientation.x = quaternion[0]
+        self._msg_end_effector_pose.orientation.y = quaternion[1]
+        self._msg_end_effector_pose.orientation.z = quaternion[2]
+        self._msg_end_effector_pose.orientation.w = quaternion[3]
 
         # end-effector wrench
         force = state["cartesian_force"]
