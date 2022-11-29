@@ -1,4 +1,4 @@
-from typing import Optional, Union, List
+from typing import Union, List, Mapping
 
 import time
 import struct
@@ -109,10 +109,10 @@ COMMAND_SET_EXECUTION_TYPE = 305
 
 class LibIiwaCommunication:
     def __init__(self,
-                 ip: Optional[str] = "0.0.0.0",
-                 port: Optional[int] = 12225,
-                 queue_size: Optional[int] = 10,
-                 run_without_communication: Optional[bool] = False) -> None:
+                 ip: str = "0.0.0.0",
+                 port: int = 12225,
+                 queue_size: int = 10,
+                 run_without_communication: bool = False) -> None:
         """Library communication endpoint
 
         :param ip: IP address of the library communication endpoint (default: all interfaces)
@@ -285,66 +285,87 @@ class LibIiwaCommunication:
 
 class LibIiwa:
     def __init__(self, 
-                 ip: Optional[str] = "0.0.0.0", 
-                 port: Optional[int] = 12225,
-                 run_without_communication: Optional[bool] = False) -> None:
+                 ip: str = "0.0.0.0", 
+                 port: int = 12225,
+                 run_without_communication: bool = False) -> None:
         """KUKA LBR iiwa robot library
 
         :param ip: IP address of the library communication endpoint (default: all interfaces)
         :type ip: str, optional
-        :param port: port of the library communication endpoint (default: 12225)
+        :param port: Port of the library communication endpoint (default: 12225)
         :type port: int, optional
         :param run_without_communication: Run the library without creating the communication socket (default: False).
                                           Useful for testing the library without the robot
         :type run_without_communication: bool, optional
+
+        Example::
+
+            >>> import libiiwa
+            >>>
+            >>> # create instance with default parameters
+            >>> iiwa = libiiwa.LibIiwa()
         """
         self._communication = LibIiwaCommunication(ip=ip,
                                                    port=port,
                                                    queue_size=10,
                                                    run_without_communication=run_without_communication)
-
-    def start(self, threaded=True):
-        # TODO: docstring
         self._communication.init()
 
-        # if threaded:
-        #     self._communication_thread = threading.Thread(target=self._communication.start)
-        #     self._communication_thread.start()
-        # else:
-        #     self._communication.start()
-
     def shutdown(self):
+        # TODO: check it
         self._communication.close()
 
     def stop(self):
+        # TODO: check it
         self._communication.stop()
 
-    def get_state(self, refresh: bool = False) -> dict:
+    def get_state(self, refresh: bool = False) -> Mapping[str, np.ndarray]:
         """Get the state of the robot
 
-        :param refresh: If True, the state is requested from the robot otherwise the last received state is returned
-        :type refresh: bool
+        :param refresh: If True, the state is requested from the robot otherwise the last received state is returned (default: False)
+        :type refresh: bool, optional
 
-        :return: the state of the robot
+        :return: The state of the robot
         :rtype: dict
+
+        Example::
+
+            >>> # get an updated robot state
+            >>> iiwa.get_state(refresh=True)
+            {'joint_position': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 'joint_velocity': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 'joint_acceleration': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 'joint_torque': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 'cartesian_position': array([0., 0., 0.], dtype=float32), 'cartesian_orientation': array([0., 0., 0.], dtype=float32), 'cartesian_force': array([0., 0., 0.], dtype=float32), 'cartesian_torque': array([0., 0., 0.], dtype=float32)}
+
+            >>> # get the last updated robot state
+            >>> iiwa.get_state(refresh=False)  # or just `iiwa.get_state()`
+            {'joint_position': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 'joint_velocity': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 'joint_acceleration': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 'joint_torque': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 'cartesian_position': array([0., 0., 0.], dtype=float32), 'cartesian_orientation': array([0., 0., 0.], dtype=float32), 'cartesian_force': array([0., 0., 0.], dtype=float32), 'cartesian_torque': array([0., 0., 0.], dtype=float32)}
         """
         return self._communication.get_state(refresh)
 
     def get_last_error(self, clear_after_read: bool = True) -> str:
         """Get the last error message from the robot
 
-        :param clear_after_read: If True, the internal error flag will be reset after this call (default: True)
+        If there is no error, ``Error.NO_ERROR`` enum will be returned
+
+        :param clear_after_read: If True, the internal error flag will be reset after this call (default: True).
         :type clear_after_read: bool, optional
 
         :return: The last error message from the robot
         :rtype: str
+
+        Example::
+
+            >>> # no errors
+            >>> iiwa.get_last_error()
+            <Error.NO_ERROR: -10>
         """
         return self._communication.get_last_error(clear_after_read)
 
-    # motion command
+    # motion commands
 
     def command_stop(self) -> bool:
         """Stop the robot
+
+        :return: True if successful, False otherwise
+        :rtype: bool
 
         Example::
 
@@ -359,9 +380,9 @@ class LibIiwa:
         """Move the robot to the specified joint position
         
         :param position: The joint position to move to
-        :type position: List[float] or np.ndarray
+        :type position: 7-element list or np.ndarray
         :param degrees: Whether the position is in degrees or radians (default: radians)
-        :type degrees: bool
+        :type degrees: bool, optional
 
         :raises AssertionError: If the position is not a list or numpy array of length 7
         
@@ -397,13 +418,13 @@ class LibIiwa:
         """Move the robot to the specified cartesian pose
 
         :param position: The cartesian position to move to
-        :type position: List[float] or np.ndarray
+        :type position: 3-element list or np.ndarray
         :param orientation: The cartesian orientation to move to (default: [np.NaN, np.NaN, np.NaN])
-        :type orientation: List[float] or np.ndarray
+        :type orientation: 3-element list or np.ndarray, optional
         :param millimeters: Whether the position is in millimeters or meters (default: meters)
-        :type millimeters: bool
+        :type millimeters: bool, optional
         :param degrees: Whether the orientation is in degrees or radians (default: radians)
-        :type degrees: bool
+        :type degrees: bool, optional
 
         :raises AssertionError: If the position is not a list or numpy array of length 3
         :raises AssertionError: If the orientation is not a list or numpy array of length 3
@@ -413,15 +434,15 @@ class LibIiwa:
 
         Example::
 
-            >>> # move to cartesian pose [0.65, 0, 0.2] in meters withouth changing the orientation
+            >>> # move to cartesian pose [0.65, 0, 0.2] in meters without changing the orientation
             >>> iiwa.command_cartesian_pose([0.65, 0, 0.2])
             True
 
-            >>> # move to cartesian pose [650, 0, 200] in millimeters withouth changing the orientation
+            >>> # move to cartesian pose [650, 0, 200] in millimeters without changing the orientation
             >>> iiwa.command_cartesian_pose([650, 0, 200], millimeters=True)
             True
         """
-        # TODO: improve example
+        # TODO: improve example with NaN
         position = np.array(position, dtype=np.float32).flatten()
         orientation = np.array(orientation, dtype=np.float32).flatten()
         assert len(position) == 3, "Invalid position length"
@@ -445,11 +466,11 @@ class LibIiwa:
         The current frame orientation will be used to calculate the circular motion
 
         :param auxiliary_position: The auxiliary cartesian position with respect to World
-        :type auxiliary_position: List[float] or np.ndarray
+        :type auxiliary_position: 3-element list or np.ndarray
         :param end_position: The end cartesian position with respect to World
-        :type end_position: List[float] or np.ndarray
+        :type end_position: 3-element list or np.ndarray
         :param millimeters: Whether the position is in millimeters or meters (default: meters)
-        :type millimeters: bool
+        :type millimeters: bool, optional
 
         :raises AssertionError: If the auxiliary position is not a list or numpy array of length 3
         :raises AssertionError: If the end position is not a list or numpy array of length 3
@@ -610,9 +631,9 @@ class LibIiwa:
 
     # configuration commands (conditions)
 
-    def set_force_condition(self,  # DONE
+    def set_force_condition(self,
                             threshold: Union[List[float], np.ndarray], 
-                            tolerance: Optional[Union[List[float], np.ndarray]] = [10, 10, 10]) -> bool:
+                            tolerance: Union[List[float], np.ndarray] = [10, 10, 10]) -> bool:
         """Define the force condition (threshold and tolerance) for each Cartesian axis
 
         :param threshold: Maximum magnitude of force in N [0, Inf) 
@@ -634,15 +655,15 @@ class LibIiwa:
             True
 
             >>> # force conditon only for z axis (15 N) and tolerance of 1 N
-            >>> iiwa.set_force_condition([np.Inf, np.Inf, 15], [np.Inf, np.Inf, 1])
+            >>> iiwa.set_force_condition([np.NaN, np.NaN, 15], [np.NaN, np.NaN, 1])
             True
         """
         threshold = np.array(threshold, dtype=np.float32).flatten()
         tolerance = np.array(tolerance, dtype=np.float32).flatten()
         assert threshold.size == 3, "Invalid threshold length"
         assert tolerance.size == 3, "Invalid tolerance length"
-        assert np.all(threshold >= 0), "Invalid range [0, Inf)"
-        assert np.all(tolerance > 0), "Invalid range (0, Inf)"
+        assert np.all(threshold[np.logical_not(np.isnan(threshold))] >= 0), "Invalid range [0, Inf)"
+        assert np.all(tolerance[np.logical_not(np.isnan(tolerance))] >= 0), "Invalid range (0, Inf)"
         command = [COMMAND_SET_FORCE_CONDITION] + threshold.tolist() + tolerance.tolist() \
             + [0] * (self._communication.COMMAND_LENGTH - 7)
         return self._communication.set_command(command)
@@ -672,8 +693,8 @@ class LibIiwa:
             True
 
             >>> # limits only for joint 4 (min: -2.5 Nm, max: 4.0 Nm)
-            >>> lower_limits = [-np.Inf, -np.Inf, -np.Inf, -2.5, -np.Inf, -np.Inf, -np.Inf]
-            >>> upper_limits = [np.Inf, np.Inf, np.Inf, 4.0, np.Inf, np.Inf, np.Inf]
+            >>> lower_limits = [1.0, np.NaN, np.NaN, -2.5, np.NaN, np.NaN, np.NaN]
+            >>> upper_limits = [np.NaN, np.NaN, np.NaN, 4.0, np.NaN, np.NaN, np.NaN]
             >>> iiwa.set_joint_torque_condition(lower_limits, upper_limits)
             True
         """
@@ -681,7 +702,8 @@ class LibIiwa:
         upper_limits = np.array(upper_limits, dtype=np.float32).flatten()
         assert lower_limits.size == 7, "Invalid lower_limits length"
         assert upper_limits.size == 7, "Invalid upper_limits length"
-        assert (lower_limits <= upper_limits).all(), "Invalid values (lower limits > upper limits)"
+        indexes = np.logical_not(np.logical_or(np.isnan(lower_limits), np.isnan(upper_limits)))
+        assert (lower_limits[indexes] <= upper_limits[indexes]).all(), "Invalid values (lower limits > upper limits)"
         status = True
         for i in range(7):
             command = [COMMAND_SET_JOINT_TORQUE_CONDITION] + [i] + [lower_limits[i]] + [upper_limits[i]] \
@@ -1017,5 +1039,4 @@ class LibIiwa:
 
 if __name__ == "__main__":
 
-    iiwa = LibIiwa()
-    iiwa.start()
+    iiwa = LibIiwa(run_without_communication=True)
