@@ -11,6 +11,7 @@ import com.kuka.roboticsAPI.applicationModel.IApplicationData;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 
 import com.kuka.roboticsAPI.conditionModel.ForceCondition;
+import com.kuka.roboticsAPI.conditionModel.ICondition;
 import com.kuka.roboticsAPI.conditionModel.JointTorqueCondition;
 
 import com.kuka.roboticsAPI.deviceModel.Device;
@@ -152,21 +153,60 @@ public class LibIiwa extends RoboticsAPIApplication {
 	private double propDesiredCartesianJerk = 1000;
 	
 	// conditions
-	private JointTorqueCondition propJointTorqueConditionJ1;
-	private JointTorqueCondition propJointTorqueConditionJ2;
-	private JointTorqueCondition propJointTorqueConditionJ3;
-	private JointTorqueCondition propJointTorqueConditionJ4;
-	private JointTorqueCondition propJointTorqueConditionJ5;
-	private JointTorqueCondition propJointTorqueConditionJ6;
-	private JointTorqueCondition propJointTorqueConditionJ7;
-
-	private ForceCondition propForceConditionX;
-	private ForceCondition propForceConditionY;
-	private ForceCondition propForceConditionZ;
+	private JointTorqueCondition propJointTorqueConditions[];
+	private boolean propJointTorqueConditionsEnabled[];
+	private ForceCondition propForceConditions[];
+	private boolean propForceConditionsEnabled[];
 
 	private double propMinimumTrajectoryExecutionTime = 0.001;
 
 	private boolean propOverwriteMotion = true;
+
+	// ===========================================================
+	// INTERNAL METHODS
+	// ===========================================================
+
+	private JointEnum _JointEnum(int index) {
+		switch (index) {
+			case 0:
+				return JointEnum.J1;
+			case 1:
+				return JointEnum.J2;
+			case 2:
+				return JointEnum.J3;
+			case 3:
+				return JointEnum.J4;
+			case 4:
+				return JointEnum.J5;
+			case 5:
+				return JointEnum.J6;
+			case 6:
+				return JointEnum.J7;
+			case 7:
+				return JointEnum.J8;
+			case 8:
+				return JointEnum.J9;
+			case 9:
+				return JointEnum.J10;
+			case 10:
+				return JointEnum.J11;
+			case 11:
+				return JointEnum.J12;
+		}
+		throw new IllegalArgumentException("Invalid JointEnum index: " + index);
+	}
+
+	private CoordinateAxis _CoordinateAxis(int index) {
+		switch (index) {
+			case 0:
+				return CoordinateAxis.X;
+			case 1:
+				return CoordinateAxis.Y;
+			case 2:
+				return CoordinateAxis.Z;
+		}
+		throw new IllegalArgumentException("Invalid CoordinateAxis index: " + index);
+	}
 
 	// ===========================================================
 	// INTERNAL METHODS
@@ -247,6 +287,21 @@ public class LibIiwa extends RoboticsAPIApplication {
 		return true;
 	}
 
+	private ICondition methGetConditions() {
+		ICondition condition = null;
+
+		// force conditions
+		for (int i = 0; i < 3; i++)
+			if (this.propForceConditionsEnabled[i])
+				condition = condition == null ? this.propForceConditions[i] : condition.or(this.propForceConditions[i]);
+		// joint torque conditions
+		for (int i = 0; i < lbr.getJointCount(); i++)
+			if (this.propJointTorqueConditionsEnabled[i])
+				condition = condition == null ? this.propJointTorqueConditions[i] : condition.or(this.propJointTorqueConditions[i]);
+
+		return condition;
+	}
+
 	// ===========================================================
 	// INTERNAL CONTROL METHODS
 	// ===========================================================
@@ -255,11 +310,12 @@ public class LibIiwa extends RoboticsAPIApplication {
 		if (lbr.isReadyToMove()) {
 			// set limits
 			motionBatch.setJointVelocityRel(this.propDesiredJointVelocityRel).setJointAccelerationRel(this.propDesiredJointAccelerationRel);
-			// TODO: see why it stops the robot
-//				.breakWhen(this.propForceConditionX.or(this.propForceConditionY).or(this.propForceConditionZ))
-//				.breakWhen(this.propJointTorqueConditionJ1.or(this.propJointTorqueConditionJ2).or(this.propJointTorqueConditionJ3)
-//						.or(this.propJointTorqueConditionJ4).or(this.propJointTorqueConditionJ5).or(this.propJointTorqueConditionJ6)
-//						.or(this.propJointTorqueConditionJ7));
+			
+			// set conditions
+			ICondition conditions = this.methGetConditions();
+			if (conditions != null)
+				motionBatch.breakWhen(conditions);
+			
 			// overwrite motion
 			if (this.propCurrentMotionContainer != null) {
 				if (!this.propCurrentMotionContainer.isFinished()) {
@@ -473,74 +529,52 @@ public class LibIiwa extends RoboticsAPIApplication {
 	 * @return true if it is valid, otherwise false
 	 */
 	public boolean methSetForceCondition(double[] condition) {
-		// threshold
-		for (int i = 0; i < 3; i++) 
-			if (condition[i] < 0) {
-				if (VERBOSE) getLogger().warn("Invalid force threshold(3) / tolerance(3) condition: " + condition);
-			    return false;
+		boolean status = true;
+		for (int i = 0; i < 3; i++) {
+			this.propForceConditionsEnabled[i] = false;
+			if (condition[i] < 0 || condition[i + 3] <= 0) {
+				getLogger().warn("Invalid force condition (threshold / tolerance): " + condition[i] + " " + condition[i + 3]);
+				this.enumLastError = LibIiwaEnum.VALUE_ERROR;
+			    status = false;
 			}
-		// tolerance
-		for (int i = 3; i < 6; i++) 
-			if (condition[i] <= 0) {
-				if (VERBOSE) getLogger().warn("Invalid force threshold(3) / tolerance(3) condition: " + condition);
-			    return false;
+			else {
+				this.propForceConditions[i] = ForceCondition.createNormalForceCondition(lbr.getFlange(), _CoordinateAxis(i), condition[i], condition[i + 3]);
+				this.propForceConditionsEnabled[i] = true;
 			}
-		// set the condition
-		this.propForceConditionX = ForceCondition.createNormalForceCondition(lbr.getFlange(), CoordinateAxis.X, condition[0], condition[3]);
-		this.propForceConditionY = ForceCondition.createNormalForceCondition(lbr.getFlange(), CoordinateAxis.Y, condition[1], condition[4]);
-		this.propForceConditionZ = ForceCondition.createNormalForceCondition(lbr.getFlange(), CoordinateAxis.Z, condition[2], condition[5]);
-		if (VERBOSE) getLogger().info("Force threshold(3) / tolerance(3) condition:" + condition);
-		return true;
+		}
+		if (VERBOSE) getLogger().info("Force condition: " + Arrays.toString(condition));
+		return status;
 	}
 
-	/** DONE
+	/**
 	 * Define the joint torque condition (Nm)
 	 * <p>
 	 * condition: (-Inf, Inf)
 	 * 
-	 * @param joint number of the joint (from 1 to 7)
+	 * @param joint number of the joint (starting at zero)
 	 * @param condition lower and upper limits of the torque condition
 	 * @return true if it is valid, otherwise false
 	 */
 	public boolean methSetJointTorqueCondition(int joint, double[] condition) {
 		// joint number
-		if (joint < 0 || joint > 7) {
-			if (VERBOSE) getLogger().warn("Invalid joint: " + joint);
+		if (joint < 0 || joint >= lbr.getJointCount()) {
+			getLogger().warn("Invalid joint number: " + joint);
 			this.enumLastError = LibIiwaEnum.INVALID_JOINT_ERROR;
 			return false;
 		}
 		// lower and upper limits
-		if (condition[0] > condition[1]) {
-			if (VERBOSE) getLogger().warn("Invalid limit: " + condition[0] + " > " + condition[1]);
+		if (condition[0] >= condition[1]) {
+			getLogger().warn("Invalid limits: " + condition[0] + " >= " + condition[1]);
 			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 		// set the condition
-		switch (joint) {
-			case 1:
-				this.propJointTorqueConditionJ1 = new JointTorqueCondition(JointEnum.J1, condition[0], condition[1]);
-				break;
-			case 2:
-				this.propJointTorqueConditionJ2 = new JointTorqueCondition(JointEnum.J2, condition[0], condition[1]);
-				break;
-			case 3:
-				this.propJointTorqueConditionJ3 = new JointTorqueCondition(JointEnum.J3, condition[0], condition[1]);
-				break;
-			case 4:
-				this.propJointTorqueConditionJ4 = new JointTorqueCondition(JointEnum.J4, condition[0], condition[1]);
-				break;
-			case 5:
-				this.propJointTorqueConditionJ5 = new JointTorqueCondition(JointEnum.J5, condition[0], condition[1]);
-				break;
-			case 6:
-				this.propJointTorqueConditionJ6 = new JointTorqueCondition(JointEnum.J6, condition[0], condition[1]);
-				break;
-			case 7:
-				this.propJointTorqueConditionJ7 = new JointTorqueCondition(JointEnum.J7, condition[0], condition[1]);
-				break;
-			default:
-				this.enumLastError = LibIiwaEnum.INVALID_JOINT_ERROR;
-				return false;
+		if (Double.isNaN(condition[0]) || Double.isNaN(condition[1])) {
+			this.propJointTorqueConditionsEnabled[joint] = false;
+		}
+		else {
+			this.propJointTorqueConditionsEnabled[joint] = true;
+			this.propJointTorqueConditions[joint] = new JointTorqueCondition(_JointEnum(joint), condition[0], condition[1]);
 		}
 		if (VERBOSE) getLogger().info("Joint torque condition (J" + joint + "): " + condition[0] + " to " + condition[1]);
 		return true;
@@ -1312,19 +1346,21 @@ public class LibIiwa extends RoboticsAPIApplication {
 		this.propControlModeCartesianImpedance = new CartesianImpedanceControlMode();
 		this.propControlModeCartesianSineImpedance = new CartesianSineImpedanceControlMode();
 		this.propCurrentControlMode = this.propControlModePosition;
-		
-		// initialize conditions
-		this.propForceConditionX = ForceCondition.createNormalForceCondition(lbr.getFlange(), CoordinateAxis.X, 1e6);
-		this.propForceConditionY = ForceCondition.createNormalForceCondition(lbr.getFlange(), CoordinateAxis.Y, 1e6);
-		this.propForceConditionZ = ForceCondition.createNormalForceCondition(lbr.getFlange(), CoordinateAxis.Z, 1e6);
 
-		this.propJointTorqueConditionJ1 = new JointTorqueCondition(JointEnum.J1, -1e6, 1e6);
-		this.propJointTorqueConditionJ2 = new JointTorqueCondition(JointEnum.J2, -1e6, 1e6);
-		this.propJointTorqueConditionJ3 = new JointTorqueCondition(JointEnum.J3, -1e6, 1e6);
-		this.propJointTorqueConditionJ4 = new JointTorqueCondition(JointEnum.J4, -1e6, 1e6);
-		this.propJointTorqueConditionJ5 = new JointTorqueCondition(JointEnum.J5, -1e6, 1e6);
-		this.propJointTorqueConditionJ6 = new JointTorqueCondition(JointEnum.J6, -1e6, 1e6);
-		this.propJointTorqueConditionJ7 = new JointTorqueCondition(JointEnum.J7, -1e6, 1e6);
+		// initialize conditions
+		this.propJointTorqueConditions = new JointTorqueCondition[lbr.getJointCount()];
+		this.propJointTorqueConditionsEnabled = new boolean[lbr.getJointCount()];
+		for (int i = 0; i < lbr.getJointCount(); i++) {
+			this.propJointTorqueConditions[i] = new JointTorqueCondition(_JointEnum(i), -1e6, 1e6);
+			this.propJointTorqueConditionsEnabled[i] = false;
+		}
+
+		this.propForceConditions = new ForceCondition[lbr.getJointCount()];
+		this.propForceConditionsEnabled = new boolean[lbr.getJointCount()];
+		for (int i = 0; i < 3; i++) {
+			this.propForceConditions[i] = ForceCondition.createNormalForceCondition(lbr.getFlange(), _CoordinateAxis(i), 1e6);
+			this.propForceConditionsEnabled[i] = false;
+		}
 
 		// error handler
 		this.propErrorHandler = new IErrorHandler() {	
