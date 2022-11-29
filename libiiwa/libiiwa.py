@@ -684,7 +684,7 @@ class LibIiwa:
         assert (lower_limits <= upper_limits).all(), "Invalid values (lower limits > upper limits)"
         status = True
         for i in range(7):
-            command = [COMMAND_SET_JOINT_TORQUE_CONDITION] + [i + 1] + [lower_limits[i]] + [upper_limits[i]] \
+            command = [COMMAND_SET_JOINT_TORQUE_CONDITION] + [i] + [lower_limits[i]] + [upper_limits[i]] \
                 + [0] * (self._communication.COMMAND_LENGTH - 4)
             status = status and self._communication.set_command(command)
         return status
@@ -815,7 +815,9 @@ class LibIiwa:
                                    rotational : Union[List[float], np.ndarray] = [1e6, 1e6, 1e6]) -> bool:
         """Define the maximum Cartesian velocity at which motion is aborted if the limit is exceeded
 
-        :param translational: Maximum Cartesian velocity in mm/s (default: [1e6, 1e6, 1e6])
+        The Cartesian velocity will be automatically converted to mm/s before sending to the robot
+
+        :param translational: Maximum Cartesian velocity in m/s (default: [1e6, 1e6, 1e6])
         :type translational: 3-element list or numpy.ndarray
         :param rotational: Maximum Cartesian velocity in rad/s (default: [1e6, 1e6, 1e6])
         :type rotational: 3-element list or numpy.ndarray
@@ -827,7 +829,7 @@ class LibIiwa:
         :return: True if successful, False otherwise
         :rtype: bool
         """
-        translational = np.array(translational, dtype=np.float32).flatten()
+        translational = np.array(translational, dtype=np.float32).flatten() * 1000.0
         rotational = np.array(rotational, dtype=np.float32).flatten()
         assert translational.size == 3, "Invalid translational length"
         assert rotational.size == 3, "Invalid rotational length"
@@ -839,13 +841,19 @@ class LibIiwa:
 
     def set_cartesian_max_path_deviation(self,
                                          translational : Union[List[float], np.ndarray] = [1e6, 1e6, 1e6],
-                                         rotational : Union[List[float], np.ndarray] = [1e6, 1e6, 1e6]) -> bool:
+                                         rotational : Union[List[float], np.ndarray] = [1e6, 1e6, 1e6],          
+                                         millimeters: bool = False,
+                                         degrees: bool = False) -> bool:
         """Define the maximum permissible Cartesian path deviation at which motion is aborted if the limit is exceeded
 
-        :param translational: Maximum path deviation in mm (default: [1e6, 1e6, 1e6])
+        :param translational: Maximum path deviation (default: [1e6, 1e6, 1e6])
         :type translational: 3-element list or numpy.ndarray
-        :param rotational: Maximum path deviation in rad (default: [1e6, 1e6, 1e6])
+        :param rotational: Maximum path deviation (default: [1e6, 1e6, 1e6])
         :type rotational: 3-element list or numpy.ndarray
+        :param millimeters: Whether the rotation is in millimeters or meters (default: meters)
+        :type millimeters: bool
+        :param degrees: Whether the orientation is in degrees or radians (default: radians)
+        :type degrees: bool
 
         :raises AssertionError: If the length of the translational and rotational is not equal to the number of axes
         :raises AssertionError: If the translational is not in the range [0.0, Inf)
@@ -860,6 +868,10 @@ class LibIiwa:
         assert rotational.size == 3, "Invalid rotational length"
         assert np.all(translational >= 0.0), "Invalid range [0.0, Inf)"
         assert np.all(rotational >= 0.0), "Invalid range [0.0, Inf)"
+        if not millimeters:
+            translational *= 1000
+        if degrees:
+            rotational = np.radians(rotational)
         command = [COMMAND_SET_CARTESIAN_MAX_PATH_DEVIATION] + translational.tolist() + rotational.tolist() \
             + [0] * (self._communication.COMMAND_LENGTH - 7)
         return self._communication.set_command(command)
