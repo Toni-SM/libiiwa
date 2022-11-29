@@ -159,6 +159,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	private boolean propForceConditionsEnabled[];
 
 	private double propMinimumTrajectoryExecutionTime = 0.001;
+	private double propTimeoutAfterGoalReach = 300;  // seconds
 
 	private boolean propOverwriteMotion = true;
 
@@ -237,6 +238,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		smartServo.setJointAccelerationRel(this.propDesiredJointAccelerationRel);
 
 		smartServo.setMinimumTrajectoryExecutionTime(this.propMinimumTrajectoryExecutionTime);
+		smartServo.setTimeoutAfterGoalReach(this.propTimeoutAfterGoalReach);
 		
 		// validate for impedance mode
 		if (this.enumControlMode != LibIiwaEnum.CONTROL_MODE && this.enumControlMode != LibIiwaEnum.CONTROL_MODE_POSITION)
@@ -269,6 +271,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		//		smartServoLIN.setMaxNullSpaceAcceleration(...);
 
 		smartServoLIN.setMinimumTrajectoryExecutionTime(this.propMinimumTrajectoryExecutionTime);
+		smartServoLIN.setTimeoutAfterGoalReach(this.propTimeoutAfterGoalReach);
 
 		// validate for impedance mode
 		if (this.enumControlMode != LibIiwaEnum.CONTROL_MODE && this.enumControlMode != LibIiwaEnum.CONTROL_MODE_POSITION)
