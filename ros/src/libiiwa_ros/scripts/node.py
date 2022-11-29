@@ -13,9 +13,9 @@ import geometry_msgs.msg
 import control_msgs.msg
 from trajectory_msgs.msg import JointTrajectoryPoint
 
+from libiiwa_msgs.srv import SetArray, SetArrayRequest, SetArrayResponse
 from libiiwa_msgs.srv import SetNumber, SetNumberRequest, SetNumberResponse
 from libiiwa_msgs.srv import SetString, SetStringRequest, SetStringResponse
-from libiiwa_msgs.srv import SetJoints, SetJointsRequest, SetJointsResponse
 from libiiwa_msgs.srv import SetXYZABC, SetXYZABCRequest, SetXYZABCResponse
 from libiiwa_msgs.srv import SetXYZABCParam, SetXYZABCParamRequest, SetXYZABCParamResponse
 
@@ -426,6 +426,82 @@ class Iiwa:
                 .format(translational, rotational, add_stop_condition, response.success, response.message))
         return response
 
+    def _handler_set_joint_stiffness(self, request: SetArrayRequest):
+        response = SetArrayResponse()
+        try:
+            response.success = self._interface.set_joint_stiffness(request.data)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                rospy.logerr('Failed to set_joint_stiffness to {}'.format(request.data))
+                rospy.logerr(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            rospy.logerr('Failed to set_joint_stiffness to {}'.format(request.data))
+            rospy.logerr(str(e))
+        if self._verbose:
+            rospy.loginfo("Service set_joint_stiffness to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
+        return response
+
+    def _handler_set_joint_damping(self, request: SetArrayRequest):
+        response = SetArrayResponse()
+        try:
+            response.success = self._interface.set_joint_damping(request.data)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                rospy.logerr('Failed to set_joint_damping to {}'.format(request.data))
+                rospy.logerr(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            rospy.logerr('Failed to set_joint_damping to {}'.format(request.data))
+            rospy.logerr(str(e))
+        if self._verbose:
+            rospy.loginfo("Service set_joint_damping to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
+        return response
+
+    def _handler_set_force_condition(self, request: SetArrayRequest):
+        response = SetArrayResponse()
+        threshold = request.data[:3]
+        tolerance = request.data[3:] if len(request.data) == 6 else [10, 10, 10]
+        try:
+            response.success = self._interface.set_force_condition(threshold, tolerance)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                rospy.logerr('Failed to set_force_condition to {}'.format(request.data))
+                rospy.logerr(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            rospy.logerr('Failed to set_force_condition to {}'.format(request.data))
+            rospy.logerr(str(e))
+        if self._verbose:
+            rospy.loginfo("Service set_force_condition to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
+        return response
+
+    def _handler_set_joint_torque_condition(self, request: SetArrayRequest):
+        response = SetArrayResponse()
+        lower_limits = request.data[:7]
+        upper_limits = request.data[7:]
+        try:
+            response.success = self._interface.set_joint_torque_condition(lower_limits, upper_limits)
+            if not response.success:
+                response.message = self._interface.get_last_error()
+                rospy.logerr('Failed to set_joint_torque_condition to {}'.format(request.data))
+                rospy.logerr(self._interface.get_last_error())
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            rospy.logerr('Failed to set_joint_torque_condition to {}'.format(request.data))
+            rospy.logerr(str(e))
+        if self._verbose:
+            rospy.loginfo("Service set_joint_torque_condition to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
+        return response
+
     # configuration commands (motion and control)
 
     def _handler_set_control_interface(self, request: SetStringRequest) -> None:  # DONE
@@ -672,6 +748,26 @@ class Iiwa:
         self._services.append(rospy.Service(name=name,
                                             service_class=SetXYZABCParam,
                                             handler=self._handler_set_cartesian_max_control_force))
+
+        name = self._names.get("set_joint_stiffness", "/iiwa/set_joint_stiffness")
+        self._services.append(rospy.Service(name=name,
+                                            service_class=SetArray,
+                                            handler=self._handler_set_joint_stiffness))
+
+        name = self._names.get("set_joint_damping", "/iiwa/set_joint_damping")
+        self._services.append(rospy.Service(name=name,
+                                            service_class=SetArray,
+                                            handler=self._handler_set_joint_damping))
+
+        name = self._names.get("set_force_condition", "/iiwa/set_force_condition")
+        self._services.append(rospy.Service(name=name,
+                                            service_class=SetArray,
+                                            handler=self._handler_set_force_condition))
+
+        name = self._names.get("set_joint_torque_condition", "/iiwa/set_joint_torque_condition")
+        self._services.append(rospy.Service(name=name,
+                                            service_class=SetArray,
+                                            handler=self._handler_set_joint_torque_condition))
 
         name = self._names.get("set_control_interface", "/iiwa/set_control_interface")
         self._services.append(rospy.Service(name=name,
