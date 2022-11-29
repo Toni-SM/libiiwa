@@ -13,8 +13,9 @@ import geometry_msgs.msg
 import control_msgs.msg
 from trajectory_msgs.msg import JointTrajectoryPoint
 
-from libiiwa_msgs.srv import SetDouble, SetDoubleRequest, SetDoubleResponse
+from libiiwa_msgs.srv import SetNumber, SetNumberRequest, SetNumberResponse
 from libiiwa_msgs.srv import SetString, SetStringRequest, SetStringResponse
+from libiiwa_msgs.srv import SetJoints, SetJointsRequest, SetJointsResponse
 from libiiwa_msgs.srv import SetXYZABC, SetXYZABCRequest, SetXYZABCResponse
 from libiiwa_msgs.srv import SetXYZABCParam, SetXYZABCParamRequest, SetXYZABCParamResponse
 
@@ -194,8 +195,8 @@ class Iiwa:
 
     # configuration commands (limits)
 
-    def _handler_set_desired_joint_velocity_rel(self, request: SetDoubleRequest) -> None:  # DONE
-        response = SetDoubleResponse()
+    def _handler_set_desired_joint_velocity_rel(self, request: SetNumberRequest) -> None:  # DONE
+        response = SetNumberResponse()
         try:
             response.success = self._interface.set_desired_joint_velocity_rel(request.data)
             if not response.success:
@@ -212,8 +213,8 @@ class Iiwa:
                 .format(request.data, response.success, response.message))
         return response
 
-    def _handler_set_desired_joint_acceleration_rel(self, request: SetDoubleRequest) -> None:  # DONE
-        response = SetDoubleResponse()
+    def _handler_set_desired_joint_acceleration_rel(self, request: SetNumberRequest) -> None:  # DONE
+        response = SetNumberResponse()
         try:
             response.success = self._interface.set_desired_joint_acceleration_rel(request.data)
             if not response.success:
@@ -230,8 +231,8 @@ class Iiwa:
                 .format(request.data, response.success, response.message))
         return response
 
-    def _handler_set_desired_joint_jerk_rel(self, request: SetDoubleRequest) -> None:  # DONE
-        response = SetDoubleResponse()
+    def _handler_set_desired_joint_jerk_rel(self, request: SetNumberRequest) -> None:  # DONE
+        response = SetNumberResponse()
         try:
             response.success = self._interface.set_desired_joint_jerk_rel(request.data)
             if not response.success:
@@ -248,8 +249,8 @@ class Iiwa:
                 .format(request.data, response.success, response.message))
         return response
 
-    def _handler_set_desired_cartesian_velocity(self, request: SetDoubleRequest) -> None:  # DONE
-        response = SetDoubleResponse()
+    def _handler_set_desired_cartesian_velocity(self, request: SetNumberRequest) -> None:  # DONE
+        response = SetNumberResponse()
         try:
             response.success = self._interface.set_desired_cartesian_velocity(request.data)
             if not response.success:
@@ -266,8 +267,8 @@ class Iiwa:
                 .format(request.data, response.success, response.message))
         return response
 
-    def _handler_set_desired_cartesian_acceleration(self, request: SetDoubleRequest) -> None:  # DONE
-        response = SetDoubleResponse()
+    def _handler_set_desired_cartesian_acceleration(self, request: SetNumberRequest) -> None:  # DONE
+        response = SetNumberResponse()
         try:
             response.success = self._interface.set_desired_cartesian_acceleration(request.data)
             if not response.success:
@@ -284,8 +285,8 @@ class Iiwa:
                 .format(request.data, response.success, response.message))
         return response
 
-    def _handler_set_desired_cartesian_jerk(self, request: SetDoubleRequest) -> None:  # DONE
-        response = SetDoubleResponse()
+    def _handler_set_desired_cartesian_jerk(self, request: SetNumberRequest) -> None:  # DONE
+        response = SetNumberResponse()
         try:
             response.success = self._interface.set_desired_cartesian_jerk(request.data)
             if not response.success:
@@ -614,32 +615,32 @@ class Iiwa:
         # create services
         name = self._names.get("set_desired_joint_velocity_rel", "/iiwa/set_desired_joint_velocity_rel")
         self._services.append(rospy.Service(name=name,
-                                            service_class=SetDouble,
+                                            service_class=SetNumber,
                                             handler=self._handler_set_desired_joint_velocity_rel))
 
         name = self._names.get("set_desired_joint_acceleration_rel", "/iiwa/set_desired_joint_acceleration_rel")
         self._services.append(rospy.Service(name=name,
-                                            service_class=SetDouble,
+                                            service_class=SetNumber,
                                             handler=self._handler_set_desired_joint_acceleration_rel))
 
         name = self._names.get("set_desired_joint_jerk_rel", "/iiwa/set_desired_joint_jerk_rel")
         self._services.append(rospy.Service(name=name,
-                                            service_class=SetDouble,
+                                            service_class=SetNumber,
                                             handler=self._handler_set_desired_joint_jerk_rel))
 
         name = self._names.get("set_desired_cartesian_velocity", "/iiwa/set_desired_cartesian_velocity")
         self._services.append(rospy.Service(name=name,
-                                            service_class=SetDouble,
+                                            service_class=SetNumber,
                                             handler=self._handler_set_desired_cartesian_velocity))
 
         name = self._names.get("set_desired_cartesian_acceleration", "/iiwa/set_desired_cartesian_acceleration")
         self._services.append(rospy.Service(name=name,
-                                            service_class=SetDouble,
+                                            service_class=SetNumber,
                                             handler=self._handler_set_desired_cartesian_acceleration))
 
         name = self._names.get("set_desired_cartesian_jerk", "/iiwa/set_desired_cartesian_jerk")
         self._services.append(rospy.Service(name=name,
-                                            service_class=SetDouble,
+                                            service_class=SetNumber,
                                             handler=self._handler_set_desired_cartesian_jerk))
 
         name = self._names.get("set_cartesian_additional_control_force", "/iiwa/set_cartesian_additional_control_force")
