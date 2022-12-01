@@ -977,6 +977,7 @@ class FollowJointTrajectory:
                 rospy.logwarn("FollowJointTrajectory: joints don't match ({} not in {})" \
                     .format(name, list(self._joints.keys())))
                 self._action_result_message.error_code = self._action_result_message.INVALID_JOINTS
+                self._action_result_message.error_string = "Joints don't match: {} not in {}".format(name, list(self._joints.keys()))
                 goal_handle.set_rejected(self._action_result_message, "")
                 if self._verbose:
                     rospy.loginfo("FollowJointTrajectory: goal request rejected")
@@ -986,6 +987,7 @@ class FollowJointTrajectory:
         if self._action_goal is not None:
             rospy.logwarn("FollowJointTrajectory: multiple goals not supported")
             self._action_result_message.error_code = self._action_result_message.INVALID_GOAL
+            self._action_result_message.error_string = "Multiple goals not supported"
             goal_handle.set_rejected(self._action_result_message, "")
             if self._verbose:
                 rospy.loginfo("FollowJointTrajectory: goal request rejected")
@@ -1042,8 +1044,34 @@ class FollowJointTrajectory:
             current_point = self._action_goal.trajectory.points[self._action_point_index]
             time_passed = rospy.get_time() - self._action_start_time
 
-            state = self._interface.get_state()["joint_position"]
-            current_position = np.array([self._get_joint_position(name, state) 
+            state = self._interface.get_state()
+            
+            # check robot status
+            should_abort = False
+            if state["has_fired_condition"]:
+                should_abort = True
+                error_code = -6
+                error_string = "A condition has been fired"
+            elif not state["is_ready_to_move"]:
+                should_abort = True
+                error_code = -7
+                error_string = "Robot is not ready to move"
+            elif not state["has_active_motion"]:
+                should_abort = True
+                error_code = -8
+                error_string = "Robot has not active motion"
+
+            if should_abort:
+                rospy.logwarn("FollowJointTrajectory: aborted execution. ")
+                self._action_goal = None
+                self._action_result_message.error_code = error_code
+                self._action_result_message.error_string = error_string
+                if self._action_goal_handle is not None:
+                    self._action_goal_handle.set_aborted(self._action_result_message)
+                    self._action_goal_handle = None
+                return
+
+            current_position = np.array([self._get_joint_position(name, state["joint_position"]) 
                                          for name in self._action_goal.trajectory.joint_names])
             
             diff = np.abs(np.array(current_point.positions) - current_position).sum()
@@ -1055,6 +1083,7 @@ class FollowJointTrajectory:
                         rospy.loginfo("FollowJointTrajectory: set succeeded trajectory")
                     self._action_goal = None
                     self._action_result_message.error_code = self._action_result_message.SUCCESSFUL
+                    self._action_result_message.error_string = ""
                     if self._action_goal_handle is not None:
                         self._action_goal_handle.set_succeeded(self._action_result_message)
                         self._action_goal_handle = None
