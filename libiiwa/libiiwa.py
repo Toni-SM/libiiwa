@@ -111,7 +111,6 @@ class LibIiwaCommunication:
     def __init__(self,
                  ip: str = "0.0.0.0",
                  port: int = 12225,
-                 queue_size: int = 10,
                  double_precision: bool = False,
                  run_without_communication: bool = False) -> None:
         """Library communication endpoint
@@ -120,8 +119,6 @@ class LibIiwaCommunication:
         :type ip: str, optional
         :param port: Port of the library communication endpoint (default: 12225)
         :type port: int, optional
-        :param queue_size: Size of the command queue (default: 10)
-        :type queue_size: int, optional
         :param double_precision: Whether double precision is used for communication (default: False)
         :type double_precision: bool, optional
         :param run_without_communication: Run the library without creating the communication socket (default: False).
@@ -140,7 +137,6 @@ class LibIiwaCommunication:
 
         self._state_lock = threading.Lock()
         self._command_lock = threading.Lock()
-        self._queue = collections.deque(maxlen=queue_size)
 
         self.STATE_LENGTH = 38
         self.COMMAND_LENGTH = 8
@@ -196,10 +192,7 @@ class LibIiwaCommunication:
         # periodical
         elif self._communication_mode == CommunicationMode.COMMUNICATION_MODE_PERIODICAL:
             # TODO: implement periodical communication
-            raise Exception("TODO")
-            self._command_lock.acquire()
-            self._queue.appendleft(command)
-            self._command_lock.release()
+            raise NotImplementedError
         
         # unknown
         else:
@@ -257,35 +250,12 @@ class LibIiwaCommunication:
 
     def start(self):
         self._running = True
-        while self._running:
-            try:
-                time.sleep(0.1)
-
-                # send command
-                self._command_lock.acquire()
-                command = self._queue.pop() if len(
-                    self._queue) else self._command[:]
-                self._command_lock.release()
-                self._send(command)
-
-                # receive state
-                state = self._recv()
-                self._state_lock.acquire()
-                self._state = state
-                self._state_lock.release()
-
-            except Exception as e:
-                print(e)
-                self._running = False
-                break
-
-        self._connection.close()
-        self._sock.close()
 
     def stop(self):
         self._running = False
 
     def close(self):
+        self._running = False
         self._connection.close()
         self._sock.close()
         time.sleep(0.5)
@@ -295,6 +265,7 @@ class LibIiwa:
     def __init__(self, 
                  ip: str = "0.0.0.0", 
                  port: int = 12225,
+                 double_precision: bool = False,
                  run_without_communication: bool = False) -> None:
         """KUKA LBR iiwa robot library
 
@@ -315,7 +286,7 @@ class LibIiwa:
         """
         self._communication = LibIiwaCommunication(ip=ip,
                                                    port=port,
-                                                   queue_size=10,
+                                                   double_precision=double_precision,
                                                    run_without_communication=run_without_communication)
         self._communication.init()
 
