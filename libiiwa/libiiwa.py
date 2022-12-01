@@ -20,7 +20,7 @@ __all__ = [
 ]
 
 __version__ = '0.1.0-beta'
-API_VERSION = "0.1.0-beta"
+API_VERSION = "0.1.1-beta"
 
 # application errors
 class Error(Enum):
@@ -139,7 +139,7 @@ class LibIiwaCommunication:
         self._command_lock = threading.Lock()
         self._queue = collections.deque(maxlen=queue_size)
 
-        self.STATE_LENGTH = 42
+        self.STATE_LENGTH = 38
         self.COMMAND_LENGTH = 8
         self._state = [0] * self.STATE_LENGTH
         self._command = [0] * self.COMMAND_LENGTH
@@ -184,7 +184,7 @@ class LibIiwaCommunication:
             self._state = state[:]
             self._state_lock.release()
             # parse error
-            self._last_error = state[1]
+            self._last_error = state[34]
             # return the command execution status
             return state[0] > 0
 
@@ -209,14 +209,17 @@ class LibIiwaCommunication:
         state = np.array(self._state, dtype=np.float32)
         self._state_lock.release()
 
-        return {"joint_position": state[2:9],
-                "joint_velocity": state[9:16],
-                "joint_acceleration": state[16:23],
-                "joint_torque": state[23:30],
-                "cartesian_position": state[30:33] / 1000.0,  # mm to m
-                "cartesian_orientation": state[33:36],
-                "cartesian_force": state[36:39],
-                "cartesian_torque": state[39:42]}
+        return {"joint_position": state[1:8],
+                "joint_velocity": state[8:15],
+                "joint_torque": state[15:22],
+                "cartesian_position": state[22:25] / 1000.0,  # mm to m
+                "cartesian_orientation": state[25:28],
+                "cartesian_force": state[28:31],
+                "cartesian_torque": state[31:34],
+                "last_error": Error(int(state[34])),
+                "has_fired_condition": bool(state[35]),
+                "is_ready_to_move": bool(state[36]),
+                "has_active_motion": bool(state[37])}
 
     def get_last_error(self, clear_after_read=True):
         # parse error

@@ -19,6 +19,8 @@ import com.kuka.roboticsAPI.deviceModel.JointEnum;
 import com.kuka.roboticsAPI.deviceModel.JointPosition;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 
+import com.kuka.roboticsAPI.executionModel.IFiredConditionInfo;
+
 import com.kuka.roboticsAPI.geometricModel.math.CoordinateAxis;
 
 import com.kuka.roboticsAPI.geometricModel.CartDOF;
@@ -80,21 +82,23 @@ public class LibIiwa extends RoboticsAPIApplication {
 	// ===========================================================
 
 	@SuppressWarnings("unused")
-	private static final String API_VERSION = "0.1.0-beta";
+	private static final String API_VERSION = "0.1.1-beta";
 
 	private static final int STATE_COMMAND_STATUS = 0;  		// vector(1)
-	private static final int STATE_LAST_ERROR = 1;  			// vector(1)
-	private static final int STATE_JOINT_POSITION = 2;  		// vector(7)
-	private static final int STATE_JOINT_VELOCITY = 9;  		// vector(7)
-	private static final int STATE_JOINT_ACCELERATION = 16;  	// vector(7)
-	private static final int STATE_JOINT_TORQUE = 23;  			// vector(7)
-	private static final int STATE_CARTESIAN_POSITION = 30;  	// vector(3)
-	private static final int STATE_CARTESIAN_ORIENTATION = 33; 	// vector(3)
-	private static final int STATE_CARTESIAN_FORCE = 36;     	// vector(3)
-	private static final int STATE_CARTESIAN_TORQUE = 39;    	// vector(3)
+	private static final int STATE_JOINT_POSITION = 1;  		// vector(7)
+	private static final int STATE_JOINT_VELOCITY = 8;  		// vector(7)
+	private static final int STATE_JOINT_TORQUE = 15;  			// vector(7)
+	private static final int STATE_CARTESIAN_POSITION = 22;  	// vector(3)
+	private static final int STATE_CARTESIAN_ORIENTATION = 25; 	// vector(3)
+	private static final int STATE_CARTESIAN_FORCE = 28;     	// vector(3)
+	private static final int STATE_CARTESIAN_TORQUE = 31;    	// vector(3)
+	private static final int STATE_LAST_ERROR = 34;  			// vector(1)
+	private static final int STATE_FIRED_CONDITION = 35;  		// vector(1)
+	private static final int STATE_READY_TO_MOVE = 36;  		// vector(1)
+	private static final int STATE_HAS_ACTIVE_MOTION = 37; 		// vector(1)
 
-	private static final int STATE_LENGTH = 1 * 2 + 7 * 4 + 6 + 6; 	// vector(42)
-	private static final int COMMAND_LENGTH = 8;             		// vector(8)
+	private static final int STATE_LENGTH = 1 + 7 * 3 + 3 * 4 + 1 * 4; 	// vector(38)
+	private static final int COMMAND_LENGTH = 8;             			// vector(8)
 
 	// ===========================================================
 	// VARIABLES
@@ -136,7 +140,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	private LibIiwaEnum enumExecutionType = LibIiwaEnum.EXECUTION_TYPE_ASYNCHRONOUS;
 
 	private IMotionControlMode propCurrentControlMode = null;
-	private IMotionContainer propCurrentMotionContainer = null;
+	private IMotionContainer propCurrentStandardMotionContainer = null;
 	private ISmartServoRuntime propCurrentSmartServoRuntime = null;
 	private ISmartServoLINRuntime propCurrentSmartServoLINRuntime = null;
 	
@@ -215,15 +219,15 @@ public class LibIiwa extends RoboticsAPIApplication {
 
 	private void methStopAndResetMotion() {
 		// stop motions
-		if (this.propCurrentMotionContainer != null)
-			this.propCurrentMotionContainer.cancel();
+		if (this.propCurrentStandardMotionContainer != null)
+			this.propCurrentStandardMotionContainer.cancel();
 		if (this.propCurrentSmartServoRuntime != null)
 			this.propCurrentSmartServoRuntime.stopMotion();
 		if (this.propCurrentSmartServoLINRuntime != null)
 			this.propCurrentSmartServoLINRuntime.stopMotion();
 
 		// reset variables
-		this.propCurrentMotionContainer = null;
+		this.propCurrentStandardMotionContainer = null;
 		this.propCurrentSmartServoRuntime = null;
 		this.propCurrentSmartServoLINRuntime = null;
 	}
@@ -320,17 +324,17 @@ public class LibIiwa extends RoboticsAPIApplication {
 				motionBatch.breakWhen(conditions);
 			
 			// overwrite motion
-			if (this.propCurrentMotionContainer != null) {
-				if (!this.propCurrentMotionContainer.isFinished()) {
+			if (this.propCurrentStandardMotionContainer != null) {
+				if (!this.propCurrentStandardMotionContainer.isFinished()) {
 					if (!this.propOverwriteMotion)
 						return false;
-					this.propCurrentMotionContainer.cancel();
+					this.propCurrentStandardMotionContainer.cancel();
 				}
 			}
 			// execute motion
 			if (this.enumExecutionType == LibIiwaEnum.EXECUTION_TYPE_SYNCHRONOUS) {
 				try {
-					this.propCurrentMotionContainer = this.lbr.move(motionBatch.setMode(this.propCurrentControlMode));
+					this.propCurrentStandardMotionContainer = this.lbr.move(motionBatch.setMode(this.propCurrentControlMode));
 				}
 				catch (Exception e) {
 					this.enumLastError = LibIiwaEnum.SYNCHRONOUS_MOTION_ERROR;
@@ -339,7 +343,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 				}
 			}
 			else if (this.enumExecutionType == LibIiwaEnum.EXECUTION_TYPE_ASYNCHRONOUS)	
-				this.propCurrentMotionContainer = lbr.moveAsync(motionBatch.setMode(this.propCurrentControlMode));
+				this.propCurrentStandardMotionContainer = lbr.moveAsync(motionBatch.setMode(this.propCurrentControlMode));
 			return true;
 		}
 		return false;
@@ -532,15 +536,21 @@ public class LibIiwa extends RoboticsAPIApplication {
 	 * @return true if it is valid, otherwise false
 	 */
 	public boolean methSetForceCondition(double[] condition) {
+		// stop and reset motion
+		this.methStopAndResetMotion();
+		
 		boolean status = true;
 		for (int i = 0; i < 3; i++) {
 			this.propForceConditionsEnabled[i] = false;
-			if (condition[i] < 0 || condition[i + 3] <= 0) {
-				getLogger().warn("Invalid force condition (threshold / tolerance): " + condition[i] + " " + condition[i + 3]);
-				this.enumLastError = LibIiwaEnum.VALUE_ERROR;
-			    status = false;
-			}
-			else {
+			if (!(Double.isNaN(condition[i]) || Double.isNaN(condition[i + 3]))) {
+				// invalid limits
+				if (condition[i] < 0 || condition[i + 3] <= 0) {
+					getLogger().warn("Invalid force condition (threshold / tolerance): " + condition[i] + " " + condition[i + 3]);
+					this.enumLastError = LibIiwaEnum.VALUE_ERROR;
+				    status = false;
+				    continue;
+				}
+				// set the condition
 				this.propForceConditions[i] = ForceCondition.createNormalForceCondition(lbr.getFlange(), _CoordinateAxis(i), condition[i], condition[i + 3]);
 				this.propForceConditionsEnabled[i] = true;
 			}
@@ -559,25 +569,25 @@ public class LibIiwa extends RoboticsAPIApplication {
 	 * @return true if it is valid, otherwise false
 	 */
 	public boolean methSetJointTorqueCondition(int joint, double[] condition) {
+		this.propJointTorqueConditionsEnabled[joint] = false;
+		// stop and reset motion
+		this.methStopAndResetMotion();
 		// joint number
 		if (joint < 0 || joint >= lbr.getJointCount()) {
 			getLogger().warn("Invalid joint number: " + joint);
 			this.enumLastError = LibIiwaEnum.INVALID_JOINT_ERROR;
 			return false;
 		}
-		// lower and upper limits
-		if (condition[0] >= condition[1]) {
-			getLogger().warn("Invalid limits: " + condition[0] + " >= " + condition[1]);
-			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
-			return false;
-		}
-		// set the condition
-		if (Double.isNaN(condition[0]) || Double.isNaN(condition[1])) {
-			this.propJointTorqueConditionsEnabled[joint] = false;
-		}
-		else {
-			this.propJointTorqueConditionsEnabled[joint] = true;
+		if (!(Double.isNaN(condition[0]) || Double.isNaN(condition[1]))) {
+			// lower and upper limits
+			if (condition[0] >= condition[1]) {
+				getLogger().warn("Invalid limits: " + condition[0] + " >= " + condition[1]);
+				this.enumLastError = LibIiwaEnum.VALUE_ERROR;
+				return false;
+			}
+			// set the condition
 			this.propJointTorqueConditions[joint] = new JointTorqueCondition(_JointEnum(joint), condition[0], condition[1]);
+			this.propJointTorqueConditionsEnabled[joint] = true;
 		}
 		if (VERBOSE) getLogger().info("Joint torque condition (J" + joint + "): " + condition[0] + " to " + condition[1]);
 		return true;
@@ -1086,6 +1096,15 @@ public class LibIiwa extends RoboticsAPIApplication {
 		TorqueSensorData torqueSensorData = lbr.getExternalTorque();
 		ForceSensorData forceSensorData = lbr.getExternalForceTorque(lbr.getFlange());
 		
+		// conditions
+		IFiredConditionInfo firedInfo = null;
+		if (this.propCurrentStandardMotionContainer != null)
+			firedInfo = this.propCurrentStandardMotionContainer.getFiredBreakConditionInfo();
+		this.propCurrentState[STATE_FIRED_CONDITION] = firedInfo == null ? 0 : 1;
+		
+		this.propCurrentState[STATE_READY_TO_MOVE] = lbr.isReadyToMove() ? 1 : 0;
+		this.propCurrentState[STATE_HAS_ACTIVE_MOTION] = lbr.hasActiveMotionCommand() ? 1 : 0;
+
 		// joint position
 		this.propCurrentState[STATE_JOINT_POSITION + 0] = jointPosition.get(JointEnum.J1);
 		this.propCurrentState[STATE_JOINT_POSITION + 1] = jointPosition.get(JointEnum.J2);
