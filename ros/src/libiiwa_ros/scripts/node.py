@@ -13,6 +13,8 @@ import geometry_msgs.msg
 import control_msgs.msg
 from trajectory_msgs.msg import JointTrajectoryPoint
 
+from std_srvs.srv import Empty, EmptyRequest, EmptyResponse
+
 from libiiwa_msgs.srv import SetArray, SetArrayRequest, SetArrayResponse
 from libiiwa_msgs.srv import SetNumber, SetNumberRequest, SetNumberResponse
 from libiiwa_msgs.srv import SetString, SetStringRequest, SetStringResponse
@@ -462,6 +464,23 @@ class Iiwa:
                 .format(request.data, response.success, response.message))
         return response
 
+    # conditions
+
+    def _handler_reset_conditions(self, request: EmptyRequest):
+        response = EmptyResponse()
+        try:
+            status = self._interface.reset_conditions()
+            if not status:
+                message = self._interface.get_last_error()
+                rospy.logerr('Failed to reset_conditions')
+                rospy.logerr(self._interface.get_last_error())
+        except Exception as e:
+            rospy.logerr('Failed to reset_conditions')
+            rospy.logerr(str(e))
+        if self._verbose:
+            rospy.loginfo("Service reset_conditions")
+        return response
+
     def _handler_set_force_condition(self, request: SetArrayRequest):
         response = SetArrayResponse()
         threshold = request.data[:3]
@@ -758,6 +777,11 @@ class Iiwa:
         self._services.append(rospy.Service(name=name,
                                             service_class=SetArray,
                                             handler=self._handler_set_joint_damping))
+
+        name = self._names.get("reset_conditions", "/iiwa/reset_conditions")
+        self._services.append(rospy.Service(name=name,
+                                            service_class=Empty,
+                                            handler=self._handler_reset_conditions))
 
         name = self._names.get("set_force_condition", "/iiwa/set_force_condition")
         self._services.append(rospy.Service(name=name,

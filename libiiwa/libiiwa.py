@@ -634,6 +634,22 @@ class LibIiwa:
 
     # configuration commands (conditions)
 
+    def reset_conditions(self) -> bool:
+        """Reset all conditions
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+
+        Example::
+
+            >>> iiwa.reset_conditions()
+            True
+        """
+        status = self.set_force_condition(threshold=[np.NaN, np.NaN, np.NaN])
+        status = status and self.set_joint_torque_condition(lower_limits=[np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN],
+                                                            upper_limits=[np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN])
+        return status
+
     def set_force_condition(self,
                             threshold: Union[List[float], np.ndarray], 
                             tolerance: Union[List[float], np.ndarray] = [10, 10, 10]) -> bool:
