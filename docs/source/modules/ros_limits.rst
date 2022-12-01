@@ -26,7 +26,7 @@ Define the axis-specific relative velocity (% of maximum velocity)
       - Limits
       - Units
     * - :literal:`/iiwa/set_desired_joint_velocity_rel`
-      - libiiwa_msgs/SetDouble
+      - libiiwa_msgs/SetNumber
       - [0, 1]
       - unitless
 
@@ -83,7 +83,7 @@ Define the axis-specific relative acceleration (% of maximum acceleration)
       - Limits
       - Units
     * - :literal:`/iiwa/set_desired_joint_acceleration_rel`
-      - libiiwa_msgs/SetDouble
+      - libiiwa_msgs/SetNumber
       - [0, 1]
       - unitless
 
@@ -140,7 +140,7 @@ Define the axis-specific relative jerk (% of maximum jerk)
       - Limits
       - Units
     * - :literal:`/iiwa/set_desired_joint_jerk_rel`
-      - libiiwa_msgs/SetDouble
+      - libiiwa_msgs/SetNumber
       - [0, 1]
       - unitless
 
@@ -204,7 +204,7 @@ Define the absolute Cartesian velocity
       - Limits
       - Units
     * - :literal:`/iiwa/set_desired_cartesian_velocity`
-      - libiiwa_msgs/SetDouble
+      - libiiwa_msgs/SetNumber
       - (0, Inf)
       - :math:`m/s`
 
@@ -261,7 +261,7 @@ Define the absolute Cartesian acceleration
       - Limits
       - Units
     * - :literal:`/iiwa/set_desired_cartesian_acceleration`
-      - libiiwa_msgs/SetDouble
+      - libiiwa_msgs/SetNumber
       - (0, Inf)
       - :math:`m/s^2`
 
@@ -318,7 +318,7 @@ Define the absolute Cartesian jerk
       - Limits
       - Units
     * - :literal:`/iiwa/set_desired_cartesian_jerk`
-      - libiiwa_msgs/SetDouble
+      - libiiwa_msgs/SetNumber
       - (0, Inf)
       - :math:`m/s^3`
 

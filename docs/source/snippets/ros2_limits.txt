@@ -1,7 +1,7 @@
 
 [start-command-line-desired_joint_velocity_rel-1]
 
-$ ros2 service call /iiwa/set_desired_joint_velocity_rel libiiwa_msgs/srv/SetDouble "{data: 0.5}"
+$ ros2 service call /iiwa/set_desired_joint_velocity_rel libiiwa_msgs/srv/SetNumber "{data: 0.5}"
 
 [end-command-line-desired_joint_velocity_rel-1]
 
@@ -11,20 +11,20 @@ $ ros2 service call /iiwa/set_desired_joint_velocity_rel libiiwa_msgs/srv/SetDou
 import rclpy
 from rclpy.node import Node
 
-from libiiwa_msgs.srv import SetDouble
+from libiiwa_msgs.srv import SetNumber
 
 # initialize the ROS node
 rclpy.init()
 node = Node('test')
 
 # create a client for calling the service
-client = node.create_client(SetDouble, '/iiwa/set_desired_joint_velocity_rel')
+client = node.create_client(SetNumber, '/iiwa/set_desired_joint_velocity_rel')
 
 # wait for service
 client.wait_for_service()
 
 # call service
-request = SetDouble.Request()
+request = SetNumber.Request()
 request.data = 0.5
 future = client.call_async(request)
 rclpy.spin_until_future_complete(node, future)
@@ -42,7 +42,7 @@ rclpy.shutdown()
 
 [start-command-line-desired_joint_acceleration_rel-1]
 
-$ ros2 service call /iiwa/set_desired_joint_acceleration_rel libiiwa_msgs/srv/SetDouble "{data: 0.5}"
+$ ros2 service call /iiwa/set_desired_joint_acceleration_rel libiiwa_msgs/srv/SetNumber "{data: 0.5}"
 
 [end-command-line-desired_joint_acceleration_rel-1]
 
@@ -52,20 +52,20 @@ $ ros2 service call /iiwa/set_desired_joint_acceleration_rel libiiwa_msgs/srv/Se
 import rclpy
 from rclpy.node import Node
 
-from libiiwa_msgs.srv import SetDouble
+from libiiwa_msgs.srv import SetNumber
 
 # initialize the ROS node
 rclpy.init()
 node = Node('test')
 
 # create a client for calling the service
-client = node.create_client(SetDouble, '/iiwa/set_desired_joint_acceleration_rel')
+client = node.create_client(SetNumber, '/iiwa/set_desired_joint_acceleration_rel')
 
 # wait for service
 client.wait_for_service()
 
 # call service
-request = SetDouble.Request()
+request = SetNumber.Request()
 request.data = 0.5
 future = client.call_async(request)
 rclpy.spin_until_future_complete(node, future)
@@ -83,7 +83,7 @@ rclpy.shutdown()
 
 [start-command-line-desired_joint_jerk_rel-1]
 
-$ ros2 service call /iiwa/set_desired_joint_jerk_rel libiiwa_msgs/srv/SetDouble "{data: 0.5}"
+$ ros2 service call /iiwa/set_desired_joint_jerk_rel libiiwa_msgs/srv/SetNumber "{data: 0.5}"
 
 [end-command-line-desired_joint_jerk_rel-1]
 
@@ -93,20 +93,20 @@ $ ros2 service call /iiwa/set_desired_joint_jerk_rel libiiwa_msgs/srv/SetDouble 
 import rclpy
 from rclpy.node import Node
 
-from libiiwa_msgs.srv import SetDouble
+from libiiwa_msgs.srv import SetNumber
 
 # initialize the ROS node
 rclpy.init()
 node = Node('test')
 
 # create a client for calling the service
-client = node.create_client(SetDouble, '/iiwa/set_desired_joint_jerk_rel')
+client = node.create_client(SetNumber, '/iiwa/set_desired_joint_jerk_rel')
 
 # wait for service
 client.wait_for_service()
 
 # call service
-request = SetDouble.Request()
+request = SetNumber.Request()
 request.data = 0.5
 future = client.call_async(request)
 rclpy.spin_until_future_complete(node, future)
@@ -124,7 +124,7 @@ rclpy.shutdown()
 
 [start-command-line-desired_cartesian_velocity-1]
 
-$ ros2 service call /iiwa/set_desired_cartesian_velocity libiiwa_msgs/srv/SetDouble "{data: 0.25}"
+$ ros2 service call /iiwa/set_desired_cartesian_velocity libiiwa_msgs/srv/SetNumber "{data: 0.25}"
 
 [end-command-line-desired_cartesian_velocity-1]
 
@@ -134,20 +134,20 @@ $ ros2 service call /iiwa/set_desired_cartesian_velocity libiiwa_msgs/srv/SetDou
 import rclpy
 from rclpy.node import Node
 
-from libiiwa_msgs.srv import SetDouble
+from libiiwa_msgs.srv import SetNumber
 
 # initialize the ROS node
 rclpy.init()
 node = Node('test')
 
 # create a client for calling the service
-client = node.create_client(SetDouble, '/iiwa/set_desired_cartesian_velocity')
+client = node.create_client(SetNumber, '/iiwa/set_desired_cartesian_velocity')
 
 # wait for service
 client.wait_for_service()
 
 # call service
-request = SetDouble.Request()
+request = SetNumber.Request()
 request.data = 0.25
 future = client.call_async(request)
 rclpy.spin_until_future_complete(node, future)
@@ -165,7 +165,7 @@ rclpy.shutdown()
 
 [start-command-line-desired_cartesian_acceleration-1]
 
-$ ros2 service call /iiwa/set_desired_cartesian_acceleration libiiwa_msgs/srv/SetDouble "{data: 0.25}"
+$ ros2 service call /iiwa/set_desired_cartesian_acceleration libiiwa_msgs/srv/SetNumber "{data: 0.25}"
 
 [end-command-line-desired_cartesian_acceleration-1]
 
@@ -175,20 +175,20 @@ $ ros2 service call /iiwa/set_desired_cartesian_acceleration libiiwa_msgs/srv/Se
 import rclpy
 from rclpy.node import Node
 
-from libiiwa_msgs.srv import SetDouble
+from libiiwa_msgs.srv import SetNumber
 
 # initialize the ROS node
 rclpy.init()
 node = Node('test')
 
 # create a client for calling the service
-client = node.create_client(SetDouble, '/iiwa/set_desired_cartesian_acceleration')
+client = node.create_client(SetNumber, '/iiwa/set_desired_cartesian_acceleration')
 
 # wait for service
 client.wait_for_service()
 
 # call service
-request = SetDouble.Request()
+request = SetNumber.Request()
 request.data = 0.25
 future = client.call_async(request)
 rclpy.spin_until_future_complete(node, future)
@@ -206,7 +206,7 @@ rclpy.shutdown()
 
 [start-command-line-desired_cartesian_jerk-1]
 
-$ ros2 service call /iiwa/set_desired_cartesian_jerk libiiwa_msgs/srv/SetDouble "{data: 0.25}"
+$ ros2 service call /iiwa/set_desired_cartesian_jerk libiiwa_msgs/srv/SetNumber "{data: 0.25}"
 
 [end-command-line-desired_cartesian_jerk-1]
 
@@ -216,20 +216,20 @@ $ ros2 service call /iiwa/set_desired_cartesian_jerk libiiwa_msgs/srv/SetDouble 
 import rclpy
 from rclpy.node import Node
 
-from libiiwa_msgs.srv import SetDouble
+from libiiwa_msgs.srv import SetNumber
 
 # initialize the ROS node
 rclpy.init()
 node = Node('test')
 
 # create a client for calling the service
-client = node.create_client(SetDouble, '/iiwa/set_desired_cartesian_jerk')
+client = node.create_client(SetNumber, '/iiwa/set_desired_cartesian_jerk')
 
 # wait for service
 client.wait_for_service()
 
 # call service
-request = SetDouble.Request()
+request = SetNumber.Request()
 request.data = 0.25
 future = client.call_async(request)
 rclpy.spin_until_future_complete(node, future)
