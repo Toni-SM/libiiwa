@@ -343,7 +343,7 @@ class LibIiwa:
         """
         return self._communication.get_state(refresh)
 
-    def get_last_error(self, clear_after_read: bool = True) -> str:
+    def get_last_error(self, clear_after_read: bool = True) -> Error:
         """Get the last error message from the robot
 
         If there is no error, ``Error.NO_ERROR`` enum will be returned
@@ -352,7 +352,7 @@ class LibIiwa:
         :type clear_after_read: bool, optional
 
         :return: The last error message from the robot
-        :rtype: str
+        :rtype: Error
 
         Example::
 
