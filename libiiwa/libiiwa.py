@@ -112,15 +112,18 @@ class LibIiwaCommunication:
                  ip: str = "0.0.0.0",
                  port: int = 12225,
                  queue_size: int = 10,
+                 double_precision: bool = False,
                  run_without_communication: bool = False) -> None:
         """Library communication endpoint
 
         :param ip: IP address of the library communication endpoint (default: all interfaces)
         :type ip: str, optional
-        :param port: port of the library communication endpoint (default: 12225)
+        :param port: Port of the library communication endpoint (default: 12225)
         :type port: int, optional
-        :param queue_size: size of the command queue (default: 10)
+        :param queue_size: Size of the command queue (default: 10)
         :type queue_size: int, optional
+        :param double_precision: Whether double precision is used for communication (default: False)
+        :type double_precision: bool, optional
         :param run_without_communication: Run the library without creating the communication socket (default: False).
                                           Useful for testing the library without the robot
         :type run_without_communication: bool, optional
@@ -145,17 +148,19 @@ class LibIiwaCommunication:
         self._command = [0] * self.COMMAND_LENGTH
         self._last_error = -10
 
+        self._data_type = 'd' if double_precision else 'f'
+
     def _send(self, command):
         if self._run_without_communication:
             return
-        data = struct.pack('!{}d'.format(self.COMMAND_LENGTH), *command)
+        data = struct.pack('!{}{}'.format(self.COMMAND_LENGTH, self._data_type), *command)
         self._connection.send(data)
 
     def _recv(self):
         if self._run_without_communication:
             return [1, -10] + [0] * (self.STATE_LENGTH - 2)
         data = self._connection.recv(self.STATE_LENGTH * 8)
-        state = struct.unpack('!' + 'd' * self.STATE_LENGTH, data)
+        state = struct.unpack('!' + self._data_type * self.STATE_LENGTH, data)
         return state
 
     def set_timeout(self, timeout):
@@ -335,11 +340,17 @@ class LibIiwa:
 
             >>> # get an updated robot state
             >>> iiwa.get_state(refresh=True)
-            {'joint_position': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 'joint_velocity': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 'joint_acceleration': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 'joint_torque': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 'cartesian_position': array([0., 0., 0.], dtype=float32), 'cartesian_orientation': array([0., 0., 0.], dtype=float32), 'cartesian_force': array([0., 0., 0.], dtype=float32), 'cartesian_torque': array([0., 0., 0.], dtype=float32)}
+            {'joint_position': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 'joint_velocity': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 
+            'joint_acceleration': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 'joint_torque': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 
+            'cartesian_position': array([0., 0., 0.], dtype=float32), 'cartesian_orientation': array([0., 0., 0.], dtype=float32), 
+            'cartesian_force': array([0., 0., 0.], dtype=float32), 'cartesian_torque': array([0., 0., 0.], dtype=float32)}
 
             >>> # get the last updated robot state
             >>> iiwa.get_state(refresh=False)  # or just `iiwa.get_state()`
-            {'joint_position': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 'joint_velocity': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 'joint_acceleration': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 'joint_torque': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 'cartesian_position': array([0., 0., 0.], dtype=float32), 'cartesian_orientation': array([0., 0., 0.], dtype=float32), 'cartesian_force': array([0., 0., 0.], dtype=float32), 'cartesian_torque': array([0., 0., 0.], dtype=float32)}
+            {'joint_position': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 'joint_velocity': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 
+            'joint_acceleration': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 'joint_torque': array([0., 0., 0., 0., 0., 0., 0.], dtype=float32), 
+            'cartesian_position': array([0., 0., 0.], dtype=float32), 'cartesian_orientation': array([0., 0., 0.], dtype=float32), 
+            'cartesian_force': array([0., 0., 0.], dtype=float32), 'cartesian_torque': array([0., 0., 0.], dtype=float32)}
         """
         return self._communication.get_state(refresh)
 

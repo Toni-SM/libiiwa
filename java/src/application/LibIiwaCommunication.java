@@ -23,6 +23,7 @@ public class LibIiwaCommunication {
 	private int propInputLength = 0;
 	private int propInputBytesLength = 0;
 	private int propSocketInputTimeout = 0;
+	private boolean propDoublePrecision = false;
 	private ITaskLogger propLogger = null;
 	
 	private Socket propCommunicationSocket = null;
@@ -36,28 +37,35 @@ public class LibIiwaCommunication {
 	
 	@SuppressWarnings("unused")
 	private byte[] methDoubleToByteArray(double d) {
-    	byte[] array = new byte[8];
-    	ByteBuffer.wrap(array).putDouble(d);
+    	byte[] array = new byte[this.propDoublePrecision ? 8 : 4];
+		if (this.propDoublePrecision)
+			ByteBuffer.wrap(array).putDouble(d);
+		else
+			ByteBuffer.wrap(array).putFloat((float)d);
     	return array;
     }
     
     @SuppressWarnings("unused")
 	private double methByteArrayToDouble(byte[] bytes) {
-    	return ByteBuffer.wrap(bytes).getDouble();
+    	return this.propDoublePrecision ? ByteBuffer.wrap(bytes).getDouble() : (double)ByteBuffer.wrap(bytes).getFloat();
     }
     
     private byte[] methDoubleArrayToByteArray(double[] doubles) {
-    	ByteBuffer buffer = ByteBuffer.allocate(doubles.length * 8);
-    	for(double d : doubles)
-    		buffer.putDouble(d);
+    	ByteBuffer buffer = ByteBuffer.allocate(doubles.length * (this.propDoublePrecision ? 8 : 4));
+    	for(double d : doubles) {
+			if (this.propDoublePrecision)
+				buffer.putDouble(d);
+			else
+				buffer.putFloat((float)d);
+		}
     	return buffer.array();
     }
     
     private double[] methByteArrayToDoubleArray(byte[] bytes) {
     	ByteBuffer buffer = ByteBuffer.wrap(bytes);
-    	double[] doubles = new double[bytes.length / 8];
+    	double[] doubles = new double[bytes.length / (this.propDoublePrecision ? 8 : 4)];
     	for(int i = 0; i < doubles.length; i++)
-    		doubles[i] = buffer.getDouble();
+    		doubles[i] = this.propDoublePrecision ? buffer.getDouble() : (double)buffer.getFloat();
     	return doubles;
     }
     
@@ -65,10 +73,11 @@ public class LibIiwaCommunication {
 	// PUBLIC METHODS
 	// ===========================================================
 	
-	public LibIiwaCommunication(ITaskLogger logger, int inputLength) {
+	public LibIiwaCommunication(ITaskLogger logger, int inputLength, boolean doublePrecision) {
 		this.propLogger = logger;
 		this.propInputLength = inputLength;
-		this.propInputBytesLength = inputLength * 8;
+		this.propInputBytesLength = inputLength * (doublePrecision ? 8 : 4);
+		this.propDoublePrecision = doublePrecision;
 	}
 	
 	public boolean methInitializeSocketConnection(String address, int port, boolean asServer, int blockingTimeout, int socketTimeout) {

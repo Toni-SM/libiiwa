@@ -1361,7 +1361,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		this.propCurrentState = new double[STATE_LENGTH];
 		this.propCurrentJointVelocity = new double[lbr.getJointCount()];
 
-		this.propCommunication = new LibIiwaCommunication(getLogger(), COMMAND_LENGTH);
+		this.propCommunication = new LibIiwaCommunication(getLogger(), COMMAND_LENGTH, false);
 		
 		this.propControlModePosition = new PositionControlMode();
 		this.propControlModeJointImpedance = new JointImpedanceControlMode(2000.0, 2000.0, 2000.0, 2000.0, 2000.0, 2000.0, 2000.0);
