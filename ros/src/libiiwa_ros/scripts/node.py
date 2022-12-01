@@ -1074,15 +1074,23 @@ if __name__ == "__main__":
 
     libiiwa_ip = rospy.get_param("~libiiwa_ip", "0.0.0.0")
     libiiwa_port = rospy.get_param("~libiiwa_port", 12225)
-    run_without_communication = rospy.get_param("~run_without_communication", False)
     
+    servo_interface = rospy.get_param("~servo_interface", True)
+
+    run_without_communication = rospy.get_param("~run_without_communication", False)
     verbose = rospy.get_param("~verbose", False)
 
     # init robot interface
     robot = LibIiwa(ip=libiiwa_ip, port=libiiwa_port, run_without_communication=run_without_communication)
 
-    robot.set_control_interface(libiiwa.ControlInterface.CONTROL_INTERFACE_SERVO)
+    if servo_interface:
+        robot.set_control_interface(libiiwa.ControlInterface.CONTROL_INTERFACE_SERVO)
+    else:
+        robot.set_control_interface(libiiwa.ControlInterface.CONTROL_INTERFACE_STANDARD)
+
     robot.set_desired_joint_velocity_rel(0.5)
+    robot.set_desired_joint_acceleration_rel(0.5)
+    robot.set_desired_joint_jerk_rel(0.5)
 
     # load controllers
     controllers = [Iiwa(interface=robot, 

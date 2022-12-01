@@ -11,6 +11,8 @@
     <arg name="libiiwa_ip"                      default="0.0.0.0"/>
     <arg name="libiiwa_port"                    default="12225"/>
 
+    <arg name="servo_interface"                 default="true"/>
+
     <!-- launch ROS node -->
     <node name="libiiwa_ros" pkg="libiiwa_ros" type="node.py" output="screen" cwd="node">
         <param name="robot_name"                    type="str"      value="$(arg robot_name)"/>
@@ -22,5 +24,7 @@
 
         <param name="libiiwa_ip"                    type="str"      value="$(arg libiiwa_ip)"/>
         <param name="libiiwa_port"                  type="int"      value="$(arg libiiwa_port)"/>
+
+        <param name="servo_interface"               type="bool"     value="$(arg servo_interface)"/>
     </node>
 </launch>
