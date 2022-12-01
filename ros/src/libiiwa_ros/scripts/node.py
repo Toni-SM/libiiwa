@@ -1080,7 +1080,6 @@ if __name__ == "__main__":
 
     # init robot interface
     robot = LibIiwa(ip=libiiwa_ip, port=libiiwa_port, run_without_communication=run_without_communication)
-    robot.start()
 
     robot.set_control_interface(libiiwa.ControlInterface.CONTROL_INTERFACE_SERVO)
     robot.set_desired_joint_velocity_rel(0.5)
