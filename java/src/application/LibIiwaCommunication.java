@@ -195,7 +195,7 @@ public class LibIiwaCommunication {
 	}
 	
 	public void methLogError(double[] error) {
-		double code = error[0];
+		int code = (int)Math.round(error[0]);
 		if(code == LibIiwaEnum.EXCEPTION.getCode())
 			this.propLogger.error("Communication error: Exception");
 		else if(code == LibIiwaEnum.INVALID_NUMBER_OF_BYTES.getCode())

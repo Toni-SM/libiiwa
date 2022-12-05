@@ -96,6 +96,6 @@ public enum LibIiwaEnum{
 	}
 
 	public void setCode(double code) {
-		this.code = (int)code;
+		this.code = (int)Math.round(code);
 	}
 }

@@ -1158,7 +1158,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	 * @return true if the command was processed successfully, otherwise false
 	 */
 	private boolean methProcessCommand(double[] command) {
-		double commandCode = command[0];
+		int commandCode = (int)Math.round(command[0]);
 		// empty commands
 		if (commandCode == LibIiwaEnum.COMMAND_PASS.getCode()){
 			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_PASS.toString());
@@ -1213,7 +1213,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_JOINT_TORQUE_CONDITION.getCode()){
 			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_JOINT_TORQUE_CONDITION.toString());
-			return this.methSetJointTorqueCondition((int)command[1], Arrays.copyOfRange(command, 2, 2 + 2));
+			return this.methSetJointTorqueCondition((int)Math.round(command[1]), Arrays.copyOfRange(command, 2, 2 + 2));
 		}
 		// configuration commands (impedance control)
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_STIFFNESS.getCode()){
