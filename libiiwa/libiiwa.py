@@ -214,10 +214,10 @@ class LibIiwaCommunication:
                 "cartesian_orientation": state[25:28],
                 "cartesian_force": state[28:31],
                 "cartesian_torque": state[31:34],
-                "last_error": Error(int(state[34])),
-                "has_fired_condition": bool(state[35]),
-                "is_ready_to_move": bool(state[36]),
-                "has_active_motion": bool(state[37])}
+                "last_error": Error(int(round(state[34]))),
+                "has_fired_condition": bool(round(state[35])),
+                "is_ready_to_move": bool(round(state[36])),
+                "has_active_motion": bool(round(state[37]))}
 
     def get_last_error(self, clear_after_read=True):
         # parse error
