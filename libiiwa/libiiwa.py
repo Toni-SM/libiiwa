@@ -185,9 +185,9 @@ class LibIiwaCommunication:
             self._state = state[:]
             self._state_lock.release()
             # parse error
-            self._last_error = state[34]
+            self._last_error = round(state[34])
             # return the command execution status
-            return state[0] > 0
+            return round(state[0]) > 0
 
         # periodical
         elif self._communication_mode == CommunicationMode.COMMUNICATION_MODE_PERIODICAL:
