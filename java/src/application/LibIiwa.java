@@ -1099,7 +1099,10 @@ public class LibIiwa extends RoboticsAPIApplication {
 		// conditions
 		IFiredConditionInfo firedInfo = null;
 		if (this.propCurrentStandardMotionContainer != null)
-			firedInfo = this.propCurrentStandardMotionContainer.getFiredBreakConditionInfo();
+			try {
+				firedInfo = this.propCurrentStandardMotionContainer.getFiredBreakConditionInfo();
+			} catch (Exception e) {
+			}
 		this.propCurrentState[STATE_FIRED_CONDITION] = firedInfo == null ? 0 : 1;
 		
 		this.propCurrentState[STATE_READY_TO_MOVE] = lbr.isReadyToMove() ? 1 : 0;
