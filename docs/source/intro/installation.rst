@@ -38,51 +38,70 @@ The installation and setup is divided into two parts:
 Sunrise project
 ^^^^^^^^^^^^^^^
 
-  1. In the Sunrise.Workbench, create a new project or load the existing project from the controller (default IP: :literal:`172.31.1.147`)
+1. In the Sunrise.Workbench, create a new project or load the existing project from the controller (default IP: :literal:`172.31.1.147`)
 
-  2. Open the :literal:`StationSetup.cat` file and enable **SmartServo** packages (in the :literal:`Software` tab)
+2. Open the :literal:`StationSetup.cat` file and enable **SmartServo** extensions (in the :literal:`Software` tab)
 
-  3. Copy library files (:literal:`.java` files) from :literal:`libiiwa/java/src` to :literal:`<sunrise_project>/src/application` folder
+.. image:: ../_static/imgs/install-java-1.png
+    :width: 100%
+    :align: center
+    :alt: Enable SmartServo
 
-  4. Edit the ProcessData configuration (:literal:`<sunrise_project>/src/RoboticsAPI.data.xml` file) and overwrite the content with the following configuration
+3. Copy library files (:literal:`.java` files) from :literal:`libiiwa/java/src/application` to :literal:`<sunrise_project>/src/application` folder
 
-    .. tabs::
+.. image:: ../_static/imgs/install-java-2.png
+    :width: 35%
+    :align: center
+    :alt: Copy files
 
-        .. tab:: Common environment
+4. Edit the ProcessData configuration (:literal:`<sunrise_project>/src/RoboticsAPI.data.xml` file) and overwrite the content with the following configuration
 
-            .. code-block:: xml
+.. tabs::
 
-                    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-                    <RoboticsAPIData version="3">
-                        <world>
-                            <gravitation x="0.0" y="0.0" z="9.81"/>
-                        </world>
-                        <objectTemplates>
-                        </objectTemplates>
-                        <processDataContainer>
-                            <processData dataType="java.lang.String" defaultValue="172.31.1.25" displayName="Controller: IP Address" editableOnHmi="true" id="controller_ip" value="172.31.1.25"/>
-                            <processData dataType="java.lang.Integer" defaultValue="12225" displayName="Controller: Port" editableOnHmi="true" id="controller_port" max="65535" min="1024" value="12225"/>
-                            <processData dataType="java.lang.Boolean" defaultValue="false" displayName="Enable verbose log" editableOnHmi="true" id="verbose" value="false"/>
-                        </processDataContainer>
-                    </RoboticsAPIData>
+    .. tab:: Common environment
 
-    .. list-table::
-        :header-rows: 1
+        .. code-block:: xml
 
-        * - Data
-          - Default
-          - Description
-        * - Controller: IP Address
-          - :literal:`172.31.1.25`
-          - External control workstation IP address
-        * - Controller: Port
-          - :literal:`12225`
-          - External control workstation port
-        * - Enable verbose log
-          - :literal:`false`
-          - Whether to display information about received commands or any other data on the smartHMI. **The excessive use of the message display could degrade the application performance and the smartHMI operation**
+                <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+                <RoboticsAPIData version="3">
+                    <world>
+                        <gravitation x="0.0" y="0.0" z="9.81"/>
+                    </world>
+                    <objectTemplates>
+                    </objectTemplates>
+                    <processDataContainer>
+                        <processData dataType="java.lang.String" defaultValue="172.31.1.25" displayName="Controller: IP Address" editableOnHmi="true" id="controller_ip" value="172.31.1.25"/>
+                        <processData dataType="java.lang.Integer" defaultValue="12225" displayName="Controller: Port" editableOnHmi="true" id="controller_port" max="65535" min="1024" value="12225"/>
+                        <processData dataType="java.lang.Boolean" defaultValue="false" displayName="Enable verbose log" editableOnHmi="true" id="verbose" value="false"/>
+                    </processDataContainer>
+                </RoboticsAPIData>
 
-  5. Install the :literal:`StationSetup.cat` and synchronize the project
+.. raw:: html
+
+    <br>
+
+.. list-table::
+    :header-rows: 1
+
+    * - Data
+      - Default
+      - Description
+    * - Controller: IP Address
+      - :literal:`172.31.1.25`
+      - External control workstation IP address
+    * - Controller: Port
+      - :literal:`12225`
+      - External control workstation port
+    * - Enable verbose log
+      - :literal:`false`
+      - Whether to display information about received commands or any other data on the smartHMI. **The excessive use of the message display could degrade the application performance and the smartHMI operation**
+
+5. Install the :literal:`StationSetup.cat` (wait for Cabinet reset) and synchronize the project
+
+.. image:: ../_static/imgs/install-java-3.png
+    :width: 100%
+    :align: center
+    :alt: Install StationSetup
 
 .. raw:: html
 
