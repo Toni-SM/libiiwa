@@ -3,9 +3,14 @@ Communication protocol
 
 The communication has to be initiated from the external control workstation which sends a **command request** and receives the **robot state as response**
 
+.. image:: ../_static/imgs/protocol-flow.png
+    :width: 60%
+    :align: center
+    :alt: Protocol flow
+
 .. raw:: html
 
-    <hr><hr>
+    <hr>
 
 Request (command)
 -----------------
@@ -186,6 +191,9 @@ Response (robot state)
       - 1
       - Boolean
 
+.. raw:: html
+
+    <hr>
 
 Enumerations
 ------------
