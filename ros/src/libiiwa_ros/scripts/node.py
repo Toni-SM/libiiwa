@@ -881,7 +881,7 @@ class Iiwa:
 
 class FollowJointTrajectory:
     def __init__(self, 
-                 interface, 
+                 interface: libiiwa.LibIiwa, 
                  action_name: str, 
                  joints: dict, 
                  follow_all_trajectory: bool = True, 
@@ -1027,9 +1027,14 @@ class FollowJointTrajectory:
             if self._verbose:
                 rospy.loginfo("FollowJointTrajectory: cancel request rejected")
             return
+
         self._action_goal = None
         self._action_goal_handle = None
         self._action_start_time = None
+        
+        # stop the robot
+        self._interface.command_stop()
+        
         goal_handle.set_canceled()
         if self._verbose:
             rospy.loginfo("FollowJointTrajectory: cancel request accepted")
