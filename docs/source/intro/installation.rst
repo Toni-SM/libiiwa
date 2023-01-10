@@ -72,6 +72,7 @@ Sunrise project
                     <processDataContainer>
                         <processData dataType="java.lang.String" defaultValue="172.31.1.25" displayName="Controller: IP Address" editableOnHmi="true" id="controller_ip" value="172.31.1.25"/>
                         <processData dataType="java.lang.Integer" defaultValue="12225" displayName="Controller: Port" editableOnHmi="true" id="controller_port" max="65535" min="1024" value="12225"/>
+                        <processData dataType="java.lang.Boolean" defaultValue="false" displayName="Communication: Use double precision" editableOnHmi="true" id="communication_double_precision" value="false"/>
                         <processData dataType="java.lang.Boolean" defaultValue="false" displayName="Enable verbose log" editableOnHmi="true" id="verbose" value="false"/>
                     </processDataContainer>
                 </RoboticsAPIData>
@@ -92,6 +93,9 @@ Sunrise project
     * - Controller: Port
       - :literal:`12225`
       - External control workstation port
+    * - Communication: Use double precision
+      - :literal:`false`
+      - Whether to use double precision (64 bits) in both the request and the response. (Default: float precision (32 bits))
     * - Enable verbose log
       - :literal:`false`
       - Whether to display information about received commands or any other data on the smartHMI. **The excessive use of the message display could degrade the application performance and the smartHMI operation**
