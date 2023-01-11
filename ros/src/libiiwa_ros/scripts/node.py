@@ -678,13 +678,13 @@ class Iiwa:
         self.stop()
 
         # create publishers
-        self._pub_joint_states = rospy.Publisher(self._names.get("joint_states", "/iiwa/joint_states"),
+        self._pub_joint_states = rospy.Publisher(self._names.get("joint_states", "/iiwa/state/joint_states"),
                                                  sensor_msgs.msg.JointState,
                                                  queue_size=self._queue_size)
-        self._pub_end_effector_pose = rospy.Publisher(self._names.get("end_effector_pose", "/iiwa/end_effector_pose"),
+        self._pub_end_effector_pose = rospy.Publisher(self._names.get("end_effector_pose", "/iiwa/state/end_effector_pose"),
                                                       geometry_msgs.msg.Pose,
                                                       queue_size=self._queue_size)
-        self._pub_end_effector_wrench = rospy.Publisher(self._names.get("end_effector_wrench", "/iiwa/end_effector_wrench"),
+        self._pub_end_effector_wrench = rospy.Publisher(self._names.get("end_effector_wrench", "/iiwa/state/end_effector_wrench"),
                                                         geometry_msgs.msg.Wrench,
                                                         queue_size=self._queue_size)
 
