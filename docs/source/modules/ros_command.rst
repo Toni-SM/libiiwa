@@ -1,5 +1,5 @@
-ROS & ROS2: Move the robot
-==========================
+ROS & ROS2: Command the robot
+=============================
 
 .. contents:: Table of Contents
    :depth: 2
@@ -40,7 +40,7 @@ Move the robot to the specified joint position
       - Units
     * - :literal:`/iiwa/command/joint`
       - `sensor_msgs/JointState <http://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/JointState.html>`_
-      - radians
+      - :math:`radians`
 
 Implementation details
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -78,7 +78,7 @@ Move all joints to their respective goal positions
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros_move.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-joint-1]
                     :end-before: [end-python-joint-1]
 
@@ -96,7 +96,7 @@ Move all joints to their respective goal positions
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros2_move.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-joint-1]
                     :end-before: [end-python-joint-1]
 
@@ -123,7 +123,7 @@ Move only the specified joints to their respective goal positions
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros_move.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-joint-2]
                     :end-before: [end-python-joint-2]
 
@@ -141,7 +141,7 @@ Move only the specified joints to their respective goal positions
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros2_move.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-joint-2]
                     :end-before: [end-python-joint-2]
 
@@ -162,12 +162,12 @@ Move the robot to the specified Cartesian pose
       - Units
     * - :literal:`/iiwa/command/cartesian`
       - `geometry_msgs/Pose <http://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Pose.html>`_
-      - meters
+      - position (:math:`m`), orientation as quaternion
 
 Implementation details
 ^^^^^^^^^^^^^^^^^^^^^^
 
-.. TODO
+    * Values set to ``nan`` will keep their current position/orientation
 
 Example
 ^^^^^^^
@@ -194,7 +194,7 @@ Move to the specified Cartesian pose (position and orientation)
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros_move.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-cartesian-1]
                     :end-before: [end-python-cartesian-1]
 
@@ -212,7 +212,7 @@ Move to the specified Cartesian pose (position and orientation)
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros2_move.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-cartesian-1]
                     :end-before: [end-python-cartesian-1]
 
@@ -245,7 +245,7 @@ Move to the specified Cartesian position or orientation
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros_move.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-cartesian-2]
                     :end-before: [end-python-cartesian-2]
 
@@ -263,6 +263,15 @@ Move to the specified Cartesian position or orientation
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros2_move.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-cartesian-2]
                     :end-before: [end-python-cartesian-2]
+
+.. raw:: html
+  
+    <hr>
+
+Circular motion
+---------------
+
+# TODO
