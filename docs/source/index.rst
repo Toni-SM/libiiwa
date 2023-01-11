@@ -40,7 +40,7 @@ User guide
     :maxdepth: 1
     :caption: Python
 
-    modules/python_state
+    modules/python_state_and_errors
     modules/python_command
     modules/python_limits
     modules/python_motion_and_control

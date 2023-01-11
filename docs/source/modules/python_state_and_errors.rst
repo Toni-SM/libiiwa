@@ -1,5 +1,5 @@
-Robot state and errors
-======================
+State and errors
+================
 
 .. contents:: Table of Contents
    :depth: 2
@@ -41,14 +41,31 @@ Robot state
       - :literal:`cartesian_orientation`
       - :literal:`radians`
       - :literal:`np.ndarray` :literal:`shape=(3,)` :literal:`dtype=np.float32`
-    * - External Cartesian forces
+    * - External Cartesian forces (X,Y,Z)
       - :literal:`cartesian_force`
       - :literal:`N`
       - :literal:`np.ndarray` :literal:`shape=(3,)` :literal:`dtype=np.float32`
-    * - External Cartesian torques
+    * - External Cartesian torques (A,B,C)
       - :literal:`cartesian_torque`
       - :literal:`Nm`
       - :literal:`np.ndarray` :literal:`shape=(3,)` :literal:`dtype=np.float32`
+
+    * - Last registered error code. See `Errors <#id1>`_
+      - :literal:`last_error`
+      - 
+      - :literal:`Error`
+    * - Whether motion has terminated due to a break condition
+      - :literal:`has_fired_condition`
+      - 
+      - :literal:`bool`
+    * - Whether the robot is ready for motion. A true value does not necessarily mean that the brakes are open and that the robot is under servo control
+      - :literal:`is_ready_to_move`
+      - 
+      - :literal:`bool`
+    * - Whether the robot is active. It does not provide any information on whether the robot is currently in motion (a false value does not necessarily mean that the robot is stationary)
+      - :literal:`has_active_motion`
+      - 
+      - :literal:`bool`
 
 get_state
 ^^^^^^^^^
