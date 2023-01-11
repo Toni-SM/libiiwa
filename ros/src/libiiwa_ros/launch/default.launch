@@ -13,6 +13,9 @@
 
     <arg name="servo_interface"                 default="true"/>
 
+    <!-- node configuration -->
+    <arg name="verbose"                         default="false"/>
+
     <!-- launch ROS node -->
     <node name="libiiwa_ros" pkg="libiiwa_ros" type="node.py" output="screen" cwd="node">
         <param name="robot_name"                    type="str"      value="$(arg robot_name)"/>
@@ -26,5 +29,7 @@
         <param name="libiiwa_port"                  type="int"      value="$(arg libiiwa_port)"/>
 
         <param name="servo_interface"               type="bool"     value="$(arg servo_interface)"/>
+
+        <param name="verbose"                       type="bool"     value="$(arg verbose)"/>
     </node>
 </launch>
