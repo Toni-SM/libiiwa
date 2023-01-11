@@ -41,9 +41,10 @@ User guide
     :caption: Python
 
     modules/python_state
-    modules/python_move
-    modules/python_motion_and_control
+    modules/python_command
     modules/python_limits
+    modules/python_motion_and_control
+    modules/python_impedance
     modules/python_conditions
 
 .. toctree::
