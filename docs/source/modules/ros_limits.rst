@@ -48,7 +48,7 @@ Example:
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros_limits.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-desired_joint_velocity_rel-1]
                     :end-before: [end-python-desired_joint_velocity_rel-1]
 
@@ -66,7 +66,7 @@ Example:
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros2_limits.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-desired_joint_velocity_rel-1]
                     :end-before: [end-python-desired_joint_velocity_rel-1]
 
@@ -105,7 +105,7 @@ Example:
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros_limits.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-desired_joint_acceleration_rel-1]
                     :end-before: [end-python-desired_joint_acceleration_rel-1]
 
@@ -123,7 +123,7 @@ Example:
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros2_limits.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-desired_joint_acceleration_rel-1]
                     :end-before: [end-python-desired_joint_acceleration_rel-1]
 
@@ -162,7 +162,7 @@ Example:
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros_limits.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-desired_joint_jerk_rel-1]
                     :end-before: [end-python-desired_joint_jerk_rel-1]
 
@@ -180,7 +180,7 @@ Example:
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros2_limits.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-desired_joint_jerk_rel-1]
                     :end-before: [end-python-desired_joint_jerk_rel-1]
 
@@ -226,7 +226,7 @@ Example:
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros_limits.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-desired_cartesian_velocity-1]
                     :end-before: [end-python-desired_cartesian_velocity-1]
 
@@ -244,7 +244,7 @@ Example:
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros2_limits.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-desired_cartesian_velocity-1]
                     :end-before: [end-python-desired_cartesian_velocity-1]
 
@@ -283,7 +283,7 @@ Example:
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros_limits.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-desired_cartesian_acceleration-1]
                     :end-before: [end-python-desired_cartesian_acceleration-1]
 
@@ -301,7 +301,7 @@ Example:
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros2_limits.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-desired_cartesian_acceleration-1]
                     :end-before: [end-python-desired_cartesian_acceleration-1]
 
@@ -340,7 +340,7 @@ Example:
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros_limits.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-desired_cartesian_jerk-1]
                     :end-before: [end-python-desired_cartesian_jerk-1]
 
@@ -358,6 +358,6 @@ Example:
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros2_limits.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-desired_cartesian_jerk-1]
                     :end-before: [end-python-desired_cartesian_jerk-1]

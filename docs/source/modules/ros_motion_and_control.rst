@@ -43,7 +43,7 @@ Example:
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros_motion_and_control.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-set_control_mode-1]
                     :end-before: [end-python-set_control_mode-1]
 
@@ -61,7 +61,7 @@ Example:
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros2_motion_and_control.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-set_control_mode-1]
                     :end-before: [end-python-set_control_mode-1]
 
@@ -102,7 +102,7 @@ Example:
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros_motion_and_control.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-set_motion_type-1]
                     :end-before: [end-python-set_motion_type-1]
 
@@ -120,7 +120,7 @@ Example:
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros2_motion_and_control.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-set_motion_type-1]
                     :end-before: [end-python-set_motion_type-1]
 
@@ -161,7 +161,7 @@ Example:
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros_motion_and_control.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-set_control_interface-1]
                     :end-before: [end-python-set_control_interface-1]
 
@@ -179,7 +179,7 @@ Example:
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros2_motion_and_control.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-set_control_interface-1]
                     :end-before: [end-python-set_control_interface-1]
 
@@ -220,7 +220,7 @@ Example:
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros_motion_and_control.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-set_execution_type-1]
                     :end-before: [end-python-set_execution_type-1]
 
@@ -238,6 +238,6 @@ Example:
             .. group-tab:: Python
 
                 .. literalinclude:: ../snippets/ros2_motion_and_control.txt
-                    :language: bash
+                    :language: python
                     :start-after: [start-python-set_execution_type-1]
                     :end-before: [end-python-set_execution_type-1]
