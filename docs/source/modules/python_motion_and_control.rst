@@ -9,6 +9,7 @@ Motion and control configuration
 .. raw:: html
   
     <hr>
+    <style>.section > h3 { display: none; }</style>
 
 Control mode
 ------------
@@ -34,6 +35,9 @@ The KUKA LBR iiwa can be operated with a number of different controllers
     :undoc-members:
     :show-inheritance:
     :members:
+
+set_control_mode
+^^^^^^^^^^^^^^^^
 
 .. automethod:: libiiwa.LibIiwa.set_control_mode
 
@@ -66,6 +70,9 @@ The KUKA LBR iiwa can programmed to perform different types of motion
     :show-inheritance:
     :members:
 
+set_motion_type
+^^^^^^^^^^^^^^^
+
 .. automethod:: libiiwa.LibIiwa.set_motion_type
 
 .. raw:: html
@@ -96,6 +103,9 @@ The KUKA LBR iiwa can be operated with a number of different motion classes
     :show-inheritance:
     :members:
 
+set_control_interface
+^^^^^^^^^^^^^^^^^^^^^
+
 .. automethod:: libiiwa.LibIiwa.set_control_interface
 
 .. raw:: html
@@ -122,5 +132,8 @@ Motion commands can be executed synchronously or asynchronously
     :undoc-members:
     :show-inheritance:
     :members:
+
+set_execution_type
+^^^^^^^^^^^^^^^^^^
 
 .. automethod:: libiiwa.LibIiwa.set_execution_type

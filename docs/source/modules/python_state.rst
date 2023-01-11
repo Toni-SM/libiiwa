@@ -9,6 +9,7 @@ Robot state and errors
 .. raw:: html
   
     <hr>
+    <style>.section > h3 { display: none; }</style>
 
 Robot state
 -----------
@@ -49,6 +50,9 @@ Robot state
       - :literal:`Nm`
       - :literal:`np.ndarray` :literal:`shape=(3,)` :literal:`dtype=np.float32`
 
+get_state
+^^^^^^^^^
+
 .. automethod:: libiiwa.LibIiwa.get_state
 
 .. raw:: html
@@ -80,5 +84,8 @@ Errors
     :undoc-members:
     :show-inheritance:
     :members:
+
+get_last_error
+^^^^^^^^^^^^^^
 
 .. automethod:: libiiwa.LibIiwa.get_last_error
