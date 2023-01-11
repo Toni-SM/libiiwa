@@ -1,7 +1,9 @@
-libiiwa - Scalable and Unified Multi-Control Framework for the KUKA LBR iiwa
-============================================================================
+libiiwa - Scalable and Unified Multi-Control Framework for the KUKA LBR iiwa (|version|)
+========================================================================================
 
-| **Current version**: |version|
+**libiiwa** is a scalable cross-platform multi-control framework for KUKA LBR iiwa cobots. It provides an interface that not only unifies and enables control and communication through ROS and ROS2, but also allows direct control for those applications where minimum control frequency is required through a scalable, simple and well-documented Application Programming Interface (API) in Python
+
+
 | **GitHub repository:** https://github.com/Toni-SM/libiiwa
 | **Questions or discussions:** https://github.com/Toni-SM/libiiwa/discussions 
 
@@ -26,21 +28,23 @@ User guide
 .. toctree::
     :maxdepth: 2
 
+    intro/overview
     intro/installation
+    intro/protocol
 
 .. raw:: html
 
     <hr>
 
 .. toctree::
-    :maxdepth: 2
-    :caption: libiiwa (Python)
+    :maxdepth: 1
+    :caption: Python
 
-    modules/state
-    modules/move
-    modules/motion_and_control
-    modules/limits
-    modules/conditions
+    modules/python_state
+    modules/python_move
+    modules/python_motion_and_control
+    modules/python_limits
+    modules/python_conditions
 
 .. toctree::
     :maxdepth: 1
