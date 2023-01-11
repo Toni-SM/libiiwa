@@ -2,14 +2,18 @@
 from typing import Optional, Mapping
 
 import math
-import rclpy
 import threading
-import std_msgs.msg
-import sensor_msgs.msg
-import geometry_msgs.msg
+import numpy as np
+from scipy.spatial.transform import Rotation
+
+import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSPresetProfiles
 from rclpy.exceptions import ROSInterruptException
+
+import std_msgs.msg
+import sensor_msgs.msg
+import geometry_msgs.msg
 
 from libiiwa_msgs.srv import SetDouble
 from libiiwa_msgs.srv import SetString
@@ -118,7 +122,7 @@ class Iiwa:
             self._node.get_logger().error(self._interface.get_last_error())
         if self._verbose:
             self._node.get_logger().info('Stop robot')
-        
+
     def _callback_joint_command(self, msg: sensor_msgs.msg.JointState) -> None:  # DONE
         names = msg.name
         positions = msg.position
@@ -173,9 +177,8 @@ class Iiwa:
         # convert message to expected format
         position = [position.x, position.y, position.z]
         if parse_quaternion:
-            quaternion = [quaternion.w, quaternion.x, quaternion.y, quaternion.z]
-            orientation = [1,2,3]  # TODO: fix convertion
-            # orientation = euler_from_quaternion(quaternion, 'sxyz')  # TODO: fix convertion
+            orientation = Rotation.from_quat([quaternion.x, quaternion.y, quaternion.z, quaternion.w]).as_euler("xyz", degrees=False)
+            orientation = [orientation[2], orientation[1], orientation[0]]  # alpha (z), beta (y), gamma (z)
         else:
             orientation = [math.nan] * 3
 
@@ -193,7 +196,7 @@ class Iiwa:
         if self._verbose:
             self._node.get_logger().info('Commanded cartesian pose to {}, {} ({})'.format(position, orientation, status))
 
- # configuration commands (limits)
+    # configuration commands (limits)
 
     def _handler_set_desired_joint_velocity_rel(self, request, response):  # DONE
         try:
@@ -564,33 +567,33 @@ class Iiwa:
         # TODO: set header
 
         # joint states
-        self._msg_joint_states.position = state["joint_position"].tolist()
-        self._msg_joint_states.velocity = state["joint_velocity"].tolist()
-        self._msg_joint_states.effort = state["joint_torque"].tolist()
+        self._msg_joint_states.position = state["joint_position"]
+        self._msg_joint_states.velocity = state["joint_velocity"]
+        self._msg_joint_states.effort = state["joint_torque"]
 
         # end-effector pose
         position = state["cartesian_position"]
-        self._msg_end_effector_pose.position.x = position[0].item()
-        self._msg_end_effector_pose.position.y = position[1].item()
-        self._msg_end_effector_pose.position.z = position[2].item()
+        self._msg_end_effector_pose.position.x = position[0]
+        self._msg_end_effector_pose.position.y = position[1]
+        self._msg_end_effector_pose.position.z = position[2]
 
-        # TODO: convert to quaternion
-        orientation = state["cartesian_orientation"]
-        self._msg_end_effector_pose.orientation.x = orientation[0].item()
-        self._msg_end_effector_pose.orientation.y = orientation[1].item()
-        self._msg_end_effector_pose.orientation.z = orientation[2].item()
-        self._msg_end_effector_pose.orientation.w = orientation[0].item()
+        orientation = state["cartesian_orientation"]  # alpha (z), beta (y), gamma (x)
+        quaternion = Rotation.from_euler('xyz', [orientation[2], orientation[1], orientation[0]], degrees=False).as_quat()  # xyzw
+        self._msg_end_effector_pose.orientation.x = quaternion[0]
+        self._msg_end_effector_pose.orientation.y = quaternion[1]
+        self._msg_end_effector_pose.orientation.z = quaternion[2]
+        self._msg_end_effector_pose.orientation.w = quaternion[3]
 
         # end-effector wrench
         force = state["cartesian_force"]
-        self._msg_end_effector_wrench.force.x = force[0].item()
-        self._msg_end_effector_wrench.force.y = force[1].item()
-        self._msg_end_effector_wrench.force.z = force[2].item()
+        self._msg_end_effector_wrench.force.x = force[0]
+        self._msg_end_effector_wrench.force.y = force[1]
+        self._msg_end_effector_wrench.force.z = force[2]
 
         torque = state["cartesian_torque"]
-        self._msg_end_effector_wrench.torque.x = torque[0].item()
-        self._msg_end_effector_wrench.torque.y = torque[1].item()
-        self._msg_end_effector_wrench.torque.z = torque[2].item()
+        self._msg_end_effector_wrench.torque.x = torque[0]
+        self._msg_end_effector_wrench.torque.y = torque[1]
+        self._msg_end_effector_wrench.torque.z = torque[2]
 
         # publish
         self._pub_joint_states.publish(self._msg_joint_states)
@@ -613,23 +616,33 @@ def main():
 
     # get launch parameters
     robot_name = node.get_parameter('robot_name').get_parameter_value().string_value
+
     controller_name = node.get_parameter('controller_name').get_parameter_value().string_value
     action_namespace = node.get_parameter('action_namespace').get_parameter_value().string_value
+
     libiiwa_ip = node.get_parameter('libiiwa_ip').get_parameter_value().string_value
     libiiwa_port = node.get_parameter('libiiwa_port').get_parameter_value().integer_value
+
     run_without_communication = node.get_parameter('run_without_communication').get_parameter_value().bool_value
     verbose = node.get_parameter('verbose').get_parameter_value().bool_value
-    
 
     # init robot interface
     robot = LibIiwa(ip=libiiwa_ip, port=libiiwa_port, run_without_communication=run_without_communication)
-    robot.start()
 
-    robot.set_control_interface(libiiwa.ControlInterface.CONTROL_INTERFACE_SERVO)
+    if servo_interface:
+        robot.set_control_interface(libiiwa.ControlInterface.CONTROL_INTERFACE_SERVO)
+    else:
+        robot.set_control_interface(libiiwa.ControlInterface.CONTROL_INTERFACE_STANDARD)
+
     robot.set_desired_joint_velocity_rel(0.5)
+    robot.set_desired_joint_acceleration_rel(0.5)
+    robot.set_desired_joint_jerk_rel(0.5)
 
     # load controllers
-    controllers = [Iiwa(node, robot, JOINTS, verbose=verbose),
+    controllers = [Iiwa(node=node,
+                        interface=robot, 
+                        joints=JOINTS, 
+                        verbose=verbose),
                 #    FollowJointTrajectory(node, robot, f"/{controller_name}/{action_namespace}", JOINTS)]
     ]
 
