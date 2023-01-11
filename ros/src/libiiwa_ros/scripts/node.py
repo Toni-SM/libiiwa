@@ -20,6 +20,9 @@ from libiiwa_msgs.srv import SetNumber, SetNumberRequest, SetNumberResponse
 from libiiwa_msgs.srv import SetString, SetStringRequest, SetStringResponse
 from libiiwa_msgs.srv import SetXYZABC, SetXYZABCRequest, SetXYZABCResponse
 from libiiwa_msgs.srv import SetXYZABCParam, SetXYZABCParamRequest, SetXYZABCParamResponse
+from libiiwa_msgs.srv import GetError, GetErrorRequest, GetErrorResponse
+from libiiwa_msgs.srv import GetBool, GetBoolRequest, GetBoolResponse
+from libiiwa_msgs.srv import GetNumber, GetNumberRequest, GetNumberResponse
 
 try:
     import libiiwa
@@ -672,6 +675,38 @@ class Iiwa:
                 .format(request.data, response.success, response.message))
         return response
 
+    def _handler_last_error(self, request: GetErrorRequest) -> None:
+        response = GetErrorResponse()
+        error = self._interface.get_last_error()
+        response.error_code = error.value
+        if self._verbose:
+            rospy.loginfo("Service last_error ({})".format(str(error)))
+        return response
+
+    def _handler_has_fired_condition(self, request: GetBoolRequest) -> None:
+        response = GetBoolResponse()
+        data = self._interface.get_state()["has_fired_condition"]
+        response.data = data
+        if self._verbose:
+            rospy.loginfo("Service has_fired_condition ({})".format(str(data)))
+        return response
+        
+    def _handler_is_ready_to_move(self, request: GetBoolRequest) -> None:
+        response = GetBoolResponse()
+        data = self._interface.get_state()["is_ready_to_move"]
+        response.data = data
+        if self._verbose:
+            rospy.loginfo("Service is_ready_to_move ({})".format(str(data)))
+        return response
+        
+    def _handler_has_active_motion(self, request: GetBoolRequest) -> None:
+        response = GetBoolResponse()
+        data = self._interface.get_state()["has_active_motion"]
+        response.data = data
+        if self._verbose:
+            rospy.loginfo("Service has_active_motion ({})".format(str(data)))
+        return response
+
     def start(self) -> None:
         """Start the publisher
         """
@@ -817,6 +852,26 @@ class Iiwa:
         self._services.append(rospy.Service(name=name,
                                             service_class=SetString,
                                             handler=self._handler_set_communication_mode))
+
+        name = self._names.get("last_error", "/iiwa/last_error")
+        self._services.append(rospy.Service(name=name,
+                                            service_class=GetError,
+                                            handler=self._handler_last_error))
+
+        name = self._names.get("has_fired_condition", "/iiwa/has_fired_condition")
+        self._services.append(rospy.Service(name=name,
+                                            service_class=GetBool,
+                                            handler=self._handler_has_fired_condition))
+        
+        name = self._names.get("is_ready_to_move", "/iiwa/is_ready_to_move")
+        self._services.append(rospy.Service(name=name,
+                                            service_class=GetBool,
+                                            handler=self._handler_is_ready_to_move))
+        
+        name = self._names.get("has_active_motion", "/iiwa/has_active_motion")
+        self._services.append(rospy.Service(name=name,
+                                            service_class=GetBool,
+                                            handler=self._handler_has_active_motion))
 
     def stop(self) -> None:
         """Stop the publisher
