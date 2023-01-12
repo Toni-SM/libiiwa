@@ -15,7 +15,7 @@ import std_msgs.msg
 import sensor_msgs.msg
 import geometry_msgs.msg
 
-from libiiwa_msgs.srv import SetDouble
+from libiiwa_msgs.srv import SetNumber
 from libiiwa_msgs.srv import SetString
 
 try:
@@ -486,32 +486,32 @@ class Iiwa:
 
         # create services
         name = self._names.get("set_desired_joint_velocity_rel", "/iiwa/set_desired_joint_velocity_rel")
-        self._services.append(self._node.create_service(srv_type=SetDouble,
+        self._services.append(self._node.create_service(srv_type=SetNumber,
                                                         srv_name=name,
                                                         callback=self._handler_set_desired_joint_velocity_rel))
 
         name = self._names.get("set_desired_joint_acceleration_rel", "/iiwa/set_desired_joint_acceleration_rel")
-        self._services.append(self._node.create_service(srv_type=SetDouble,
+        self._services.append(self._node.create_service(srv_type=SetNumber,
                                                         srv_name=name,
                                                         callback=self._handler_set_desired_joint_acceleration_rel))
 
         name = self._names.get("set_desired_joint_jerk_rel", "/iiwa/set_desired_joint_jerk_rel")
-        self._services.append(self._node.create_service(srv_type=SetDouble,
+        self._services.append(self._node.create_service(srv_type=SetNumber,
                                                         srv_name=name,
                                                         callback=self._handler_set_desired_joint_jerk_rel))
 
         name = self._names.get("set_desired_cartesian_velocity", "/iiwa/set_desired_cartesian_velocity")
-        self._services.append(self._node.create_service(srv_type=SetDouble,
+        self._services.append(self._node.create_service(srv_type=SetNumber,
                                                         srv_name=name,
                                                         callback=self._handler_set_desired_cartesian_velocity))
 
         name = self._names.get("set_desired_cartesian_acceleration", "/iiwa/set_desired_cartesian_acceleration")
-        self._services.append(self._node.create_service(srv_type=SetDouble,
+        self._services.append(self._node.create_service(srv_type=SetNumber,
                                                         srv_name=name,
                                                         callback=self._handler_set_desired_cartesian_acceleration))
 
         name = self._names.get("set_desired_cartesian_jerk", "/iiwa/set_desired_cartesian_jerk")
-        self._services.append(self._node.create_service(srv_type=SetDouble,
+        self._services.append(self._node.create_service(srv_type=SetNumber,
                                                         srv_name=name,
                                                         callback=self._handler_set_desired_cartesian_jerk))
 
