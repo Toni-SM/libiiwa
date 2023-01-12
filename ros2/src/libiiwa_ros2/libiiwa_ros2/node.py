@@ -453,13 +453,13 @@ class Iiwa:
 
         # create publishers
         self._pub_joint_states = self._node.create_publisher(msg_type=sensor_msgs.msg.JointState,
-                                                             topic=self._names.get("joint_states", "/iiwa/joint_states"),
+                                                             topic=self._names.get("joint_states", "/iiwa/state/joint_states"),
                                                              qos_profile=self._qos_profile)
         self._pub_end_effector_pose = self._node.create_publisher(msg_type=geometry_msgs.msg.Pose,
-                                                                  topic=self._names.get("end_effector_pose", "/iiwa/end_effector_pose"),
+                                                                  topic=self._names.get("end_effector_pose", "/iiwa/state/end_effector_pose"),
                                                                   qos_profile=self._qos_profile)
         self._pub_end_effector_wrench = self._node.create_publisher(msg_type=geometry_msgs.msg.Wrench,
-                                                                    topic=self._names.get("end_effector_wrench", "/iiwa/end_effector_wrench"),
+                                                                    topic=self._names.get("end_effector_wrench", "/iiwa/state/end_effector_wrench"),
                                                                     qos_profile=self._qos_profile)
 
         self._publishers = [self._pub_joint_states,
@@ -567,33 +567,33 @@ class Iiwa:
         # TODO: set header
 
         # joint states
-        self._msg_joint_states.position = state["joint_position"]
-        self._msg_joint_states.velocity = state["joint_velocity"]
-        self._msg_joint_states.effort = state["joint_torque"]
+        self._msg_joint_states.position = state["joint_position"].tolist()
+        self._msg_joint_states.velocity = state["joint_velocity"].tolist()
+        self._msg_joint_states.effort = state["joint_torque"].tolist()
 
         # end-effector pose
         position = state["cartesian_position"]
-        self._msg_end_effector_pose.position.x = position[0]
-        self._msg_end_effector_pose.position.y = position[1]
-        self._msg_end_effector_pose.position.z = position[2]
+        self._msg_end_effector_pose.position.x = position[0].item()
+        self._msg_end_effector_pose.position.y = position[1].item()
+        self._msg_end_effector_pose.position.z = position[2].item()
 
         orientation = state["cartesian_orientation"]  # alpha (z), beta (y), gamma (x)
         quaternion = Rotation.from_euler('xyz', [orientation[2], orientation[1], orientation[0]], degrees=False).as_quat()  # xyzw
-        self._msg_end_effector_pose.orientation.x = quaternion[0]
-        self._msg_end_effector_pose.orientation.y = quaternion[1]
-        self._msg_end_effector_pose.orientation.z = quaternion[2]
-        self._msg_end_effector_pose.orientation.w = quaternion[3]
+        self._msg_end_effector_pose.orientation.x = quaternion[0].item()
+        self._msg_end_effector_pose.orientation.y = quaternion[1].item()
+        self._msg_end_effector_pose.orientation.z = quaternion[2].item()
+        self._msg_end_effector_pose.orientation.w = quaternion[3].item()
 
         # end-effector wrench
         force = state["cartesian_force"]
-        self._msg_end_effector_wrench.force.x = force[0]
-        self._msg_end_effector_wrench.force.y = force[1]
-        self._msg_end_effector_wrench.force.z = force[2]
+        self._msg_end_effector_wrench.force.x = force[0].item()
+        self._msg_end_effector_wrench.force.y = force[1].item()
+        self._msg_end_effector_wrench.force.z = force[2].item()
 
         torque = state["cartesian_torque"]
-        self._msg_end_effector_wrench.torque.x = torque[0]
-        self._msg_end_effector_wrench.torque.y = torque[1]
-        self._msg_end_effector_wrench.torque.z = torque[2]
+        self._msg_end_effector_wrench.torque.x = torque[0].item()
+        self._msg_end_effector_wrench.torque.y = torque[1].item()
+        self._msg_end_effector_wrench.torque.z = torque[2].item()
 
         # publish
         self._pub_joint_states.publish(self._msg_joint_states)
