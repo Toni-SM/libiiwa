@@ -30,7 +30,7 @@ except ModuleNotFoundError:
     import os
     import sys
     # get path relative to repository root
-    libiiwa_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', 'libiiwa'))
+    libiiwa_path = os.path.abspath(os.path.join(os.path.dirname(__file__), *(['..'] * 4), 'libiiwa'))
     if os.path.exists(libiiwa_path):
         print('libiiwa path: {}'.format(libiiwa_path))
         sys.path.append(libiiwa_path)
@@ -108,6 +108,15 @@ class Iiwa:
         # initialize messages
         self._msg_joint_states.name = sorted(list(self._joints.keys()))
 
+    def _log_info(self, msg):
+        rospy.loginfo(msg)
+    
+    def _log_warn(self, msg):
+        rospy.logwarn(msg)
+    
+    def _log_error(self, msg):
+        rospy.logerr(msg)
+
     # motion command
 
     def _callback_stop_command(self, msg: std_msgs.msg.Empty) -> None:
@@ -115,15 +124,15 @@ class Iiwa:
         try:
             status = self._interface.command_stop()
         except Exception as e:
-            rospy.logerr('Failed to stop the robot')
-            rospy.logerr(str(e))
+            self._log_error('Failed to stop the robot')
+            self._log_error(str(e))
             return
 
         if not status:
-            rospy.logerr('Failed to stop the robot')
-            rospy.logerr(str(self._interface.get_last_error()))
+            self._log_error('Failed to stop the robot')
+            self._log_error(str(self._interface.get_last_error()))
         if self._verbose:
-            rospy.loginfo('Stop robot')
+            self._log_info('Stop robot')
 
     def _callback_joint_command(self, msg: sensor_msgs.msg.JointState) -> None:  # DONE
         names = msg.name
@@ -133,11 +142,11 @@ class Iiwa:
         if not len(names):
             names = self._msg_joint_states.name.copy()
             if len(positions) != self._num_joints:
-                rospy.logerr('Number of positions ({}) does not match number of joints ({})' \
+                self._log_error('Number of positions ({}) does not match number of joints ({})' \
                     .format(len(positions), self._num_joints))
                 return
         elif len(names) != len(positions):
-            rospy.logerr('The message has different number of names ({}) and positions ({})' \
+            self._log_error('The message has different number of names ({}) and positions ({})' \
                 .format(len(names), len(positions)))
             return
 
@@ -145,7 +154,7 @@ class Iiwa:
         target_positions = [math.nan] * self._num_joints
         for name, position in zip(names, positions):
             if not name in self._joints:
-                rospy.logerr('Invalid joint name: {}'.format(name))
+                self._log_error('Invalid joint name: {}'.format(name))
                 return
             index = self._joints[name]['index']
             target_positions[index] = position
@@ -154,15 +163,15 @@ class Iiwa:
         try:
             status = self._interface.command_joint_position(target_positions)
         except Exception as e:
-            rospy.logerr('Failed to command joint position to {}'.format(target_positions))
-            rospy.logerr(str(e))
+            self._log_error('Failed to command joint position to {}'.format(target_positions))
+            self._log_error(str(e))
             return
 
         if not status:
-            rospy.logerr('Failed to command joint position to {}'.format(target_positions))
-            rospy.logerr(str(self._interface.get_last_error()))
+            self._log_error('Failed to command joint position to {}'.format(target_positions))
+            self._log_error(str(self._interface.get_last_error()))
         if self._verbose:
-            rospy.loginfo('Commanded joint position to {} ({})'.format(target_positions, status))
+            self._log_info('Commanded joint position to {} ({})'.format(target_positions, status))
 
     def _callback_cartesian_command(self, msg: geometry_msgs.msg.Pose) -> None:  # PARTIAL DONE
         position = msg.position
@@ -172,7 +181,7 @@ class Iiwa:
         parse_quaternion = True
         if math.isnan(quaternion.x) or math.isnan(quaternion.y) or math.isnan(quaternion.z) or math.isnan(quaternion.w):
             if not (math.isnan(quaternion.x) and math.isnan(quaternion.y) and math.isnan(quaternion.z) and math.isnan(quaternion.w)):
-                rospy.logerr('Invalid orientation: {}'.format([quaternion.x, quaternion.y, quaternion.z, quaternion.w]))
+                self._log_error('Invalid orientation: {}'.format([quaternion.x, quaternion.y, quaternion.z, quaternion.w]))
                 return
             parse_quaternion = False
 
@@ -188,15 +197,15 @@ class Iiwa:
         try:
             status = self._interface.command_cartesian_pose(position, orientation)
         except Exception as e:
-            rospy.logerr('Failed to command cartesian pose to {}, {}'.format(position, orientation))
-            rospy.logerr(str(e))
+            self._log_error('Failed to command cartesian pose to {}, {}'.format(position, orientation))
+            self._log_error(str(e))
             return
 
         if not status:
-            rospy.logerr('Failed to command cartesian pose to {}, {}'.format(position, orientation))
-            rospy.logerr(str(self._interface.get_last_error()))
+            self._log_error('Failed to command cartesian pose to {}, {}'.format(position, orientation))
+            self._log_error(str(self._interface.get_last_error()))
         if self._verbose:
-            rospy.loginfo('Commanded cartesian pose to {}, {} ({})'.format(position, orientation, status))
+            self._log_info('Commanded cartesian pose to {}, {} ({})'.format(position, orientation, status))
 
     # configuration commands (limits)
 
@@ -206,15 +215,15 @@ class Iiwa:
             response.success = self._interface.set_desired_joint_velocity_rel(request.data)
             if not response.success:
                 response.message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to set_desired_joint_velocity_rel to {}'.format(request.data))
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to set_desired_joint_velocity_rel to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            rospy.logerr('Failed to set_desired_joint_velocity_rel to {}'.format(request.data))
-            rospy.logerr(str(e))
+            self._log_error('Failed to set_desired_joint_velocity_rel to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service set_desired_joint_velocity_rel to {} ({}, {})" \
+            self._log_info("Service set_desired_joint_velocity_rel to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -224,15 +233,15 @@ class Iiwa:
             response.success = self._interface.set_desired_joint_acceleration_rel(request.data)
             if not response.success:
                 response.message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to set_desired_joint_acceleration_rel to {}'.format(request.data))
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to set_desired_joint_acceleration_rel to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            rospy.logerr('Failed to set_desired_joint_acceleration_rel to {}'.format(request.data))
-            rospy.logerr(str(e))
+            self._log_error('Failed to set_desired_joint_acceleration_rel to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service set_desired_joint_acceleration_rel to {} ({}, {})" \
+            self._log_info("Service set_desired_joint_acceleration_rel to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -242,15 +251,15 @@ class Iiwa:
             response.success = self._interface.set_desired_joint_jerk_rel(request.data)
             if not response.success:
                 response.message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to set_desired_joint_jerk_rel to {}'.format(request.data))
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to set_desired_joint_jerk_rel to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            rospy.logerr('Failed to set_desired_joint_jerk_rel to {}'.format(request.data))
-            rospy.logerr(str(e))
+            self._log_error('Failed to set_desired_joint_jerk_rel to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service set_desired_joint_jerk_rel to {} ({}, {})" \
+            self._log_info("Service set_desired_joint_jerk_rel to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -260,15 +269,15 @@ class Iiwa:
             response.success = self._interface.set_desired_cartesian_velocity(request.data)
             if not response.success:
                 response.message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to set_desired_cartesian_velocity to {}'.format(request.data))
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to set_desired_cartesian_velocity to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            rospy.logerr('Failed to set_desired_cartesian_velocity to {}'.format(request.data))
-            rospy.logerr(str(e))
+            self._log_error('Failed to set_desired_cartesian_velocity to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service set_desired_cartesian_velocity to {} ({}, {})" \
+            self._log_info("Service set_desired_cartesian_velocity to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -278,15 +287,15 @@ class Iiwa:
             response.success = self._interface.set_desired_cartesian_acceleration(request.data)
             if not response.success:
                 response.message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to set_desired_cartesian_acceleration to {}'.format(request.data))
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to set_desired_cartesian_acceleration to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            rospy.logerr('Failed to set_desired_cartesian_acceleration to {}'.format(request.data))
-            rospy.logerr(str(e))
+            self._log_error('Failed to set_desired_cartesian_acceleration to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service set_desired_cartesian_acceleration to {} ({}, {})" \
+            self._log_info("Service set_desired_cartesian_acceleration to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -296,15 +305,15 @@ class Iiwa:
             response.success = self._interface.set_desired_cartesian_jerk(request.data)
             if not response.success:
                 response.message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to set_desired_cartesian_jerk to {}'.format(request.data))
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to set_desired_cartesian_jerk to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            rospy.logerr('Failed to set_desired_cartesian_jerk to {}'.format(request.data))
-            rospy.logerr(str(e))
+            self._log_error('Failed to set_desired_cartesian_jerk to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service set_desired_cartesian_jerk to {} ({}, {})" \
+            self._log_info("Service set_desired_cartesian_jerk to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -316,15 +325,15 @@ class Iiwa:
             response.success = self._interface.set_cartesian_additional_control_force(translational, rotational)
             if not response.success:
                 response.message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to set_cartesian_additional_control_force to {}{}'.format(translational, rotational))
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to set_cartesian_additional_control_force to {}{}'.format(translational, rotational))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            rospy.logerr('Failed to set_cartesian_additional_control_force to {}{}'.format(translational, rotational))
-            rospy.logerr(str(e))
+            self._log_error('Failed to set_cartesian_additional_control_force to {}{}'.format(translational, rotational))
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service set_cartesian_additional_control_force to {}{} ({}, {})" \
+            self._log_info("Service set_cartesian_additional_control_force to {}{} ({}, {})" \
                 .format(translational, rotational, response.success, response.message))
         return response
 
@@ -336,15 +345,15 @@ class Iiwa:
             response.success = self._interface.set_cartesian_max_velocity(translational, rotational)
             if not response.success:
                 response.message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to set_cartesian_max_velocity to {}{}'.format(translational, rotational))
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to set_cartesian_max_velocity to {}{}'.format(translational, rotational))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            rospy.logerr('Failed to set_cartesian_max_velocity to {}{}'.format(translational, rotational))
-            rospy.logerr(str(e))
+            self._log_error('Failed to set_cartesian_max_velocity to {}{}'.format(translational, rotational))
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service set_cartesian_max_velocity to {}{} ({}, {})" \
+            self._log_info("Service set_cartesian_max_velocity to {}{} ({}, {})" \
                 .format(translational, rotational, response.success, response.message))
         return response
 
@@ -356,15 +365,15 @@ class Iiwa:
             response.success = self._interface.set_cartesian_max_path_deviation(translational, rotational)
             if not response.success:
                 response.message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to set_cartesian_max_path_deviation to {}{}'.format(translational, rotational))
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to set_cartesian_max_path_deviation to {}{}'.format(translational, rotational))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            rospy.logerr('Failed to set_cartesian_max_path_deviation to {}{}'.format(translational, rotational))
-            rospy.logerr(str(e))
+            self._log_error('Failed to set_cartesian_max_path_deviation to {}{}'.format(translational, rotational))
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service set_cartesian_max_path_deviation to {}{} ({}, {})" \
+            self._log_info("Service set_cartesian_max_path_deviation to {}{} ({}, {})" \
                 .format(translational, rotational, response.success, response.message))
         return response
 
@@ -377,15 +386,15 @@ class Iiwa:
             response.success = self._interface.set_cartesian_stiffness(translational, rotational, null_space)
             if not response.success:
                 response.message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to set_cartesian_stiffness to {}{}({})'.format(translational, rotational, null_space))
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to set_cartesian_stiffness to {}{}({})'.format(translational, rotational, null_space))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            rospy.logerr('Failed to set_cartesian_stiffness to {}{}({})'.format(translational, rotational, null_space))
-            rospy.logerr(str(e))
+            self._log_error('Failed to set_cartesian_stiffness to {}{}({})'.format(translational, rotational, null_space))
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service set_cartesian_stiffness to {}{}({}) ({}, {})" \
+            self._log_info("Service set_cartesian_stiffness to {}{}({}) ({}, {})" \
                 .format(translational, rotational, null_space, response.success, response.message))
         return response
 
@@ -398,15 +407,15 @@ class Iiwa:
             response.success = self._interface.set_cartesian_damping(translational, rotational, null_space)
             if not response.success:
                 response.message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to set_cartesian_damping to {}{}({})'.format(translational, rotational, null_space))
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to set_cartesian_damping to {}{}({})'.format(translational, rotational, null_space))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            rospy.logerr('Failed to set_cartesian_damping to {}{}({})'.format(translational, rotational, null_space))
-            rospy.logerr(str(e))
+            self._log_error('Failed to set_cartesian_damping to {}{}({})'.format(translational, rotational, null_space))
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service set_cartesian_damping to {}{}({}) ({}, {})" \
+            self._log_info("Service set_cartesian_damping to {}{}({}) ({}, {})" \
                 .format(translational, rotational, null_space, response.success, response.message))
         return response
 
@@ -419,15 +428,15 @@ class Iiwa:
             response.success = self._interface.set_cartesian_max_control_force(translational, rotational, add_stop_condition)
             if not response.success:
                 response.message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to set_cartesian_max_control_force to {}{}({})'.format(translational, rotational, add_stop_condition))
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to set_cartesian_max_control_force to {}{}({})'.format(translational, rotational, add_stop_condition))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            rospy.logerr('Failed to set_cartesian_max_control_force to {}{}({})'.format(translational, rotational, add_stop_condition))
-            rospy.logerr(str(e))
+            self._log_error('Failed to set_cartesian_max_control_force to {}{}({})'.format(translational, rotational, add_stop_condition))
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service set_cartesian_max_control_force to {}{}({}) ({}, {})" \
+            self._log_info("Service set_cartesian_max_control_force to {}{}({}) ({}, {})" \
                 .format(translational, rotational, add_stop_condition, response.success, response.message))
         return response
 
@@ -437,15 +446,15 @@ class Iiwa:
             response.success = self._interface.set_joint_stiffness(request.data)
             if not response.success:
                 response.message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to set_joint_stiffness to {}'.format(request.data))
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to set_joint_stiffness to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            rospy.logerr('Failed to set_joint_stiffness to {}'.format(request.data))
-            rospy.logerr(str(e))
+            self._log_error('Failed to set_joint_stiffness to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service set_joint_stiffness to {} ({}, {})" \
+            self._log_info("Service set_joint_stiffness to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -455,15 +464,15 @@ class Iiwa:
             response.success = self._interface.set_joint_damping(request.data)
             if not response.success:
                 response.message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to set_joint_damping to {}'.format(request.data))
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to set_joint_damping to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            rospy.logerr('Failed to set_joint_damping to {}'.format(request.data))
-            rospy.logerr(str(e))
+            self._log_error('Failed to set_joint_damping to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service set_joint_damping to {} ({}, {})" \
+            self._log_info("Service set_joint_damping to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -475,13 +484,13 @@ class Iiwa:
             status = self._interface.reset_conditions()
             if not status:
                 message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to reset_conditions')
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to reset_conditions')
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
-            rospy.logerr('Failed to reset_conditions')
-            rospy.logerr(str(e))
+            self._log_error('Failed to reset_conditions')
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service reset_conditions")
+            self._log_info("Service reset_conditions")
         return response
 
     def _handler_set_force_condition(self, request: SetArrayRequest):
@@ -492,15 +501,15 @@ class Iiwa:
             response.success = self._interface.set_force_condition(threshold, tolerance)
             if not response.success:
                 response.message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to set_force_condition to {}'.format(request.data))
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to set_force_condition to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            rospy.logerr('Failed to set_force_condition to {}'.format(request.data))
-            rospy.logerr(str(e))
+            self._log_error('Failed to set_force_condition to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service set_force_condition to {} ({}, {})" \
+            self._log_info("Service set_force_condition to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -512,15 +521,15 @@ class Iiwa:
             response.success = self._interface.set_joint_torque_condition(lower_limits, upper_limits)
             if not response.success:
                 response.message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to set_joint_torque_condition to {}'.format(request.data))
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to set_joint_torque_condition to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            rospy.logerr('Failed to set_joint_torque_condition to {}'.format(request.data))
-            rospy.logerr(str(e))
+            self._log_error('Failed to set_joint_torque_condition to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service set_joint_torque_condition to {} ({}, {})" \
+            self._log_info("Service set_joint_torque_condition to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -534,24 +543,24 @@ class Iiwa:
         if control_interface is None:
             response.success = False
             response.message = "Unknown control interface: {}".format(request.data)
-            rospy.logerr("Unknown control interface: {}".format(request.data))
+            self._log_error("Unknown control interface: {}".format(request.data))
             if self._verbose:
-                rospy.loginfo("Service set_control_interface to {} ({}, {})" \
+                self._log_info("Service set_control_interface to {} ({}, {})" \
                     .format(request.data, response.success, response.message))
             return response
         try:
             response.success = self._interface.set_control_interface(control_interface)
             if not response.success:
                 response.message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to set_control_interface to {}'.format(request.data))
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to set_control_interface to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            rospy.logerr('Failed to set_control_interface to {}'.format(request.data))
-            rospy.logerr(str(e))
+            self._log_error('Failed to set_control_interface to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service set_control_interface to {} ({}, {})" \
+            self._log_info("Service set_control_interface to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -565,24 +574,24 @@ class Iiwa:
         if motion_type is None:
             response.success = False
             response.message = "Unknown motion type: {}".format(request.data)
-            rospy.logerr("Unknown motion type: {}".format(request.data))
+            self._log_error("Unknown motion type: {}".format(request.data))
             if self._verbose:
-                rospy.loginfo("Service set_motion_type to {} ({}, {})" \
+                self._log_info("Service set_motion_type to {} ({}, {})" \
                     .format(request.data, response.success, response.message))
             return response
         try:
             response.success = self._interface.set_motion_type(motion_type)
             if not response.success:
                 response.message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to set_motion_type to {}'.format(request.data))
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to set_motion_type to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            rospy.logerr('Failed to set_motion_type to {}'.format(request.data))
-            rospy.logerr(str(e))
+            self._log_error('Failed to set_motion_type to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service set_motion_type to {} ({}, {})" \
+            self._log_info("Service set_motion_type to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -596,24 +605,24 @@ class Iiwa:
         if control_mode is None:
             response.success = False
             response.message = "Unknown control mode: {}".format(request.data)
-            rospy.logerr("Unknown control mode: {}".format(request.data))
+            self._log_error("Unknown control mode: {}".format(request.data))
             if self._verbose:
-                rospy.loginfo("Service set_control_mode to {} ({}, {})" \
+                self._log_info("Service set_control_mode to {} ({}, {})" \
                     .format(request.data, response.success, response.message))
             return response
         try:
             response.success = self._interface.set_control_mode(control_mode)
             if not response.success:
                 response.message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to set_control_mode to {}'.format(request.data))
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to set_control_mode to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            rospy.logerr('Failed to set_control_mode to {}'.format(request.data))
-            rospy.logerr(str(e))
+            self._log_error('Failed to set_control_mode to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service set_control_mode to {} ({}, {})" \
+            self._log_info("Service set_control_mode to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -625,24 +634,24 @@ class Iiwa:
         if execution_type is None:
             response.success = False
             response.message = "Unknown execution type: {}".format(request.data)
-            rospy.logerr("Unknown execution type: {}".format(request.data))
+            self._log_error("Unknown execution type: {}".format(request.data))
             if self._verbose:
-                rospy.loginfo("Service set_execution_type to {} ({}, {})" \
+                self._log_info("Service set_execution_type to {} ({}, {})" \
                     .format(request.data, response.success, response.message))
             return response
         try:
             response.success = self._interface.set_execution_type(execution_type)
             if not response.success:
                 response.message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to set_execution_type to {}'.format(request.data))
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to set_execution_type to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            rospy.logerr('Failed to set_execution_type to {}'.format(request.data))
-            rospy.logerr(str(e))
+            self._log_error('Failed to set_execution_type to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service set_execution_type to {} ({}, {})" \
+            self._log_info("Service set_execution_type to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -654,24 +663,24 @@ class Iiwa:
         if communication_mode is None:
             response.success = False
             response.message = "Unknown communication mode: {}".format(request.data)
-            rospy.logerr("Unknown communication mode: {}".format(request.data))
+            self._log_error("Unknown communication mode: {}".format(request.data))
             if self._verbose:
-                rospy.loginfo("Service set_communication_mode to {} ({}, {})" \
+                self._log_info("Service set_communication_mode to {} ({}, {})" \
                     .format(request.data, response.success, response.message))
             return response
         try:
             response.success = self._interface.set_communication_mode(communication_mode)
             if not response.success:
                 response.message = str(self._interface.get_last_error())
-                rospy.logerr('Failed to set_communication_mode to {}'.format(request.data))
-                rospy.logerr(str(self._interface.get_last_error()))
+                self._log_error('Failed to set_communication_mode to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            rospy.logerr('Failed to set_communication_mode to {}'.format(request.data))
-            rospy.logerr(str(e))
+            self._log_error('Failed to set_communication_mode to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            rospy.loginfo("Service set_communication_mode to {} ({}, {})" \
+            self._log_info("Service set_communication_mode to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -680,7 +689,7 @@ class Iiwa:
         error = self._interface.get_last_error()
         response.error_code = error.value
         if self._verbose:
-            rospy.loginfo("Service last_error ({})".format(str(error)))
+            self._log_info("Service last_error ({})".format(str(error)))
         return response
 
     def _handler_has_fired_condition(self, request: GetBoolRequest) -> None:
@@ -688,7 +697,7 @@ class Iiwa:
         data = self._interface.get_state()["has_fired_condition"]
         response.data = data
         if self._verbose:
-            rospy.loginfo("Service has_fired_condition ({})".format(str(data)))
+            self._log_info("Service has_fired_condition ({})".format(str(data)))
         return response
         
     def _handler_is_ready_to_move(self, request: GetBoolRequest) -> None:
@@ -696,7 +705,7 @@ class Iiwa:
         data = self._interface.get_state()["is_ready_to_move"]
         response.data = data
         if self._verbose:
-            rospy.loginfo("Service is_ready_to_move ({})".format(str(data)))
+            self._log_info("Service is_ready_to_move ({})".format(str(data)))
         return response
         
     def _handler_has_active_motion(self, request: GetBoolRequest) -> None:
@@ -704,7 +713,7 @@ class Iiwa:
         data = self._interface.get_state()["has_active_motion"]
         response.data = data
         if self._verbose:
-            rospy.loginfo("Service has_active_motion ({})".format(str(data)))
+            self._log_info("Service has_active_motion ({})".format(str(data)))
         return response
 
     def start(self) -> None:
@@ -900,33 +909,33 @@ class Iiwa:
         # TODO: set header
 
         # joint states
-        self._msg_joint_states.position = state["joint_position"]
-        self._msg_joint_states.velocity = state["joint_velocity"]
-        self._msg_joint_states.effort = state["joint_torque"]
+        self._msg_joint_states.position = state["joint_position"].tolist()
+        self._msg_joint_states.velocity = state["joint_velocity"].tolist()
+        self._msg_joint_states.effort = state["joint_torque"].tolist()
 
         # end-effector pose
         position = state["cartesian_position"]
-        self._msg_end_effector_pose.position.x = position[0]
-        self._msg_end_effector_pose.position.y = position[1]
-        self._msg_end_effector_pose.position.z = position[2]
+        self._msg_end_effector_pose.position.x = position[0].item()
+        self._msg_end_effector_pose.position.y = position[1].item()
+        self._msg_end_effector_pose.position.z = position[2].item()
 
         orientation = state["cartesian_orientation"]  # alpha (z), beta (y), gamma (x)
         quaternion = Rotation.from_euler('xyz', [orientation[2], orientation[1], orientation[0]], degrees=False).as_quat()  # xyzw
-        self._msg_end_effector_pose.orientation.x = quaternion[0]
-        self._msg_end_effector_pose.orientation.y = quaternion[1]
-        self._msg_end_effector_pose.orientation.z = quaternion[2]
-        self._msg_end_effector_pose.orientation.w = quaternion[3]
+        self._msg_end_effector_pose.orientation.x = quaternion[0].item()
+        self._msg_end_effector_pose.orientation.y = quaternion[1].item()
+        self._msg_end_effector_pose.orientation.z = quaternion[2].item()
+        self._msg_end_effector_pose.orientation.w = quaternion[3].item()
 
         # end-effector wrench
         force = state["cartesian_force"]
-        self._msg_end_effector_wrench.force.x = force[0]
-        self._msg_end_effector_wrench.force.y = force[1]
-        self._msg_end_effector_wrench.force.z = force[2]
+        self._msg_end_effector_wrench.force.x = force[0].item()
+        self._msg_end_effector_wrench.force.y = force[1].item()
+        self._msg_end_effector_wrench.force.z = force[2].item()
 
         torque = state["cartesian_torque"]
-        self._msg_end_effector_wrench.torque.x = torque[0]
-        self._msg_end_effector_wrench.torque.y = torque[1]
-        self._msg_end_effector_wrench.torque.z = torque[2]
+        self._msg_end_effector_wrench.torque.x = torque[0].item()
+        self._msg_end_effector_wrench.torque.y = torque[1].item()
+        self._msg_end_effector_wrench.torque.z = torque[2].item()
 
         # publish
         self._pub_joint_states.publish(self._msg_joint_states)
@@ -1029,23 +1038,23 @@ class FollowJointTrajectory:
         # reject if joints don't match
         for name in goal.trajectory.joint_names:
             if name not in self._joints:
-                rospy.logwarn("FollowJointTrajectory: joints don't match ({} not in {})" \
+                self._log_warn("FollowJointTrajectory: joints don't match ({} not in {})" \
                     .format(name, list(self._joints.keys())))
                 self._action_result_message.error_code = self._action_result_message.INVALID_JOINTS
                 self._action_result_message.error_string = "Joints don't match: {} not in {}".format(name, list(self._joints.keys()))
                 goal_handle.set_rejected(self._action_result_message, "")
                 if self._verbose:
-                    rospy.loginfo("FollowJointTrajectory: goal request rejected")
+                    self._log_info("FollowJointTrajectory: goal request rejected")
                 return
 
         # reject if there is an active goal
         if self._action_goal is not None:
-            rospy.logwarn("FollowJointTrajectory: multiple goals not supported")
+            self._log_warn("FollowJointTrajectory: multiple goals not supported")
             self._action_result_message.error_code = self._action_result_message.INVALID_GOAL
             self._action_result_message.error_string = "Multiple goals not supported"
             goal_handle.set_rejected(self._action_result_message, "")
             if self._verbose:
-                rospy.loginfo("FollowJointTrajectory: goal request rejected")
+                self._log_info("FollowJointTrajectory: goal request rejected")
             return
 
         # use specified trajectory points
@@ -1069,7 +1078,7 @@ class FollowJointTrajectory:
 
         goal_handle.set_accepted()
         if self._verbose:
-            rospy.loginfo("FollowJointTrajectory: goal request accepted")
+            self._log_info("FollowJointTrajectory: goal request accepted")
 
     def _on_cancel(self, goal_handle: 'actionlib.ServerGoalHandle') -> None:
         """Callback function for handling cancel requests
@@ -1080,7 +1089,7 @@ class FollowJointTrajectory:
         if self._action_goal is None:
             goal_handle.set_rejected()
             if self._verbose:
-                rospy.loginfo("FollowJointTrajectory: cancel request rejected")
+                self._log_info("FollowJointTrajectory: cancel request rejected")
             return
 
         self._action_goal = None
@@ -1092,7 +1101,7 @@ class FollowJointTrajectory:
         
         goal_handle.set_canceled()
         if self._verbose:
-            rospy.loginfo("FollowJointTrajectory: cancel request accepted")
+            self._log_info("FollowJointTrajectory: cancel request accepted")
 
     def step(self, dt: float) -> None:
         """Update step
@@ -1122,7 +1131,7 @@ class FollowJointTrajectory:
                 error_string = "Robot has not active motion"
 
             if should_abort:
-                rospy.logwarn("FollowJointTrajectory: aborted execution. ")
+                self._log_warn("FollowJointTrajectory: aborted execution. ")
                 self._action_goal = None
                 self._action_result_message.error_code = error_code
                 self._action_result_message.error_string = error_string
@@ -1140,7 +1149,7 @@ class FollowJointTrajectory:
                 # end of trajectory
                 if self._action_point_index >= len(self._action_goal.trajectory.points):
                     if self._verbose:
-                        rospy.loginfo("FollowJointTrajectory: set succeeded trajectory")
+                        self._log_info("FollowJointTrajectory: set succeeded trajectory")
                     self._action_goal = None
                     self._action_result_message.error_code = self._action_result_message.SUCCESSFUL
                     self._action_result_message.error_string = ""
@@ -1150,7 +1159,7 @@ class FollowJointTrajectory:
                     return
                 # update target
                 if self._verbose:
-                    rospy.loginfo("FollowJointTrajectory: update trajectory {}/{} points ({})" \
+                    self._log_info("FollowJointTrajectory: update trajectory {}/{} points ({})" \
                         .format(self._action_point_index, len(self._action_goal.trajectory.points), diff))
                 current_point = self._action_goal.trajectory.points[self._action_point_index]
                 joint_positions = [0] * len(self._action_goal.trajectory.joint_names)
@@ -1159,7 +1168,7 @@ class FollowJointTrajectory:
                 self._interface.command_joint_position(joint_positions)
                 # send feedback
                 if self._verbose:
-                    rospy.loginfo("FollowJointTrajectory: send feedback after {} seconds".format(time_passed))
+                    self._log_info("FollowJointTrajectory: send feedback after {} seconds".format(time_passed))
                 self._action_feedback_message.actual.positions = [self._get_joint_position(name, state)
                                                                   for name in self._action_goal.trajectory.joint_names]
                 self._action_feedback_message.actual.time_from_start = rospy.Duration.from_sec(time_passed)

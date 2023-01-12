@@ -2,7 +2,6 @@
 from typing import Optional, Mapping
 
 import math
-import threading
 import numpy as np
 from scipy.spatial.transform import Rotation
 
@@ -14,9 +13,19 @@ from rclpy.exceptions import ROSInterruptException
 import std_msgs.msg
 import sensor_msgs.msg
 import geometry_msgs.msg
+import control_msgs.msg
+from trajectory_msgs.msg import JointTrajectoryPoint
 
+from std_srvs.srv import Empty
+
+from libiiwa_msgs.srv import SetArray
 from libiiwa_msgs.srv import SetNumber
 from libiiwa_msgs.srv import SetString
+from libiiwa_msgs.srv import SetXYZABC
+from libiiwa_msgs.srv import SetXYZABCParam
+from libiiwa_msgs.srv import GetError
+from libiiwa_msgs.srv import GetBool
+from libiiwa_msgs.srv import GetNumber
 
 try:
     import libiiwa
@@ -106,6 +115,15 @@ class Iiwa:
         # initialize messages
         self._msg_joint_states.name = sorted(list(self._joints.keys()))
 
+    def _log_info(self, msg):
+        self._node.get_logger().info(msg)
+    
+    def _log_warn(self, msg):
+        self._node.get_logger().warn(msg)
+    
+    def _log_error(self, msg):
+        self._node.get_logger().error(msg)
+
     # motion command
 
     def _callback_stop_command(self, msg: std_msgs.msg.Empty) -> None:
@@ -113,15 +131,15 @@ class Iiwa:
         try:
             status = self._interface.command_stop()
         except Exception as e:
-            self._node.get_logger().error('Failed to stop the robot')
-            self._node.get_logger().error(str(e))
+            self._log_error('Failed to stop the robot')
+            self._log_error(str(e))
             return
 
         if not status:
-            self._node.get_logger().error('Failed to stop the robot')
-            self._node.get_logger().error(self._interface.get_last_error())
+            self._log_error('Failed to stop the robot')
+            self._log_error(str(self._interface.get_last_error()))
         if self._verbose:
-            self._node.get_logger().info('Stop robot')
+            self._log_info('Stop robot')
 
     def _callback_joint_command(self, msg: sensor_msgs.msg.JointState) -> None:  # DONE
         names = msg.name
@@ -131,11 +149,11 @@ class Iiwa:
         if not len(names):
             names = self._msg_joint_states.name.copy()
             if len(positions) != self._num_joints:
-                self._node.get_logger().error('Number of positions ({}) does not match number of joints ({})' \
+                self._log_error('Number of positions ({}) does not match number of joints ({})' \
                     .format(len(positions), self._num_joints))
                 return
         elif len(names) != len(positions):
-            self._node.get_logger().error('The message has different number of names ({}) and positions ({})' \
+            self._log_error('The message has different number of names ({}) and positions ({})' \
                 .format(len(names), len(positions)))
             return
 
@@ -143,7 +161,7 @@ class Iiwa:
         target_positions = [math.nan] * self._num_joints
         for name, position in zip(names, positions):
             if not name in self._joints:
-                self._node.get_logger().error('Invalid joint name: {}'.format(name))
+                self._log_error('Invalid joint name: {}'.format(name))
                 return
             index = self._joints[name]['index']
             target_positions[index] = position
@@ -152,15 +170,15 @@ class Iiwa:
         try:
             status = self._interface.command_joint_position(target_positions)
         except Exception as e:
-            self._node.get_logger().error('Failed to command joint position to {}'.format(target_positions))
-            self._node.get_logger().error(str(e))
+            self._log_error('Failed to command joint position to {}'.format(target_positions))
+            self._log_error(str(e))
             return
 
         if not status:
-            self._node.get_logger().error('Failed to command joint position to {}'.format(target_positions))
-            self._node.get_logger().error(self._interface.get_last_error())
+            self._log_error('Failed to command joint position to {}'.format(target_positions))
+            self._log_error(str(self._interface.get_last_error()))
         if self._verbose:
-            self._node.get_logger().info('Commanded joint position to {} ({})'.format(target_positions, status))
+            self._log_info('Commanded joint position to {} ({})'.format(target_positions, status))
 
     def _callback_cartesian_command(self, msg: geometry_msgs.msg.Pose) -> None:  # PARTIAL DONE
         position = msg.position
@@ -170,7 +188,7 @@ class Iiwa:
         parse_quaternion = True
         if math.isnan(quaternion.x) or math.isnan(quaternion.y) or math.isnan(quaternion.z) or math.isnan(quaternion.w):
             if not (math.isnan(quaternion.x) and math.isnan(quaternion.y) and math.isnan(quaternion.z) and math.isnan(quaternion.w)):
-                self._node.get_logger().error('Invalid orientation: {}'.format([quaternion.x, quaternion.y, quaternion.z, quaternion.w]))
+                self._log_error('Invalid orientation: {}'.format([quaternion.x, quaternion.y, quaternion.z, quaternion.w]))
                 return
             parse_quaternion = False
 
@@ -186,15 +204,15 @@ class Iiwa:
         try:
             status = self._interface.command_cartesian_pose(position, orientation)
         except Exception as e:
-            self._node.get_logger().error('Failed to command cartesian pose to {}, {}'.format(position, orientation))
-            self._node.get_logger().error(str(e))
+            self._log_error('Failed to command cartesian pose to {}, {}'.format(position, orientation))
+            self._log_error(str(e))
             return
 
         if not status:
-            self._node.get_logger().error('Failed to command cartesian pose to {}, {}'.format(position, orientation))
-            self._node.get_logger().error(self._interface.get_last_error())
+            self._log_error('Failed to command cartesian pose to {}, {}'.format(position, orientation))
+            self._log_error(str(self._interface.get_last_error()))
         if self._verbose:
-            self._node.get_logger().info('Commanded cartesian pose to {}, {} ({})'.format(position, orientation, status))
+            self._log_info('Commanded cartesian pose to {}, {} ({})'.format(position, orientation, status))
 
     # configuration commands (limits)
 
@@ -202,16 +220,16 @@ class Iiwa:
         try:
             response.success = self._interface.set_desired_joint_velocity_rel(request.data)
             if not response.success:
-                response.message = self._interface.get_last_error()
-                self._node.get_logger().error('Failed to set_desired_joint_velocity_rel to {}'.format(request.data))
-                self._node.get_logger().error(self._interface.get_last_error())
+                response.message = str(self._interface.get_last_error())
+                self._log_error('Failed to set_desired_joint_velocity_rel to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            self._node.get_logger().error('Failed to set_desired_joint_velocity_rel to {}'.format(request.data))
-            self._node.get_logger().error(str(e))
+            self._log_error('Failed to set_desired_joint_velocity_rel to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            self._node.get_logger().info("Service set_desired_joint_velocity_rel to {} ({}, {})" \
+            self._log_info("Service set_desired_joint_velocity_rel to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -219,16 +237,16 @@ class Iiwa:
         try:
             response.success = self._interface.set_desired_joint_acceleration_rel(request.data)
             if not response.success:
-                response.message = self._interface.get_last_error()
-                self._node.get_logger().error('Failed to set_desired_joint_acceleration_rel to {}'.format(request.data))
-                self._node.get_logger().error(self._interface.get_last_error())
+                response.message = str(self._interface.get_last_error())
+                self._log_error('Failed to set_desired_joint_acceleration_rel to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            self._node.get_logger().error('Failed to set_desired_joint_acceleration_rel to {}'.format(request.data))
-            self._node.get_logger().error(str(e))
+            self._log_error('Failed to set_desired_joint_acceleration_rel to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            self._node.get_logger().info("Service set_desired_joint_acceleration_rel to {} ({}, {})" \
+            self._log_info("Service set_desired_joint_acceleration_rel to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -236,16 +254,16 @@ class Iiwa:
         try:
             response.success = self._interface.set_desired_joint_jerk_rel(request.data)
             if not response.success:
-                response.message = self._interface.get_last_error()
-                self._node.get_logger().error('Failed to set_desired_joint_jerk_rel to {}'.format(request.data))
-                self._node.get_logger().error(self._interface.get_last_error())
+                response.message = str(self._interface.get_last_error())
+                self._log_error('Failed to set_desired_joint_jerk_rel to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            self._node.get_logger().error('Failed to set_desired_joint_jerk_rel to {}'.format(request.data))
-            self._node.get_logger().error(str(e))
+            self._log_error('Failed to set_desired_joint_jerk_rel to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            self._node.get_logger().info("Service set_desired_joint_jerk_rel to {} ({}, {})" \
+            self._log_info("Service set_desired_joint_jerk_rel to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -253,16 +271,16 @@ class Iiwa:
         try:
             response.success = self._interface.set_desired_cartesian_velocity(request.data)
             if not response.success:
-                response.message = self._interface.get_last_error()
-                self._node.get_logger().error('Failed to set_desired_cartesian_velocity to {}'.format(request.data))
-                self._node.get_logger().error(self._interface.get_last_error())
+                response.message = str(self._interface.get_last_error())
+                self._log_error('Failed to set_desired_cartesian_velocity to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            self._node.get_logger().error('Failed to set_desired_cartesian_velocity to {}'.format(request.data))
-            self._node.get_logger().error(str(e))
+            self._log_error('Failed to set_desired_cartesian_velocity to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            self._node.get_logger().info("Service set_desired_cartesian_velocity to {} ({}, {})" \
+            self._log_info("Service set_desired_cartesian_velocity to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -270,16 +288,16 @@ class Iiwa:
         try:
             response.success = self._interface.set_desired_cartesian_acceleration(request.data)
             if not response.success:
-                response.message = self._interface.get_last_error()
-                self._node.get_logger().error('Failed to set_desired_cartesian_acceleration to {}'.format(request.data))
-                self._node.get_logger().error(self._interface.get_last_error())
+                response.message = str(self._interface.get_last_error())
+                self._log_error('Failed to set_desired_cartesian_acceleration to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            self._node.get_logger().error('Failed to set_desired_cartesian_acceleration to {}'.format(request.data))
-            self._node.get_logger().error(str(e))
+            self._log_error('Failed to set_desired_cartesian_acceleration to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            self._node.get_logger().info("Service set_desired_cartesian_acceleration to {} ({}, {})" \
+            self._log_info("Service set_desired_cartesian_acceleration to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -287,16 +305,16 @@ class Iiwa:
         try:
             response.success = self._interface.set_desired_cartesian_jerk(request.data)
             if not response.success:
-                response.message = self._interface.get_last_error()
-                self._node.get_logger().error('Failed to set_desired_cartesian_jerk to {}'.format(request.data))
-                self._node.get_logger().error(self._interface.get_last_error())
+                response.message = str(self._interface.get_last_error())
+                self._log_error('Failed to set_desired_cartesian_jerk to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            self._node.get_logger().error('Failed to set_desired_cartesian_jerk to {}'.format(request.data))
-            self._node.get_logger().error(str(e))
+            self._log_error('Failed to set_desired_cartesian_jerk to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            self._node.get_logger().info("Service set_desired_cartesian_jerk to {} ({}, {})" \
+            self._log_info("Service set_desired_cartesian_jerk to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -309,24 +327,24 @@ class Iiwa:
         if control_interface is None:
             response.success = False
             response.message = "Unknown control interface: {}".format(request.data)
-            self._node.get_logger().error("Unknown control interface: {}".format(request.data))
+            self._log_error("Unknown control interface: {}".format(request.data))
             if self._verbose:
-                self._node.get_logger().info("Service set_control_interface to {} ({}, {})" \
+                self._log_info("Service set_control_interface to {} ({}, {})" \
                     .format(request.data, response.success, response.message))
             return response
         try:
             response.success = self._interface.set_control_interface(control_interface)
             if not response.success:
-                response.message = self._interface.get_last_error()
-                self._node.get_logger().error('Failed to set_control_interface to {}'.format(request.data))
-                self._node.get_logger().error(self._interface.get_last_error())
+                response.message = str(self._interface.get_last_error())
+                self._log_error('Failed to set_control_interface to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            self._node.get_logger().error('Failed to set_control_interface to {}'.format(request.data))
-            self._node.get_logger().error(str(e))
+            self._log_error('Failed to set_control_interface to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            self._node.get_logger().info("Service set_control_interface to {} ({}, {})" \
+            self._log_info("Service set_control_interface to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -339,24 +357,24 @@ class Iiwa:
         if motion_type is None:
             response.success = False
             response.message = "Unknown motion type: {}".format(request.data)
-            self._node.get_logger().error("Unknown motion type: {}".format(request.data))
+            self._log_error("Unknown motion type: {}".format(request.data))
             if self._verbose:
-                self._node.get_logger().info("Service set_motion_type to {} ({}, {})" \
+                self._log_info("Service set_motion_type to {} ({}, {})" \
                     .format(request.data, response.success, response.message))
             return response
         try:
             response.success = self._interface.set_motion_type(motion_type)
             if not response.success:
-                response.message = self._interface.get_last_error()
-                self._node.get_logger().error('Failed to set_motion_type to {}'.format(request.data))
-                self._node.get_logger().error(self._interface.get_last_error())
+                response.message = str(self._interface.get_last_error())
+                self._log_error('Failed to set_motion_type to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            self._node.get_logger().error('Failed to set_motion_type to {}'.format(request.data))
-            self._node.get_logger().error(str(e))
+            self._log_error('Failed to set_motion_type to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            self._node.get_logger().info("Service set_motion_type to {} ({}, {})" \
+            self._log_info("Service set_motion_type to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -369,24 +387,24 @@ class Iiwa:
         if control_mode is None:
             response.success = False
             response.message = "Unknown control mode: {}".format(request.data)
-            self._node.get_logger().error("Unknown control mode: {}".format(request.data))
+            self._log_error("Unknown control mode: {}".format(request.data))
             if self._verbose:
-                self._node.get_logger().info("Service set_control_mode to {} ({}, {})" \
+                self._log_info("Service set_control_mode to {} ({}, {})" \
                     .format(request.data, response.success, response.message))
             return response
         try:
             response.success = self._interface.set_control_mode(control_mode)
             if not response.success:
-                response.message = self._interface.get_last_error()
-                self._node.get_logger().error('Failed to set_control_mode to {}'.format(request.data))
-                self._node.get_logger().error(self._interface.get_last_error())
+                response.message = str(self._interface.get_last_error())
+                self._log_error('Failed to set_control_mode to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            self._node.get_logger().error('Failed to set_control_mode to {}'.format(request.data))
-            self._node.get_logger().error(str(e))
+            self._log_error('Failed to set_control_mode to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            self._node.get_logger().info("Service set_control_mode to {} ({}, {})" \
+            self._log_info("Service set_control_mode to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -397,24 +415,24 @@ class Iiwa:
         if execution_type is None:
             response.success = False
             response.message = "Unknown execution type: {}".format(request.data)
-            self._node.get_logger().error("Unknown execution type: {}".format(request.data))
+            self._log_error("Unknown execution type: {}".format(request.data))
             if self._verbose:
-                self._node.get_logger().info("Service set_execution_type to {} ({}, {})" \
+                self._log_info("Service set_execution_type to {} ({}, {})" \
                     .format(request.data, response.success, response.message))
             return response
         try:
             response.success = self._interface.set_execution_type(execution_type)
             if not response.success:
-                response.message = self._interface.get_last_error()
-                self._node.get_logger().error('Failed to set_execution_type to {}'.format(request.data))
-                self._node.get_logger().error(self._interface.get_last_error())
+                response.message = str(self._interface.get_last_error())
+                self._log_error('Failed to set_execution_type to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            self._node.get_logger().error('Failed to set_execution_type to {}'.format(request.data))
-            self._node.get_logger().error(str(e))
+            self._log_error('Failed to set_execution_type to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            self._node.get_logger().info("Service set_execution_type to {} ({}, {})" \
+            self._log_info("Service set_execution_type to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -425,24 +443,24 @@ class Iiwa:
         if communication_mode is None:
             response.success = False
             response.message = "Unknown communication mode: {}".format(request.data)
-            self._node.get_logger().error("Unknown communication mode: {}".format(request.data))
+            self._log_error("Unknown communication mode: {}".format(request.data))
             if self._verbose:
-                self._node.get_logger().info("Service set_communication_mode to {} ({}, {})" \
+                self._log_info("Service set_communication_mode to {} ({}, {})" \
                     .format(request.data, response.success, response.message))
             return response
         try:
             response.success = self._interface.set_communication_mode(communication_mode)
             if not response.success:
-                response.message = self._interface.get_last_error()
-                self._node.get_logger().error('Failed to set_communication_mode to {}'.format(request.data))
-                self._node.get_logger().error(self._interface.get_last_error())
+                response.message = str(self._interface.get_last_error())
+                self._log_error('Failed to set_communication_mode to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
         except Exception as e:
             response.success = False
             response.message = str(e)
-            self._node.get_logger().error('Failed to set_communication_mode to {}'.format(request.data))
-            self._node.get_logger().error(str(e))
+            self._log_error('Failed to set_communication_mode to {}'.format(request.data))
+            self._log_error(str(e))
         if self._verbose:
-            self._node.get_logger().info("Service set_communication_mode to {} ({}, {})" \
+            self._log_info("Service set_communication_mode to {} ({}, {})" \
                 .format(request.data, response.success, response.message))
         return response
 
@@ -670,6 +688,7 @@ def main():
             controller.stop()
 
     # start control loop
+    import threading
     threading.Thread(target=control_loop, args=(node,)).start()
     
     try:
