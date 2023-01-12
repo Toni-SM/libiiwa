@@ -722,14 +722,14 @@ class Iiwa:
         self.stop()
 
         # create publishers
-        self._pub_joint_states = rospy.Publisher(self._names.get("joint_states", "/iiwa/state/joint_states"),
-                                                 sensor_msgs.msg.JointState,
+        self._pub_joint_states = rospy.Publisher(name=self._names.get("joint_states", "/iiwa/state/joint_states"),
+                                                 data_class=sensor_msgs.msg.JointState,
                                                  queue_size=self._queue_size)
-        self._pub_end_effector_pose = rospy.Publisher(self._names.get("end_effector_pose", "/iiwa/state/end_effector_pose"),
-                                                      geometry_msgs.msg.Pose,
+        self._pub_end_effector_pose = rospy.Publisher(name=self._names.get("end_effector_pose", "/iiwa/state/end_effector_pose"),
+                                                      data_class=geometry_msgs.msg.Pose,
                                                       queue_size=self._queue_size)
-        self._pub_end_effector_wrench = rospy.Publisher(self._names.get("end_effector_wrench", "/iiwa/state/end_effector_wrench"),
-                                                        geometry_msgs.msg.Wrench,
+        self._pub_end_effector_wrench = rospy.Publisher(name=self._names.get("end_effector_wrench", "/iiwa/state/end_effector_wrench"),
+                                                        data_class=geometry_msgs.msg.Wrench,
                                                         queue_size=self._queue_size)
 
         self._publishers = [self._pub_joint_states,
@@ -871,12 +871,12 @@ class Iiwa:
         self._services.append(rospy.Service(name=name,
                                             service_class=GetBool,
                                             handler=self._handler_has_fired_condition))
-        
+
         name = self._names.get("is_ready_to_move", "/iiwa/is_ready_to_move")
         self._services.append(rospy.Service(name=name,
                                             service_class=GetBool,
                                             handler=self._handler_is_ready_to_move))
-        
+
         name = self._names.get("has_active_motion", "/iiwa/has_active_motion")
         self._services.append(rospy.Service(name=name,
                                             service_class=GetBool,
@@ -1178,7 +1178,7 @@ class FollowJointTrajectory:
 
 
 
-if __name__ == "__main__":
+def main():
 
     from libiiwa import LibIiwa
 
@@ -1237,3 +1237,9 @@ if __name__ == "__main__":
 
     for controller in controllers:
         controller.stop()
+
+
+
+
+if __name__ == "__main__":
+    main()

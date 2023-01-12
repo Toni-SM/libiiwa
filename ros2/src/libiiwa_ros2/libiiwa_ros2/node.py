@@ -318,6 +318,211 @@ class Iiwa:
                 .format(request.data, response.success, response.message))
         return response
 
+    def _handler_set_cartesian_additional_control_force(self, request, response):
+        translational = [request.x, request.y, request.z]
+        rotational = [request.a, request.b, request.c]
+        try:
+            response.success = self._interface.set_cartesian_additional_control_force(translational, rotational)
+            if not response.success:
+                response.message = str(self._interface.get_last_error())
+                self._log_error('Failed to set_cartesian_additional_control_force to {}{}'.format(translational, rotational))
+                self._log_error(str(self._interface.get_last_error()))
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            self._log_error('Failed to set_cartesian_additional_control_force to {}{}'.format(translational, rotational))
+            self._log_error(str(e))
+        if self._verbose:
+            self._log_info("Service set_cartesian_additional_control_force to {}{} ({}, {})" \
+                .format(translational, rotational, response.success, response.message))
+        return response
+
+    def _handler_set_cartesian_max_velocity(self, request, response):
+        translational = [request.x, request.y, request.z]
+        rotational = [request.a, request.b, request.c]
+        try:
+            response.success = self._interface.set_cartesian_max_velocity(translational, rotational)
+            if not response.success:
+                response.message = str(self._interface.get_last_error())
+                self._log_error('Failed to set_cartesian_max_velocity to {}{}'.format(translational, rotational))
+                self._log_error(str(self._interface.get_last_error()))
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            self._log_error('Failed to set_cartesian_max_velocity to {}{}'.format(translational, rotational))
+            self._log_error(str(e))
+        if self._verbose:
+            self._log_info("Service set_cartesian_max_velocity to {}{} ({}, {})" \
+                .format(translational, rotational, response.success, response.message))
+        return response
+
+    def _handler_set_cartesian_max_path_deviation(self, request, response):
+        translational = [request.x, request.y, request.z]
+        rotational = [request.a, request.b, request.c]
+        try:
+            response.success = self._interface.set_cartesian_max_path_deviation(translational, rotational)
+            if not response.success:
+                response.message = str(self._interface.get_last_error())
+                self._log_error('Failed to set_cartesian_max_path_deviation to {}{}'.format(translational, rotational))
+                self._log_error(str(self._interface.get_last_error()))
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            self._log_error('Failed to set_cartesian_max_path_deviation to {}{}'.format(translational, rotational))
+            self._log_error(str(e))
+        if self._verbose:
+            self._log_info("Service set_cartesian_max_path_deviation to {}{} ({}, {})" \
+                .format(translational, rotational, response.success, response.message))
+        return response
+
+    def _handler_set_cartesian_stiffness(self, request, response):
+        translational = [request.x, request.y, request.z]
+        rotational = [request.a, request.b, request.c]
+        null_space = request.float_param
+        try:
+            response.success = self._interface.set_cartesian_stiffness(translational, rotational, null_space)
+            if not response.success:
+                response.message = str(self._interface.get_last_error())
+                self._log_error('Failed to set_cartesian_stiffness to {}{}({})'.format(translational, rotational, null_space))
+                self._log_error(str(self._interface.get_last_error()))
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            self._log_error('Failed to set_cartesian_stiffness to {}{}({})'.format(translational, rotational, null_space))
+            self._log_error(str(e))
+        if self._verbose:
+            self._log_info("Service set_cartesian_stiffness to {}{}({}) ({}, {})" \
+                .format(translational, rotational, null_space, response.success, response.message))
+        return response
+
+    def _handler_set_cartesian_damping(self, request, response):
+        translational = [request.x, request.y, request.z]
+        rotational = [request.a, request.b, request.c]
+        null_space = request.float_param
+        try:
+            response.success = self._interface.set_cartesian_damping(translational, rotational, null_space)
+            if not response.success:
+                response.message = str(self._interface.get_last_error())
+                self._log_error('Failed to set_cartesian_damping to {}{}({})'.format(translational, rotational, null_space))
+                self._log_error(str(self._interface.get_last_error()))
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            self._log_error('Failed to set_cartesian_damping to {}{}({})'.format(translational, rotational, null_space))
+            self._log_error(str(e))
+        if self._verbose:
+            self._log_info("Service set_cartesian_damping to {}{}({}) ({}, {})" \
+                .format(translational, rotational, null_space, response.success, response.message))
+        return response
+
+    def _handler_set_cartesian_max_control_force(self, request, response):
+        translational = [request.x, request.y, request.z]
+        rotational = [request.a, request.b, request.c]
+        add_stop_condition = request.boolean_param
+        try:
+            response.success = self._interface.set_cartesian_max_control_force(translational, rotational, add_stop_condition)
+            if not response.success:
+                response.message = str(self._interface.get_last_error())
+                self._log_error('Failed to set_cartesian_max_control_force to {}{}({})'.format(translational, rotational, add_stop_condition))
+                self._log_error(str(self._interface.get_last_error()))
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            self._log_error('Failed to set_cartesian_max_control_force to {}{}({})'.format(translational, rotational, add_stop_condition))
+            self._log_error(str(e))
+        if self._verbose:
+            self._log_info("Service set_cartesian_max_control_force to {}{}({}) ({}, {})" \
+                .format(translational, rotational, add_stop_condition, response.success, response.message))
+        return response
+
+    def _handler_set_joint_stiffness(self, request, response):
+        try:
+            response.success = self._interface.set_joint_stiffness(request.data)
+            if not response.success:
+                response.message = str(self._interface.get_last_error())
+                self._log_error('Failed to set_joint_stiffness to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            self._log_error('Failed to set_joint_stiffness to {}'.format(request.data))
+            self._log_error(str(e))
+        if self._verbose:
+            self._log_info("Service set_joint_stiffness to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
+        return response
+
+    def _handler_set_joint_damping(self, request, response):
+        try:
+            response.success = self._interface.set_joint_damping(request.data)
+            if not response.success:
+                response.message = str(self._interface.get_last_error())
+                self._log_error('Failed to set_joint_damping to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            self._log_error('Failed to set_joint_damping to {}'.format(request.data))
+            self._log_error(str(e))
+        if self._verbose:
+            self._log_info("Service set_joint_damping to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
+        return response
+
+    # conditions
+
+    def _handler_reset_conditions(self, request, response):
+        try:
+            status = self._interface.reset_conditions()
+            if not status:
+                message = str(self._interface.get_last_error())
+                self._log_error('Failed to reset_conditions')
+                self._log_error(str(self._interface.get_last_error()))
+        except Exception as e:
+            self._log_error('Failed to reset_conditions')
+            self._log_error(str(e))
+        if self._verbose:
+            self._log_info("Service reset_conditions")
+        return response
+
+    def _handler_set_force_condition(self, request, response):
+        threshold = request.data[:3]
+        tolerance = request.data[3:] if len(request.data) == 6 else [10, 10, 10]
+        try:
+            response.success = self._interface.set_force_condition(threshold, tolerance)
+            if not response.success:
+                response.message = str(self._interface.get_last_error())
+                self._log_error('Failed to set_force_condition to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            self._log_error('Failed to set_force_condition to {}'.format(request.data))
+            self._log_error(str(e))
+        if self._verbose:
+            self._log_info("Service set_force_condition to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
+        return response
+
+    def _handler_set_joint_torque_condition(self, request, response):
+        lower_limits = request.data[:7]
+        upper_limits = request.data[7:]
+        try:
+            response.success = self._interface.set_joint_torque_condition(lower_limits, upper_limits)
+            if not response.success:
+                response.message = str(self._interface.get_last_error())
+                self._log_error('Failed to set_joint_torque_condition to {}'.format(request.data))
+                self._log_error(str(self._interface.get_last_error()))
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+            self._log_error('Failed to set_joint_torque_condition to {}'.format(request.data))
+            self._log_error(str(e))
+        if self._verbose:
+            self._log_info("Service set_joint_torque_condition to {} ({}, {})" \
+                .format(request.data, response.success, response.message))
+        return response
+
     # configuration commands (motion and control)
 
     def _handler_set_control_interface(self, request, response) -> None:  # DONE
@@ -464,20 +669,47 @@ class Iiwa:
                 .format(request.data, response.success, response.message))
         return response
 
+    def _handler_last_error(self, request, response):
+        error = self._interface.get_last_error()
+        response.error_code = error.value
+        if self._verbose:
+            self._log_info("Service last_error ({})".format(str(error)))
+        return response
+
+    def _handler_has_fired_condition(self, request, response):
+        data = self._interface.get_state()["has_fired_condition"]
+        response.data = data
+        if self._verbose:
+            self._log_info("Service has_fired_condition ({})".format(str(data)))
+        return response
+        
+    def _handler_is_ready_to_move(self, request, response):
+        data = self._interface.get_state()["is_ready_to_move"]
+        response.data = data
+        if self._verbose:
+            self._log_info("Service is_ready_to_move ({})".format(str(data)))
+        return response
+        
+    def _handler_has_active_motion(self, request, response):
+        data = self._interface.get_state()["has_active_motion"]
+        response.data = data
+        if self._verbose:
+            self._log_info("Service has_active_motion ({})".format(str(data)))
+        return response
+
     def start(self) -> None:
         """Start the publisher
         """
         self.stop()
 
         # create publishers
-        self._pub_joint_states = self._node.create_publisher(msg_type=sensor_msgs.msg.JointState,
-                                                             topic=self._names.get("joint_states", "/iiwa/state/joint_states"),
-                                                             qos_profile=self._qos_profile)
-        self._pub_end_effector_pose = self._node.create_publisher(msg_type=geometry_msgs.msg.Pose,
-                                                                  topic=self._names.get("end_effector_pose", "/iiwa/state/end_effector_pose"),
+        self._pub_joint_states = self._node.create_publisher(topic=self._names.get("joint_states", "/iiwa/state/joint_states"),
+                                                             msg_type=sensor_msgs.msg.JointState,qos_profile=self._qos_profile)
+        self._pub_end_effector_pose = self._node.create_publisher(topic=self._names.get("end_effector_pose", "/iiwa/state/end_effector_pose"),
+                                                                  msg_type=geometry_msgs.msg.Pose,
                                                                   qos_profile=self._qos_profile)
-        self._pub_end_effector_wrench = self._node.create_publisher(msg_type=geometry_msgs.msg.Wrench,
-                                                                    topic=self._names.get("end_effector_wrench", "/iiwa/state/end_effector_wrench"),
+        self._pub_end_effector_wrench = self._node.create_publisher(topic=self._names.get("end_effector_wrench", "/iiwa/state/end_effector_wrench"),
+                                                                    msg_type=geometry_msgs.msg.Wrench,
                                                                     qos_profile=self._qos_profile)
 
         self._publishers = [self._pub_joint_states,
@@ -485,16 +717,16 @@ class Iiwa:
                             self._pub_end_effector_wrench]
 
         # create subscribers
-        self._sub_stop_command = self._node.create_subscription(msg_type=std_msgs.msg.Empty,
-                                                                topic=self._names.get("stop_command", "/iiwa/command/stop"),
+        self._sub_stop_command = self._node.create_subscription(topic=self._names.get("stop_command", "/iiwa/command/stop"),
+                                                                msg_type=std_msgs.msg.Empty,
                                                                 callback=self._callback_stop_command,
                                                                 qos_profile=self._qos_profile)
-        self._sub_joint_command = self._node.create_subscription(msg_type=sensor_msgs.msg.JointState,
-                                                                 topic=self._names.get("joint_command", "/iiwa/command/joint"),
+        self._sub_joint_command = self._node.create_subscription(topic=self._names.get("joint_command", "/iiwa/command/joint"),
+                                                                 msg_type=sensor_msgs.msg.JointState,
                                                                  callback=self._callback_joint_command,
                                                                  qos_profile=self._qos_profile)
-        self._sub_cartesian_command = self._node.create_subscription(msg_type=geometry_msgs.msg.Pose,
-                                                                     topic=self._names.get("cartesian_command", "/iiwa/command/cartesian"),
+        self._sub_cartesian_command = self._node.create_subscription(topic=self._names.get("cartesian_command", "/iiwa/command/cartesian"),
+                                                                     msg_type=geometry_msgs.msg.Pose,
                                                                      callback=self._callback_cartesian_command,
                                                                      qos_profile=self._qos_profile)
 
@@ -504,59 +736,134 @@ class Iiwa:
 
         # create services
         name = self._names.get("set_desired_joint_velocity_rel", "/iiwa/set_desired_joint_velocity_rel")
-        self._services.append(self._node.create_service(srv_type=SetNumber,
-                                                        srv_name=name,
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=SetNumber,
                                                         callback=self._handler_set_desired_joint_velocity_rel))
 
         name = self._names.get("set_desired_joint_acceleration_rel", "/iiwa/set_desired_joint_acceleration_rel")
-        self._services.append(self._node.create_service(srv_type=SetNumber,
-                                                        srv_name=name,
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=SetNumber,
                                                         callback=self._handler_set_desired_joint_acceleration_rel))
 
         name = self._names.get("set_desired_joint_jerk_rel", "/iiwa/set_desired_joint_jerk_rel")
-        self._services.append(self._node.create_service(srv_type=SetNumber,
-                                                        srv_name=name,
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=SetNumber,
                                                         callback=self._handler_set_desired_joint_jerk_rel))
 
         name = self._names.get("set_desired_cartesian_velocity", "/iiwa/set_desired_cartesian_velocity")
-        self._services.append(self._node.create_service(srv_type=SetNumber,
-                                                        srv_name=name,
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=SetNumber,
                                                         callback=self._handler_set_desired_cartesian_velocity))
 
         name = self._names.get("set_desired_cartesian_acceleration", "/iiwa/set_desired_cartesian_acceleration")
-        self._services.append(self._node.create_service(srv_type=SetNumber,
-                                                        srv_name=name,
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=SetNumber,
                                                         callback=self._handler_set_desired_cartesian_acceleration))
 
         name = self._names.get("set_desired_cartesian_jerk", "/iiwa/set_desired_cartesian_jerk")
-        self._services.append(self._node.create_service(srv_type=SetNumber,
-                                                        srv_name=name,
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=SetNumber,
                                                         callback=self._handler_set_desired_cartesian_jerk))
 
+        name = self._names.get("set_cartesian_additional_control_force", "/iiwa/set_cartesian_additional_control_force")
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=SetXYZABC,
+                                                        callback=self._handler_set_cartesian_additional_control_force))
+
+        name = self._names.get("set_cartesian_max_velocity", "/iiwa/set_cartesian_max_velocity")
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=SetXYZABC,
+                                                        callback=self._handler_set_cartesian_max_velocity))
+
+        name = self._names.get("set_cartesian_max_path_deviation", "/iiwa/set_cartesian_max_path_deviation")
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=SetXYZABC,
+                                                        callback=self._handler_set_cartesian_max_path_deviation))
+
+        name = self._names.get("set_cartesian_stiffness", "/iiwa/set_cartesian_stiffness")
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=SetXYZABCParam,
+                                                        callback=self._handler_set_cartesian_stiffness))
+
+        name = self._names.get("set_cartesian_damping", "/iiwa/set_cartesian_damping")
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=SetXYZABCParam,
+                                                        callback=self._handler_set_cartesian_damping))
+
+        name = self._names.get("set_cartesian_max_control_force", "/iiwa/set_cartesian_max_control_force")
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=SetXYZABCParam,
+                                                        callback=self._handler_set_cartesian_max_control_force))
+
+        name = self._names.get("set_joint_stiffness", "/iiwa/set_joint_stiffness")
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=SetArray,
+                                                        callback=self._handler_set_joint_stiffness))
+
+        name = self._names.get("set_joint_damping", "/iiwa/set_joint_damping")
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=SetArray,
+                                                        callback=self._handler_set_joint_damping))
+
+        name = self._names.get("reset_conditions", "/iiwa/reset_conditions")
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=Empty,
+                                                        callback=self._handler_reset_conditions))
+
+        name = self._names.get("set_force_condition", "/iiwa/set_force_condition")
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=SetArray,
+                                                        callback=self._handler_set_force_condition))
+
+        name = self._names.get("set_joint_torque_condition", "/iiwa/set_joint_torque_condition")
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=SetArray,
+                                                        callback=self._handler_set_joint_torque_condition))
+
         name = self._names.get("set_control_interface", "/iiwa/set_control_interface")
-        self._services.append(self._node.create_service(srv_type=SetString,
-                                                        srv_name=name,
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=SetString,
                                                         callback=self._handler_set_control_interface))
 
         name = self._names.get("set_motion_type", "/iiwa/set_motion_type")
-        self._services.append(self._node.create_service(srv_type=SetString,
-                                                        srv_name=name,
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=SetString,
                                                         callback=self._handler_set_motion_type))
 
         name = self._names.get("set_control_mode", "/iiwa/set_control_mode")
-        self._services.append(self._node.create_service(srv_type=SetString,
-                                                        srv_name=name,
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=SetString,
                                                         callback=self._handler_set_control_mode))
 
         name = self._names.get("set_execution_type", "/iiwa/set_execution_type")
-        self._services.append(self._node.create_service(srv_type=SetString,
-                                                        srv_name=name,
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=SetString,
                                                         callback=self._handler_set_execution_type))
 
         name = self._names.get("set_communication_mode", "/iiwa/set_communication_mode")
-        self._services.append(self._node.create_service(srv_type=SetString,
-                                                        srv_name=name,
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=SetString,
                                                         callback=self._handler_set_communication_mode))
+
+        name = self._names.get("last_error", "/iiwa/last_error")
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=GetError,
+                                                        callback=self._handler_last_error))
+
+        name = self._names.get("has_fired_condition", "/iiwa/has_fired_condition")
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=GetBool,
+                                                        callback=self._handler_has_fired_condition))
+
+        name = self._names.get("is_ready_to_move", "/iiwa/is_ready_to_move")
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=GetBool,
+                                                        callback=self._handler_is_ready_to_move))
+
+        name = self._names.get("has_active_motion", "/iiwa/has_active_motion")
+        self._services.append(self._node.create_service(srv_name=name,
+                                                        srv_type=GetBool,
+                                                        callback=self._handler_has_active_motion))
 
     def stop(self) -> None:
         """Stop the publisher
@@ -622,7 +929,7 @@ class Iiwa:
 
 
 def main():
-    
+
     from libiiwa import LibIiwa
 
     # init node
