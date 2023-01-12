@@ -619,9 +619,13 @@ def main():
 
     controller_name = node.get_parameter('controller_name').get_parameter_value().string_value
     action_namespace = node.get_parameter('action_namespace').get_parameter_value().string_value
+    follow_all_trajectory = node.get_parameter('follow_all_trajectory').get_parameter_value().bool_value
+    trajectory_update_threshold = node.get_parameter('trajectory_update_threshold').get_parameter_value().double_value
 
     libiiwa_ip = node.get_parameter('libiiwa_ip').get_parameter_value().string_value
     libiiwa_port = node.get_parameter('libiiwa_port').get_parameter_value().integer_value
+
+    servo_interface = node.get_parameter('servo_interface').get_parameter_value().bool_value
 
     run_without_communication = node.get_parameter('run_without_communication').get_parameter_value().bool_value
     verbose = node.get_parameter('verbose').get_parameter_value().bool_value
