@@ -52,7 +52,10 @@ User guide
     :caption: ROS & ROS2
 
     modules/ros
-    modules/ros_move
-    modules/ros_motion_and_control
+    modules/ros_state_and_errors
+    modules/ros_command
     modules/ros_limits
+    modules/ros_motion_and_control
+    modules/ros_impedance
+    modules/ros_conditions
     modules/ros_moveit
