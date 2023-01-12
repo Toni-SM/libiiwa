@@ -23,6 +23,47 @@ Stop the current motion
     * - :literal:`/iiwa/command/stop`
       - `std_msgs/Empty <http://docs.ros.org/en/noetic/api/std_msgs/html/msg/Empty.html>`_
 
+Example
+^^^^^^^
+
+.. tabs::
+
+    .. group-tab:: ROS
+
+        .. tabs::
+
+            .. group-tab:: Command-line tool (rostopic)
+
+                .. literalinclude:: ../snippets/ros_command.txt
+                    :language: bash
+                    :start-after: [start-command-line-stop-1]
+                    :end-before: [end-command-line-stop-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros_command.txt
+                    :language: python
+                    :start-after: [start-python-stop-1]
+                    :end-before: [end-python-stop-1]
+
+    .. group-tab:: ROS2
+
+        .. tabs::
+
+            .. group-tab:: Command-line tool (ros2 topic)
+
+                .. literalinclude:: ../snippets/ros2_command.txt
+                    :language: bash
+                    :start-after: [start-command-line-stop-1]
+                    :end-before: [end-command-line-stop-1]
+
+            .. group-tab:: Python
+
+                .. literalinclude:: ../snippets/ros2_command.txt
+                    :language: python
+                    :start-after: [start-python-stop-1]
+                    :end-before: [end-python-stop-1]
+
 .. raw:: html
   
     <hr>
@@ -70,14 +111,14 @@ Move all joints to their respective goal positions
 
             .. group-tab:: Command-line tool (rostopic)
 
-                .. literalinclude:: ../snippets/ros_move.txt
+                .. literalinclude:: ../snippets/ros_command.txt
                     :language: bash
                     :start-after: [start-command-line-joint-1]
                     :end-before: [end-command-line-joint-1]
 
             .. group-tab:: Python
 
-                .. literalinclude:: ../snippets/ros_move.txt
+                .. literalinclude:: ../snippets/ros_command.txt
                     :language: python
                     :start-after: [start-python-joint-1]
                     :end-before: [end-python-joint-1]
@@ -88,14 +129,14 @@ Move all joints to their respective goal positions
 
             .. group-tab:: Command-line tool (ros2 topic)
 
-                .. literalinclude:: ../snippets/ros2_move.txt
+                .. literalinclude:: ../snippets/ros2_command.txt
                     :language: bash
                     :start-after: [start-command-line-joint-1]
                     :end-before: [end-command-line-joint-1]
 
             .. group-tab:: Python
 
-                .. literalinclude:: ../snippets/ros2_move.txt
+                .. literalinclude:: ../snippets/ros2_command.txt
                     :language: python
                     :start-after: [start-python-joint-1]
                     :end-before: [end-python-joint-1]
@@ -115,14 +156,14 @@ Move only the specified joints to their respective goal positions
 
             .. group-tab:: Command-line tool (rostopic)
 
-                .. literalinclude:: ../snippets/ros_move.txt
+                .. literalinclude:: ../snippets/ros_command.txt
                     :language: bash
                     :start-after: [start-command-line-joint-2]
                     :end-before: [end-command-line-joint-2]
 
             .. group-tab:: Python
 
-                .. literalinclude:: ../snippets/ros_move.txt
+                .. literalinclude:: ../snippets/ros_command.txt
                     :language: python
                     :start-after: [start-python-joint-2]
                     :end-before: [end-python-joint-2]
@@ -133,14 +174,14 @@ Move only the specified joints to their respective goal positions
 
             .. group-tab:: Command-line tool (ros2 topic)
 
-                .. literalinclude:: ../snippets/ros2_move.txt
+                .. literalinclude:: ../snippets/ros2_command.txt
                     :language: bash
                     :start-after: [start-command-line-joint-2]
                     :end-before: [end-command-line-joint-2]
 
             .. group-tab:: Python
 
-                .. literalinclude:: ../snippets/ros2_move.txt
+                .. literalinclude:: ../snippets/ros2_command.txt
                     :language: python
                     :start-after: [start-python-joint-2]
                     :end-before: [end-python-joint-2]
@@ -186,14 +227,14 @@ Move to the specified Cartesian pose (position and orientation)
 
             .. group-tab:: Command-line tool (rostopic)
 
-                .. literalinclude:: ../snippets/ros_move.txt
+                .. literalinclude:: ../snippets/ros_command.txt
                     :language: bash
                     :start-after: [start-command-line-cartesian-1]
                     :end-before: [end-command-line-cartesian-1]
 
             .. group-tab:: Python
 
-                .. literalinclude:: ../snippets/ros_move.txt
+                .. literalinclude:: ../snippets/ros_command.txt
                     :language: python
                     :start-after: [start-python-cartesian-1]
                     :end-before: [end-python-cartesian-1]
@@ -204,14 +245,14 @@ Move to the specified Cartesian pose (position and orientation)
 
             .. group-tab:: Command-line tool (ros2 topic)
 
-                .. literalinclude:: ../snippets/ros2_move.txt
+                .. literalinclude:: ../snippets/ros2_command.txt
                     :language: bash
                     :start-after: [start-command-line-cartesian-1]
                     :end-before: [end-command-line-cartesian-1]
 
             .. group-tab:: Python
 
-                .. literalinclude:: ../snippets/ros2_move.txt
+                .. literalinclude:: ../snippets/ros2_command.txt
                     :language: python
                     :start-after: [start-python-cartesian-1]
                     :end-before: [end-python-cartesian-1]
@@ -237,14 +278,14 @@ Move to the specified Cartesian position or orientation
 
             .. group-tab:: Command-line tool (rostopic)
 
-                .. literalinclude:: ../snippets/ros_move.txt
+                .. literalinclude:: ../snippets/ros_command.txt
                     :language: bash
                     :start-after: [start-command-line-cartesian-2]
                     :end-before: [end-command-line-cartesian-2]
 
             .. group-tab:: Python
 
-                .. literalinclude:: ../snippets/ros_move.txt
+                .. literalinclude:: ../snippets/ros_command.txt
                     :language: python
                     :start-after: [start-python-cartesian-2]
                     :end-before: [end-python-cartesian-2]
@@ -255,14 +296,14 @@ Move to the specified Cartesian position or orientation
 
             .. group-tab:: Command-line tool (ros2 topic)
 
-                .. literalinclude:: ../snippets/ros2_move.txt
+                .. literalinclude:: ../snippets/ros2_command.txt
                     :language: bash
                     :start-after: [start-command-line-cartesian-2]
                     :end-before: [end-command-line-cartesian-2]
 
             .. group-tab:: Python
 
-                .. literalinclude:: ../snippets/ros2_move.txt
+                .. literalinclude:: ../snippets/ros2_command.txt
                     :language: python
                     :start-after: [start-python-cartesian-2]
                     :end-before: [end-python-cartesian-2]
