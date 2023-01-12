@@ -1,3 +1,39 @@
+[start-command-line-stop-1]
+
+$ ros2 topic pub -1 /iiwa/command/stop std_msgs/msg/Empty "{}"
+
+[end-command-line-stop-1]
+
+
+[start-python-stop-1]
+
+import rclpy
+import std_msgs.msg
+from rclpy.node import Node
+from rclpy.qos import QoSPresetProfiles
+
+# initialize the ROS node
+rclpy.init()
+node = Node('test')
+
+# create a publisher
+pub = node.create_publisher(std_msgs.msg.Empty, '/iiwa/command/stop', QoSPresetProfiles.SYSTEM_DEFAULT.value)
+
+# publish the message
+pub.publish(std_msgs.msg.Empty())
+
+try:
+    rclpy.spin_once(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    # shutdown the node
+    node.destroy_node()
+    rclpy.shutdown()
+
+[end-python-stop-1]
+
+
 [start-command-line-joint-1]
 
 # name are specified
@@ -35,8 +71,7 @@ rclpy.init()
 node = Node('test')
 
 # create a publisher
-pub = node.create_publisher(
-    sensor_msgs.msg.JointState, '/iiwa/command/joint', QoSPresetProfiles.SYSTEM_DEFAULT.value)
+pub = node.create_publisher(sensor_msgs.msg.JointState, '/iiwa/command/joint', QoSPresetProfiles.SYSTEM_DEFAULT.value)
 
 # build a message
 msg = sensor_msgs.msg.JointState()
@@ -75,8 +110,7 @@ rclpy.init()
 node = Node('test')
 
 # create a publisher
-pub = node.create_publisher(
-    sensor_msgs.msg.JointState, '/iiwa/command/joint', QoSPresetProfiles.SYSTEM_DEFAULT.value)
+pub = node.create_publisher(sensor_msgs.msg.JointState, '/iiwa/command/joint', QoSPresetProfiles.SYSTEM_DEFAULT.value)
 
 # build a message
 # math.nan, float("nan"), np.nan and np.NaN are all equivalent
@@ -135,8 +169,7 @@ rclpy.init()
 node = Node('test')
 
 # create a publisher
-pub = node.create_publisher(
-    geometry_msgs.msg.Pose, '/iiwa/command/cartesian', QoSPresetProfiles.SYSTEM_DEFAULT.value)
+pub = node.create_publisher(geometry_msgs.msg.Pose, '/iiwa/command/cartesian', QoSPresetProfiles.SYSTEM_DEFAULT.value)
 
 # build a message
 msg = geometry_msgs.msg.Pose()
@@ -176,8 +209,7 @@ rclpy.init()
 node = Node('test')
 
 # create a publisher
-pub = node.create_publisher(
-    geometry_msgs.msg.Pose, '/iiwa/command/cartesian', QoSPresetProfiles.SYSTEM_DEFAULT.value)
+pub = node.create_publisher(geometry_msgs.msg.Pose, '/iiwa/command/cartesian', QoSPresetProfiles.SYSTEM_DEFAULT.value)
 
 # build a message 
 # math.nan, float("nan"), np.nan and np.NaN are all equivalent

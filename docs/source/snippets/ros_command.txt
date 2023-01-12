@@ -1,3 +1,27 @@
+[start-command-line-stop-1]
+
+$ rostopic pub -1 /iiwa/command/stop std_msgs/Empty "{}"
+
+[end-command-line-stop-1]
+
+
+[start-python-stop-1]
+
+import rospy
+import std_msgs.msg
+
+# create a publisher
+pub = rospy.Publisher('/iiwa/command/stop', std_msgs.msg.Empty, queue_size=1)
+
+# initialize the ROS node
+rospy.init_node('test')
+
+# publish the message
+pub.publish(std_msgs.msg.Empty())
+
+[end-python-stop-1]
+
+
 [start-command-line-joint-1]
 
 # name are specified

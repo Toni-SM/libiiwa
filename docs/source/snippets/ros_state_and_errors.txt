@@ -1,0 +1,196 @@
+[start-command-line-joint-1]
+
+$ rostopic echo /iiwa/state/joint_states
+
+[end-command-line-joint-1]
+
+
+[start-command-line-cartesian-1]
+
+$ rostopic echo /iiwa/state/end_effector_pose
+
+[end-command-line-cartesian-1]
+
+
+[start-command-line-force_torque-1]
+
+$ rostopic echo /iiwa/state/end_effector_wrench
+
+[end-command-line-force_torque-1]
+
+
+[start-command-line-last_error-1]
+
+$ rosservice call /iiwa/last_error "{}"
+
+[end-command-line-last_error-1]
+
+
+[start-command-line-has_fired_condition-1]
+
+$ rosservice call /iiwa/has_fired_condition "{}"
+
+[end-command-line-has_fired_condition-1]
+
+
+[start-command-line-is_ready_to_move-1]
+
+$ rosservice call /iiwa/is_ready_to_move "{}"
+
+[end-command-line-is_ready_to_move-1]
+
+
+[start-command-line-has_active_motion-1]
+
+$ rosservice call /iiwa/has_active_motion "{}"
+
+[end-command-line-has_active_motion-1]
+
+
+[start-python-joint-1]
+
+import rospy
+import sensor_msgs.msg
+
+# subscription callback
+def callback(msg):
+    print("positions:", msg.position)
+    print("velocities:", msg.velocity)
+    print("torques:", msg.effort)
+
+# subscribe to topic
+rospy.Subscriber('/iiwa/state/joint_states', sensor_msgs.msg.JointState, callback)
+
+# initialize the ROS node
+rospy.init_node('test')
+
+rospy.spin()
+
+[end-python-joint-1]
+
+
+[start-python-cartesian-1]
+
+import rospy
+import geometry_msgs.msg
+
+# subscription callback
+def callback(msg):
+    print("position:", msg.position)
+    print("orientation (quaternion):", msg.orientation)
+
+# subscribe to topic
+rospy.Subscriber('/iiwa/state/end_effector_pose', geometry_msgs.msg.Pose, callback)
+
+# initialize the ROS node
+rospy.init_node('test')
+
+rospy.spin()
+
+[end-python-cartesian-1]
+
+
+[start-python-force_torque-1]
+
+import rospy
+import geometry_msgs.msg
+
+# subscription callback
+def callback(msg):
+    print("force:", msg.force)
+    print("torque:", msg.torque)
+
+# subscribe to topic
+rospy.Subscriber('/iiwa/state/end_effector_wrench', geometry_msgs.msg.Wrench, callback)
+
+# initialize the ROS node
+rospy.init_node('test')
+
+rospy.spin()
+
+[end-python-force_torque-1]
+
+
+[start-python-last_error-1]
+
+import rospy
+import libiiwa_msgs.srv
+
+# wait for service
+rospy.wait_for_service('/iiwa/last_error')
+
+# create a handle for calling the service
+proxy = rospy.ServiceProxy('/iiwa/last_error', libiiwa_msgs.srv.GetError)
+
+# call service
+response = proxy()
+
+print("error code:", response.error_code)
+
+# compare with default error codes
+response.error_code == libiiwa_msgs.srv.GetErrorResponse.NO_ERROR
+response.error_code == libiiwa_msgs.srv.GetErrorResponse.VALUE_ERROR
+response.error_code == libiiwa_msgs.srv.GetErrorResponse.INVALID_JOINT_ERROR
+response.error_code == libiiwa_msgs.srv.GetErrorResponse.SYNCHRONOUS_MOTION_ERROR
+response.error_code == libiiwa_msgs.srv.GetErrorResponse.ASYNCHRONOUS_MOTION_ERROR
+response.error_code == libiiwa_msgs.srv.GetErrorResponse.VALIDATION_FOR_IMPEDANCE_ERROR
+response.error_code == libiiwa_msgs.srv.GetErrorResponse.INVALID_CONFIGURATION_ERROR
+
+[end-python-last_error-1]
+
+
+[start-python-has_fired_condition-1]
+
+import rospy
+import libiiwa_msgs.srv
+
+# wait for service
+rospy.wait_for_service('/iiwa/has_fired_condition')
+
+# create a handle for calling the service
+proxy = rospy.ServiceProxy('/iiwa/has_fired_condition', libiiwa_msgs.srv.GetBool)
+
+# call service
+response = proxy()
+
+print("has fired condition:", response.data)
+
+[end-python-has_fired_condition-1]
+
+
+[start-python-is_ready_to_move-1]
+
+import rospy
+import libiiwa_msgs.srv
+
+# wait for service
+rospy.wait_for_service('/iiwa/is_ready_to_move')
+
+# create a handle for calling the service
+proxy = rospy.ServiceProxy('/iiwa/is_ready_to_move', libiiwa_msgs.srv.GetBool)
+
+# call service
+response = proxy()
+
+print("is ready to move:", response.data)
+
+[end-python-is_ready_to_move-1]
+
+
+[start-python-has_active_motion-1]
+
+import rospy
+import libiiwa_msgs.srv
+
+# wait for service
+rospy.wait_for_service('/iiwa/has_active_motion')
+
+# create a handle for calling the service
+proxy = rospy.ServiceProxy('/iiwa/has_active_motion', libiiwa_msgs.srv.GetBool)
+
+# call service
+response = proxy()
+
+print("has active motion:", response.data)
+
+[end-python-has_active_motion-1]

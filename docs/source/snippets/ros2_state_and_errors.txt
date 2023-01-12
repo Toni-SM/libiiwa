@@ -1,0 +1,287 @@
+[start-command-line-joint-1]
+
+$ ros2 topic echo /iiwa/state/joint_states
+
+[end-command-line-joint-1]
+
+
+[start-command-line-cartesian-1]
+
+$ ros2 topic echo /iiwa/state/end_effector_pose
+
+[end-command-line-cartesian-1]
+
+
+[start-command-line-force_torque-1]
+
+$ ros2 topic echo /iiwa/state/end_effector_wrench
+
+[end-command-line-force_torque-1]
+
+
+[start-command-line-last_error-1]
+
+$ ros2 service call /iiwa/last_error libiiwa_msgs/srv/GetError "{}"
+
+[end-command-line-last_error-1]
+
+
+[start-command-line-has_fired_condition-1]
+
+$ ros2 service call /iiwa/has_fired_condition libiiwa_msgs/srv/GetBool "{}"
+
+[end-command-line-has_fired_condition-1]
+
+
+[start-command-line-is_ready_to_move-1]
+
+$ ros2 service call /iiwa/is_ready_to_move libiiwa_msgs/srv/GetBool "{}"
+
+[end-command-line-is_ready_to_move-1]
+
+
+[start-command-line-has_active_motion-1]
+
+$ ros2 service call /iiwa/has_active_motion libiiwa_msgs/srv/GetBool "{}"
+
+[end-command-line-has_active_motion-1]
+
+
+[start-python-joint-1]
+
+import rclpy
+import sensor_msgs.msg
+from rclpy.node import Node
+from rclpy.qos import QoSPresetProfiles
+
+# subscription callback
+def callback(msg):
+    print("positions:", msg.position)
+    print("velocities:", msg.velocity)
+    print("torques:", msg.effort)
+
+# initialize the ROS node
+rclpy.init()
+node = Node('test')
+
+# create subscription
+node.create_subscription(msg_type=sensor_msgs.msg.JointState, 
+                         topic='/iiwa/state/joint_states', 
+                         callback=callback,
+                         qos_profile=QoSPresetProfiles.SYSTEM_DEFAULT.value)
+
+try:
+    rclpy.spin_once(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    # shutdown the node
+    node.destroy_node()
+    rclpy.shutdown()
+
+[end-python-joint-1]
+
+
+[start-python-cartesian-1]
+
+import rclpy
+import geometry_msgs.msg
+from rclpy.node import Node
+from rclpy.qos import QoSPresetProfiles
+
+# subscription callback
+def callback(msg):
+    print("position:", msg.position)
+    print("orientation (quaternion):", msg.orientation)
+
+# initialize the ROS node
+rclpy.init()
+node = Node('test')
+
+# create subscription
+node.create_subscription(msg_type=geometry_msgs.msg.Pose, 
+                         topic='/iiwa/state/end_effector_pose', 
+                         callback=callback,
+                         qos_profile=QoSPresetProfiles.SYSTEM_DEFAULT.value)
+
+try:
+    rclpy.spin_once(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    # shutdown the node
+    node.destroy_node()
+    rclpy.shutdown()
+
+[end-python-cartesian-1]
+
+
+[start-python-force_torque-1]
+
+import rclpy
+import geometry_msgs.msg
+from rclpy.node import Node
+from rclpy.qos import QoSPresetProfiles
+
+# subscription callback
+def callback(msg):
+    print("force:", msg.force)
+    print("torque:", msg.torque)
+
+# initialize the ROS node
+rclpy.init()
+node = Node('test')
+
+# create subscription
+node.create_subscription(msg_type=geometry_msgs.msg.Wrench, 
+                         topic='/iiwa/state/end_effector_wrench', 
+                         callback=callback,
+                         qos_profile=QoSPresetProfiles.SYSTEM_DEFAULT.value)
+
+try:
+    rclpy.spin_once(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    # shutdown the node
+    node.destroy_node()
+    rclpy.shutdown()
+
+[end-python-force_torque-1]
+
+
+[start-python-last_error-1]
+
+import rclpy
+from rclpy.node import Node
+
+import libiiwa_msgs.srv
+
+# initialize the ROS node
+rclpy.init()
+node = Node('test')
+
+# create a client for calling the service
+client = node.create_client(libiiwa_msgs.srv.GetError, '/iiwa/last_error')
+
+# wait for service
+client.wait_for_service()
+
+# call service
+request = libiiwa_msgs.srv.GetError.Request()
+future = client.call_async(request)
+rclpy.spin_until_future_complete(node, future)
+response = future.result()
+
+print("error_code:", response.error_code)
+
+# compare with default error codes
+response.error_code == libiiwa_msgs.srv.GetError.Response.NO_ERROR
+response.error_code == libiiwa_msgs.srv.GetError.Response.VALUE_ERROR
+response.error_code == libiiwa_msgs.srv.GetError.Response.INVALID_JOINT_ERROR
+response.error_code == libiiwa_msgs.srv.GetError.Response.SYNCHRONOUS_MOTION_ERROR
+response.error_code == libiiwa_msgs.srv.GetError.Response.ASYNCHRONOUS_MOTION_ERROR
+response.error_code == libiiwa_msgs.srv.GetError.Response.VALIDATION_FOR_IMPEDANCE_ERROR
+response.error_code == libiiwa_msgs.srv.GetError.Response.INVALID_CONFIGURATION_ERROR
+
+# shutdown the node
+node.destroy_node()
+rclpy.shutdown()
+
+[end-python-last_error-1]
+
+
+[start-python-has_fired_condition-1]
+
+import rclpy
+from rclpy.node import Node
+
+import libiiwa_msgs.srv
+
+# initialize the ROS node
+rclpy.init()
+node = Node('test')
+
+# create a client for calling the service
+client = node.create_client(libiiwa_msgs.srv.GetBool, '/iiwa/has_fired_condition')
+
+# wait for service
+client.wait_for_service()
+
+# call service
+request = libiiwa_msgs.srv.GetBool.Request()
+future = client.call_async(request)
+rclpy.spin_until_future_complete(node, future)
+response = future.result()
+
+print("data:", response.data)
+
+# shutdown the node
+node.destroy_node()
+rclpy.shutdown()
+
+[end-python-has_fired_condition-1]
+
+
+[start-python-is_ready_to_move-1]
+
+import rclpy
+from rclpy.node import Node
+
+import libiiwa_msgs.srv
+
+# initialize the ROS node
+rclpy.init()
+node = Node('test')
+
+# create a client for calling the service
+client = node.create_client(libiiwa_msgs.srv.GetBool, '/iiwa/is_ready_to_move')
+
+# wait for service
+client.wait_for_service()
+
+# call service
+request = libiiwa_msgs.srv.GetBool.Request()
+future = client.call_async(request)
+rclpy.spin_until_future_complete(node, future)
+response = future.result()
+
+print("data:", response.data)
+
+# shutdown the node
+node.destroy_node()
+rclpy.shutdown()
+
+[end-python-is_ready_to_move-1]
+
+
+[start-python-has_active_motion-1]
+
+import rclpy
+from rclpy.node import Node
+
+import libiiwa_msgs.srv
+
+# initialize the ROS node
+rclpy.init()
+node = Node('test')
+
+# create a client for calling the service
+client = node.create_client(libiiwa_msgs.srv.GetBool, '/iiwa/has_active_motion')
+
+# wait for service
+client.wait_for_service()
+
+# call service
+request = libiiwa_msgs.srv.GetBool.Request()
+future = client.call_async(request)
+rclpy.spin_until_future_complete(node, future)
+response = future.result()
+
+print("data:", response.data)
+
+# shutdown the node
+node.destroy_node()
+rclpy.shutdown()
+
+[end-python-has_active_motion-1]
