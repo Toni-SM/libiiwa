@@ -1,6 +1,9 @@
 Installation
 ============
 
+.. |_| unicode:: 0xA0 
+    :trim:
+
 .. raw:: html
 
     <hr><hr>
@@ -89,13 +92,13 @@ Sunrise project
       - Description
     * - Controller: IP Address
       - :literal:`172.31.1.25`
-      - External control workstation IP address
+      - External\ |_| \control\ |_| \workstation\ |_| \IP\ |_| \address
     * - Controller: Port
       - :literal:`12225`
       - External control workstation port
     * - Communication: Use double precision
       - :literal:`false`
-      - Whether to use double precision (64 bits) in both the request and the response. (Default: float precision (32 bits))
+      - Whether\ |_| \to\ |_| \use\ |_| \double\ |_| \precision\ |_| \(64\ |_| \bits) in both the request and the response (default: float precision (32 bits))
     * - Enable verbose log
       - :literal:`false`
       - Whether to display information about received commands or any other data on the smartHMI. **The excessive use of the message display could degrade the application performance and the smartHMI operation**

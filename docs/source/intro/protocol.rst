@@ -1,10 +1,13 @@
 Communication protocol
 ======================
 
+.. |_| unicode:: 0xA0 
+    :trim:
+
 The communication has to be initiated from the external control workstation which sends a **command request** and receives the **robot state as response**
 
 .. image:: ../_static/imgs/protocol-flow.png
-    :width: 60%
+    :width: 70%
     :align: center
     :alt: Protocol flow
 
@@ -23,7 +26,7 @@ Request (command)
       - Description
     * - 0
       - \-
-      - Empty command. Useful for requesting only the status of the robot e.g.
+      - Empty\ |_| \command.\ |_| \Useful\ |_| \for\ |_| \requesting\ |_| \only\ |_| \the status of the robot e.g.
     * - 
       - 
       - 
@@ -43,7 +46,7 @@ Request (command)
       - 
       - 
     * - 201
-      - Numeric value in range [0, 1]
+      - Numeric\ |_| \value\ |_| \in\ |_| \range\ |_| \[0,\ |_| \1]
       - Define the axis-specific relative velocity (% of maximum velocity)
     * - 202
       - Numeric value in range [0, 1]
@@ -136,7 +139,7 @@ Response (robot state)
       - 1
       - Boolean
     * - :literal:`JOINT_POSITION`
-      - Axis-specific actual position in radians (axis 1 to 7)
+      - Axis\ |_| \-\ |_| \specific\ |_| \actual\ |_| \position\ |_| \in radians (axis 1 to 7)
       - 1
       - 7
       - Numeric array

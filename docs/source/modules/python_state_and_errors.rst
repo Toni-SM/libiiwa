@@ -1,6 +1,9 @@
 State and errors
 ================
 
+.. |_| unicode:: 0xA0 
+    :trim:
+
 .. contents:: Table of Contents
    :depth: 2
    :local:
@@ -21,7 +24,7 @@ Robot state
       - Dictionary key
       - Unit
       - Data type
-    * - Axis-specific (joint) actual position
+    * - Axis\ |_| \-\ |_| \specific\ |_| \(joint)\ |_| \actual\ |_| \position
       - :literal:`joint_position`
       - :literal:`radians`
       - :literal:`np.ndarray` :literal:`shape=(7,)` :literal:`dtype=np.float32`
