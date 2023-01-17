@@ -1,0 +1,143 @@
+[start-command-line-reset_conditions-1]
+
+$ ros2 service call /iiwa/reset_conditions std_srvs/srv/Empty "{}"
+
+[end-command-line-reset_conditions-1]
+
+
+[start-command-line-set_force_condition-1]
+
+# thresholds (x: 20.0, y: 21.0, z: 22.0) and tolerances (x: 10.0, y: 11.0, z: 12.0) are specified
+$ ros2 service call /iiwa/set_force_condition libiiwa_msgs/srv/SetArray "{data: [20.0, 21.0, 22.0, 10.0, 11.0, 12.0]}"
+
+# thresholds (x: 20.0, y: 21.0, z: 22.0) are specified. Default tolerances (10.0)
+$ ros2 service call /iiwa/set_force_condition libiiwa_msgs/srv/SetArray "{data: [20.0, 21.0, 22.0]}"
+
+# force condition only for z axis: threshold (15.0) and tolerance of (1.0)
+$ ros2 service call /iiwa/set_force_condition libiiwa_msgs/srv/SetArray "{data: [.nan, .nan, 15.0, .nan, .nan, 1.0]}"
+
+[end-command-line-set_force_condition-1]
+
+
+[start-command-line-set_joint_torque_condition-1]
+
+# limits for all joints
+$ ros2 service call /iiwa/set_joint_torque_condition libiiwa_msgs/srv/SetArray "{data: [-1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0]}"
+
+# limits only for joint 4 (min: -5.0 Nm, max: 10.0 Nm)
+$ ros2 service call /iiwa/set_joint_torque_condition libiiwa_msgs/srv/SetArray "{data: [.nan, .nan, .nan, -5.0, .nan, .nan, .nan, .nan, .nan, .nan, 10.0, .nan, .nan, .nan]}"
+
+[end-command-line-set_joint_torque_condition-1]
+
+
+[start-python-reset_conditions-1]
+
+import rclpy
+from rclpy.node import Node
+
+import std_srvs.srv
+
+# initialize the ROS node
+rclpy.init()
+node = Node('test')
+
+# create a client for calling the service
+client = node.create_client(std_srvs.srv.Empty, '/iiwa/reset_conditions')
+
+# wait for service
+client.wait_for_service()
+
+# call service
+request = std_srvs.srv.Empty.Request()
+future = client.call_async(request)
+rclpy.spin_until_future_complete(node, future)
+response = future.result()
+
+# shutdown the node
+node.destroy_node()
+rclpy.shutdown()
+
+[end-python-reset_conditions-1]
+
+
+[start-python-set_force_condition-1]
+
+import math
+import rclpy
+from rclpy.node import Node
+
+import libiiwa_msgs.srv
+
+# initialize the ROS node
+rclpy.init()
+node = Node('test')
+
+# create a client for calling the service
+client = node.create_client(libiiwa_msgs.srv.SetArray, '/iiwa/set_force_condition')
+
+# wait for service
+client.wait_for_service()
+
+# call service
+request = libiiwa_msgs.srv.SetArray.Request()
+# thresholds (x: 20.0, y: 21.0, z: 22.0) and tolerances (x: 10.0, y: 11.0, z: 12.0) are specified
+request.data = [20.0, 21.0, 22.0, 10.0, 11.0, 12.0]
+future = client.call_async(request)
+rclpy.spin_until_future_complete(node, future)
+response = future.result()
+# thresholds (x: 20.0, y: 21.0, z: 22.0) are specified. Default tolerances (10.0)
+request.data = [20.0, 21.0, 22.0]
+future = client.call_async(request)
+rclpy.spin_until_future_complete(node, future)
+response = future.result()
+# force condition only for z axis: threshold (15.0) and tolerance of (1.0)
+request.data = [math.nan, math.nan, 15.0, math.nan, math.nan, 1.0]
+future = client.call_async(request)
+rclpy.spin_until_future_complete(node, future)
+response = future.result()
+
+# shutdown the node
+node.destroy_node()
+rclpy.shutdown()
+
+[end-python-set_force_condition-1]
+
+
+[start-python-set_joint_torque_condition-1]
+
+import math
+import rclpy
+from rclpy.node import Node
+
+import libiiwa_msgs.srv
+
+# initialize the ROS node
+rclpy.init()
+node = Node('test')
+
+# create a client for calling the service
+client = node.create_client(libiiwa_msgs.srv.SetArray, '/iiwa/set_joint_torque_condition')
+
+# wait for service
+client.wait_for_service()
+
+# call service
+request = libiiwa_msgs.srv.SetArray.Request()
+# limits for all joints
+request.data = [-1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, 
+                 1.0,  2.0,  3.0,  4.0,  5.0,  6.0,  7.0]
+future = client.call_async(request)
+rclpy.spin_until_future_complete(node, future)
+response = future.result()
+# limits only for joint 4 (min: -5.0 Nm, max: 10.0 Nm)
+request.data = [math.nan, math.nan, math.nan, -5.0, math.nan, math.nan, math.nan, 
+                math.nan, math.nan, math.nan, 10.0, math.nan, math.nan, math.nan]
+future = client.call_async(request)
+rclpy.spin_until_future_complete(node, future)
+response = future.result()
+
+# shutdown the node
+node.destroy_node()
+rclpy.shutdown()
+
+[end-python-set_joint_torque_condition-1]

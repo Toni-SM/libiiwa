@@ -1,0 +1,93 @@
+[start-command-line-reset_conditions-1]
+
+$ rosservice call /iiwa/reset_conditions "{}"
+
+[end-command-line-reset_conditions-1]
+
+
+[start-command-line-set_force_condition-1]
+
+# thresholds (x: 20.0, y: 21.0, z: 22.0) and tolerances (x: 10.0, y: 11.0, z: 12.0) are specified
+$ rosservice call /iiwa/set_force_condition "[20.0, 21.0, 22.0, 10.0, 11.0, 12.0]"
+
+# thresholds (x: 20.0, y: 21.0, z: 22.0) are specified. Default tolerances (10.0)
+$ rosservice call /iiwa/set_force_condition "[20.0, 21.0, 22.0]"
+
+# force condition only for z axis: threshold (15.0) and tolerance of (1.0)
+$ rosservice call /iiwa/set_force_condition "[.nan, .nan, 15.0, .nan, .nan, 1.0]"
+
+[end-command-line-set_force_condition-1]
+
+
+[start-command-line-set_joint_torque_condition-1]
+
+# limits for all joints
+$ rosservice call /iiwa/set_joint_torque_condition "[-1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0]"
+
+# limits only for joint 4 (min: -5.0 Nm, max: 10.0 Nm)
+$ rosservice call /iiwa/set_joint_torque_condition "[.nan, .nan, .nan, -5.0, .nan, .nan, .nan, .nan, .nan, .nan, 10.0, .nan, .nan, .nan]"
+
+[end-command-line-set_joint_torque_condition-1]
+
+
+[start-python-reset_conditions-1]
+
+import rospy
+import std_srvs.srv
+
+# wait for service
+rospy.wait_for_service('/iiwa/reset_conditions')
+
+# create a handle for calling the service
+proxy = rospy.ServiceProxy('/iiwa/reset_conditions', std_srvs.srv.Empty)
+
+# call service
+response = proxy()
+
+[end-python-reset_conditions-1]
+
+
+[start-python-set_force_condition-1]
+
+import math
+import rospy
+import libiiwa_msgs.srv
+
+# wait for service
+rospy.wait_for_service('/iiwa/set_force_condition')
+
+# create a handle for calling the service
+proxy = rospy.ServiceProxy('/iiwa/set_force_condition', libiiwa_msgs.srv.SetArray)
+
+# call service
+# thresholds (x: 20.0, y: 21.0, z: 22.0) and tolerances (x: 10.0, y: 11.0, z: 12.0) are specified
+response = proxy([20.0, 21.0, 22.0, 10.0, 11.0, 12.0])
+# thresholds (x: 20.0, y: 21.0, z: 22.0) are specified. Default tolerances (10.0)
+response = proxy([20.0, 21.0, 22.0])
+# force condition only for z axis: threshold (15.0) and tolerance of (1.0)
+response = proxy([math.nan, math.nan, 15.0, math.nan, math.nan, 1.0])
+
+[end-python-set_force_condition-1]
+
+
+[start-python-set_joint_torque_condition-1]
+
+import math
+import rospy
+import libiiwa_msgs.srv
+
+# wait for service
+rospy.wait_for_service('/iiwa/set_joint_torque_condition')
+
+# create a handle for calling the service
+proxy = rospy.ServiceProxy('/iiwa/set_joint_torque_condition', libiiwa_msgs.srv.SetArray)
+
+# call service
+# limits for all joints
+response = proxy([-1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, 
+                   1.0,  2.0,  3.0,  4.0,  5.0,  6.0,  7.0])
+# limits only for joint 4 (min: -5.0 Nm, max: 10.0 Nm)
+response = proxy([math.nan, math.nan, math.nan, -5.0, math.nan, math.nan, math.nan, 
+                  math.nan, math.nan, math.nan, 10.0, math.nan, math.nan, math.nan])
+
+[end-python-set_joint_torque_condition-1]
