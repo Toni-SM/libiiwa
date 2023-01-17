@@ -1,6 +1,8 @@
 Conditions
 ==========
 
+Conditions make it possible to monitor the robot control and trigger specific reactions (termination of a running motion) if definable limits are exceeded or not reached
+
 .. contents:: Table of Contents
    :depth: 2
    :local:
