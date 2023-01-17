@@ -39,7 +39,7 @@ def generate_launch_description():
     
     # node configuration
     verbose_launch_arg = DeclareLaunchArgument(
-        "verbose", default_value=TextSubstitution(text="True")
+        "verbose", default_value=TextSubstitution(text="False")
     )
 
     # ROS2 node

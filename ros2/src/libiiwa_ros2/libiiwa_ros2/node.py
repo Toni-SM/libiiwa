@@ -704,7 +704,8 @@ class Iiwa:
 
         # create publishers
         self._pub_joint_states = self._node.create_publisher(topic=self._names.get("joint_states", "/iiwa/state/joint_states"),
-                                                             msg_type=sensor_msgs.msg.JointState,qos_profile=self._qos_profile)
+                                                             msg_type=sensor_msgs.msg.JointState,
+                                                             qos_profile=self._qos_profile)
         self._pub_end_effector_pose = self._node.create_publisher(topic=self._names.get("end_effector_pose", "/iiwa/state/end_effector_pose"),
                                                                   msg_type=geometry_msgs.msg.Pose,
                                                                   qos_profile=self._qos_profile)
