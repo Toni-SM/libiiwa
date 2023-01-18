@@ -1,6 +1,8 @@
 Impedance control
 =================
 
+Impedance control allows implementation of compliant robot behavior
+
 .. contents:: Table of Contents
    :depth: 2
    :local:
@@ -60,4 +62,6 @@ set_cartesian_max_path_deviation
 Cartesian sine impedance control
 --------------------------------
 
-# TODO
+:orange:`WILL BE INCLUDED SOON!`
+
+.. # TODO: add support for cartesian sine impedance control
