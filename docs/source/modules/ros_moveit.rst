@@ -38,7 +38,7 @@ Launch parameters
     * - :literal:`follow_all_trajectory`
       - Whether to follow the whole planned trajectory or go directly to the goal by skipping the intermediate trajectory points
       - :literal:`bool`
-      - :literal:`"true"`
+      - :literal:`true`
     * - :literal:`trajectory_update_threshold`
       - Threshold used to progressively traverse trajectory points (see details below)
       - :literal:`double`
@@ -60,7 +60,7 @@ Launch parameters
 
         .. literalinclude:: ../../../ros2/src/libiiwa_ros2/launch/default.py
             :language: python
-            :emphasize-lines: 15-20
+            :emphasize-lines: 15-26
 
 Trajectory execution implementation 
 -----------------------------------
