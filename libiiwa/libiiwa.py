@@ -24,6 +24,7 @@ API_VERSION = "0.1.1-beta"
 
 # application errors
 class Error(Enum):
+    UNKNOW_ERROR = 0
     INVALID_CONFIGURATION_ERROR = -16
     VALIDATION_FOR_IMPEDANCE_ERROR = -15
     ASYNCHRONOUS_MOTION_ERROR = -14
@@ -651,11 +652,11 @@ class LibIiwa:
 
         Example::
 
-            >>> # force conditon for all axes (x: 10 N, y: 20 N, z: 30 N) and default tolerance
+            >>> # force condition for all axes (x: 10 N, y: 20 N, z: 30 N) and default tolerance
             >>> iiwa.set_force_condition([10, 20, 30])
             True
 
-            >>> # force conditon only for z axis (15 N) and tolerance of 1 N
+            >>> # force condition only for z axis (15 N) and tolerance of 1 N
             >>> iiwa.set_force_condition([np.NaN, np.NaN, 15], [np.NaN, np.NaN, 1])
             True
         """
@@ -694,7 +695,7 @@ class LibIiwa:
             True
 
             >>> # limits only for joint 4 (min: -2.5 Nm, max: 4.0 Nm)
-            >>> lower_limits = [1.0, np.NaN, np.NaN, -2.5, np.NaN, np.NaN, np.NaN]
+            >>> lower_limits = [np.NaN, np.NaN, np.NaN, -2.5, np.NaN, np.NaN, np.NaN]
             >>> upper_limits = [np.NaN, np.NaN, np.NaN, 4.0, np.NaN, np.NaN, np.NaN]
             >>> iiwa.set_joint_torque_condition(lower_limits, upper_limits)
             True
@@ -734,6 +735,13 @@ class LibIiwa:
 
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            >>> translational = [2000.0, 3000.0, 4000.0]
+            >>> rotational = [50.0, 100.0, 150.0]
+            >>> iiwa.set_cartesian_stiffness(translational, rotational, null_space=100)
+            True
         """
         translational = np.array(translational, dtype=np.float32).flatten()
         rotational = np.array(rotational, dtype=np.float32).flatten()
@@ -758,7 +766,7 @@ class LibIiwa:
         :type translational: 3-element list or numpy.ndarray
         :param rotational: Rotational damping [0.1, 1.0] (default: [0.7, 0.7, 0.7])
         :type rotational: 3-element list or numpy.ndarray
-        :type null_space: Spring damping of the redundancy degree of freedom in Nm/rad [0.3, 1.0] (default: 0.7)
+        :type null_space: Spring damping of the redundancy degree of freedom [0.3, 1.0] (default: 0.7)
         :type null_space: float
 
         :raises AssertionError: If the length of the translational and rotational is not equal to the number of axes
@@ -768,6 +776,13 @@ class LibIiwa:
 
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            >>> translational = [0.2, 0.3, 0.4]
+            >>> rotational = [0.5, 0.6, 0.7]
+            >>> iiwa.set_cartesian_damping(translational, rotational, null_space=0.5)
+            True
         """
         translational = np.array(translational, dtype=np.float32).flatten()
         rotational = np.array(rotational, dtype=np.float32).flatten()
@@ -796,6 +811,13 @@ class LibIiwa:
 
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            >>> translational = [-10.0, -20.0, -30.0]
+            >>> rotational = [10.0, 20.0, 30.0]
+            >>> iiwa.set_cartesian_additional_control_force(translational, rotational)
+            True
         """
         translational = np.array(translational, dtype=np.float32).flatten()
         rotational = np.array(rotational, dtype=np.float32).flatten()
@@ -815,6 +837,8 @@ class LibIiwa:
         :type translational: 3-element list or numpy.ndarray
         :param rotational: Maximum torque in Nm (default: [1e6, 1e6, 1e6])
         :type rotational: 3-element list or numpy.ndarray
+        :param add_stop_condition: Whether to cancel the motion if the maximum force at the TCP is exceeded (default: False)
+        :type add_stop_condition: bool
 
         :raises AssertionError: If the length of the translational and rotational is not equal to the number of axes
         :raises AssertionError: If the translational is not in the range [0.0, Inf)
@@ -822,6 +846,14 @@ class LibIiwa:
 
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            # set Cartesian maximum control force and cancel the motion if the maximum force is exceeded
+            >>> translational = [10.0, 20.0, 30.0]
+            >>> rotational = [10.0, 20.0, 30.0]
+            >>> iiwa.set_cartesian_max_control_force(translational, rotational, add_stop_condition=True)
+            True
         """
         translational = np.array(translational, dtype=np.float32).flatten()
         rotational = np.array(rotational, dtype=np.float32).flatten()
@@ -838,7 +870,8 @@ class LibIiwa:
                                    rotational : Union[List[float], np.ndarray] = [1e6, 1e6, 1e6]) -> bool:
         """Define the maximum Cartesian velocity at which motion is aborted if the limit is exceeded
 
-        The Cartesian velocity will be automatically converted to mm/s before sending to the robot
+        The Cartesian velocity will be automatically converted to mm/s before sending to the robot.
+        Assign high values to the degrees of freedom that are not to be limited
 
         :param translational: Maximum Cartesian velocity in m/s (default: [1e6, 1e6, 1e6])
         :type translational: 3-element list or numpy.ndarray
@@ -851,6 +884,13 @@ class LibIiwa:
 
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            # abort the motion for a maximum Cartesian velocity of 10  m/s in the z-axis
+            >>> translational = [1e6, 1e6, 10.0]
+            >>> iiwa.set_cartesian_max_velocity(translational)
+            True
         """
         translational = np.array(translational, dtype=np.float32).flatten() * 1000.0
         rotational = np.array(rotational, dtype=np.float32).flatten()
@@ -869,6 +909,8 @@ class LibIiwa:
                                          degrees: bool = False) -> bool:
         """Define the maximum permissible Cartesian path deviation at which motion is aborted if the limit is exceeded
 
+        Assign high values to the degrees of freedom that are not to be limited
+
         :param translational: Maximum path deviation (default: [1e6, 1e6, 1e6])
         :type translational: 3-element list or numpy.ndarray
         :param rotational: Maximum path deviation (default: [1e6, 1e6, 1e6])
@@ -884,6 +926,13 @@ class LibIiwa:
 
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            # abort the motion for a maximum Cartesian path deviation of 0.1 m in the y-axis
+            >>> translational = [1e6, 0.1, 1e6]
+            >>> iiwa.set_cartesian_max_velocity(translational)
+            True
         """
         translational = np.array(translational, dtype=np.float32).flatten()
         rotational = np.array(rotational, dtype=np.float32).flatten()
@@ -910,6 +959,12 @@ class LibIiwa:
 
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            >>> stiffness = [400.0, 350.0, 300.0, 250.0, 200.0, 150.0, 100.0]
+            >>> iiwa.set_joint_stiffness(stiffness)
+            True
         """
         stiffness = np.array(stiffness, dtype=np.float32).flatten()
         assert stiffness.size == 7, "Invalid stiffness length"
@@ -928,6 +983,12 @@ class LibIiwa:
 
         :return: True if successful, False otherwise
         :rtype: bool
+
+        Example::
+
+            >>> damping = [0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
+            >>> iiwa.set_joint_damping(damping)
+            True
         """
         damping = np.array(damping, dtype=np.float32).flatten()
         assert damping.size == 7, "Invalid damping length"
