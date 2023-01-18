@@ -1187,7 +1187,7 @@ def main():
     rate = rospy.Rate(50)  # Hz
 
     # get launch parameters
-    robot_name = rospy.get_param("~robot_name", "iiwa")
+    robot_name = rospy.get_param("~robot_name", "iiwa")  # TODO: use as prefix
 
     controller_name = rospy.get_param("~controller_name", "iiwa_controller")
     action_namespace = rospy.get_param("~action_namespace", "follow_joint_trajectory")
