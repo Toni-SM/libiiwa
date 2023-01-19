@@ -30,6 +30,7 @@ User guide
 
     intro/overview
     intro/installation
+    intro/examples
     intro/protocol
 
 .. raw:: html
