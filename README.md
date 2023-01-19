@@ -7,8 +7,7 @@
 </p>
 <h2 align="center" style="border-bottom: 0 !important;">
     <p><strong>LIBIIWA</strong></p>
-    <p style="margin-bottom: 0 !important;">Scalable cross-platform multi-control framework</p>
-    <p>for KUKA LBR iiwa cobots</p>
+    <p>Scalable cross-platform multi-control framework for KUKA LBR iiwa cobots</p>
 </h2>
 <br>
 
