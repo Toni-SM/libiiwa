@@ -6,10 +6,17 @@ Communication protocol
 
 The communication has to be initiated from the external control workstation which sends a **command request** and receives the **robot state as response**
 
+.. note::
+  
+    The communication protocol byte order, size and alignment uses the **network byte order** (which is always big-endian as defined in `IETF RFC 1700 <https://www.rfc-editor.org/rfc/rfc1700>`_)
+
 .. image:: ../_static/imgs/protocol-flow.png
     :width: 70%
     :align: center
     :alt: Protocol flow
+
+
+The following subsections describe the communication protocol, allowing the development of APIs in other programming languages, e.g.
 
 .. raw:: html
 
@@ -133,62 +140,62 @@ Response (robot state)
       - Index
       - Length
       - Interpreted type
-    * - :literal:`COMMAND_STATUS`
+    * - Command status
       - Whether the requested command was successfully executed or scheduled
       - 0
       - 1
       - Boolean
-    * - :literal:`JOINT_POSITION`
+    * - Joint positions
       - Axis\ |_| \-\ |_| \specific\ |_| \actual\ |_| \position\ |_| \in radians (axis 1 to 7)
       - 1
       - 7
       - Numeric array
-    * - :literal:`JOINT_VELOCITY`
+    * - Joint velocities
       - Axis-specific computed velocity in radians per seconds (axis 1 to 7). The velocity is calculated as the difference between the reading of two consecutive positions every 10 milliseconds (100 Hz).
       - 8
       - 7
       - Numeric array
-    * - :literal:`JOINT_TORQUE`
+    * - Joint torques
       - Measured external acting torques, in Newton-meter, without the component resulting from the weight of the robot and mass inertias during motion (axis 1 to 7)
       - 15
       - 7
       - Numeric array
-    * - :literal:`CARTESIAN_POSITION`
+    * - Cartesian position
       - End-effector Cartesian actual position in millimeters (X, Y, Z)
       - 22
       - 3
       - Numeric array
-    * - :literal:`CARTESIAN_ORIENTATION`
+    * - Cartesian orientation
       - End-effector Cartesian actual orientation in radians (A, B, C)
       - 25
       - 3
       - Numeric array
-    * - :literal:`CARTESIAN_FORCE`
+    * - Cartesian forces
       - External Cartesian forces, in Newtons, acting on the end-effector (X, Y, Z)
       - 28
       - 3
       - Numeric array
-    * - :literal:`CARTESIAN_TORQUE`
+    * - Cartesian torques
       - External Cartesian torques, in Newton-meter, acting on the end-effector (A, B, C)
       - 31
       - 3
       - Numeric array
-    * - :literal:`LAST_ERROR`
+    * - Last error
       - Last registered error code. See `Errors <#id6>`_
       - 34
       - 1
       - Boolean
-    * - :literal:`FIRED_CONDITION`
+    * - Has fired condition
       - Whether motion has terminated due to a break condition
       - 35
       - 1
       - Boolean
-    * - :literal:`READY_TO_MOVE`
+    * - Is ready to move
       - Whether the robot is ready for motion. A true value does not necessarily mean that the brakes are open and that the robot is under servo control
       - 36
       - 1
       - Boolean
-    * - :literal:`HAS_ACTIVE_MOTION`
+    * - Has active motion
       - Whether the robot is active. It does not provide any information on whether the robot is currently in motion (a false value does not necessarily mean that the robot is stationary)
       - 37
       - 1
@@ -206,7 +213,7 @@ Communication modes
 
 .. warning::
 
-    Not implemented # TODO
+    Periodical communication mode is not currently implemente!
 
 .. list-table::
     :header-rows: 1
@@ -214,26 +221,9 @@ Communication modes
     * - Code
       - Description
     * - 11
-      - **On-demand**: # TODO
+      - **On-demand**: Enable communication only when necessary (when requested by the external control workstation)
     * - 12
-      - **Periodical**: # TODO
-
-Motion types
-^^^^^^^^^^^^
-
-.. list-table::
-    :header-rows: 1
-
-    * - Code
-      - Description
-    * - 21
-      - **Point-to-point motion (PTP)**: Executes a point-to-point motion to the end point
-    * - 22
-      - **Linear motion (LIN)**: Executes a linear motion to the end point
-    * - 23
-      - **Linear relative motion (LIN_REL)**: Executes a linear motion relative to the end position of the previous
-    * - 24
-      - **Circular motion (CIRC)**: Executes a circular motion
+      - **Periodical**: Enable continuous communication at periodic intervals
 
 Control interfaces
 ^^^^^^^^^^^^^^^^^^
@@ -244,7 +234,7 @@ Control interfaces
     * - Code
       - Description
     * - 31
-      - **Standard**: # TODO
+      - **Standard**: Discontinuous (blocking or non-blocking) motion execution
     * - 32
       - **Servo motions (Servoing)**: Non-deterministic, soft real-time motions
 
@@ -278,6 +268,23 @@ Execution types
     * - 52
       - **Synchronous**: Motion commands are sent in steps to the real-time controller and executed (blocking)
 
+Motion types
+^^^^^^^^^^^^
+
+.. list-table::
+    :header-rows: 1
+
+    * - Code
+      - Description
+    * - 21
+      - **Point-to-point motion (PTP)**: Executes a point-to-point motion to the end point
+    * - 22
+      - **Linear motion (LIN)**: Executes a linear motion to the end point
+    * - 23
+      - **Linear relative motion (LIN_REL)**: Executes a linear motion relative to the end position of the previous
+    * - 24
+      - **Circular motion (CIRC)**: Executes a circular motion
+
 Errors
 ^^^^^^
 
@@ -287,16 +294,16 @@ Errors
     * - Code
       - Description
     * - -10
-      - **No error**: # TODO
+      - **No error**: No error. This is not a guarantee that there are no errors
     * - -11
-      - **Value error**: # TODO
+      - **Value error**: An operation or function receives an argument that has the right type but an inappropriate value
     * - -12
-      - **Invalid joint**: # TODO
+      - **Invalid joint**: Joint subscript is out of range
     * - -13
-      - **Synchronous motion**: # TODO
+      - **Synchronous motion**: Synchronous motion command execution failed
     * - -14
-      - **Asynchronous motion**: # TODO
+      - **Asynchronous motion**: Asynchronous motion command execution failed
     * - -15
-      - **Validation for impedance**: # TODO
+      - **Validation for impedance**: Validation of the load model for impedance control to use servo motions has failed
     * - -16
-      - **Invalid configuration**: # TODO
+      - **Invalid configuration**: The robot has been configured to work with incompatible control settings
