@@ -2,4 +2,5 @@ sphinx
 sphinx_rtd_theme
 sphinx-autobuild
 sphinx-tabs==3.2.0
+sphinx-copybutton
 numpy

@@ -26,13 +26,16 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
-    'sphinx_tabs.tabs'
+    'sphinx_tabs.tabs',
+    'sphinx_copybutton',
 ]
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3/', None),
-    'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
+    "numpy": ("http://docs.scipy.org/doc/numpy/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
 }
+
 intersphinx_disabled_domains = ['std']
 
 templates_path = ['_templates']
@@ -55,3 +58,6 @@ html_css_files = ['css/s5defs-roles.css',
 
 # -- Options for EPUB output
 epub_show_urls = 'footnote'
+
+copybutton_prompt_text = r'>>> |\.\.\. '
+copybutton_prompt_is_regexp = True
