@@ -56,7 +56,7 @@ Robot state
     * - Last registered error code. See `Errors <#id1>`_
       - :literal:`last_error`
       - 
-      - :literal:`Error`
+      - :literal:`libiiwa.Error`
     * - Whether motion has terminated due to a break condition
       - :literal:`has_fired_condition`
       - 
@@ -87,18 +87,20 @@ Errors
 
     * - Operation errors
       - Enum (:literal:`Error`)
-    * - TODO
+    * - The robot has been configured to work with incompatible control settings
       - :literal:`INVALID_CONFIGURATION_ERROR`
-    * - TODO
+    * - Validation of the load model for impedance control to use servo motions has failed
       - :literal:`VALIDATION_FOR_IMPEDANCE_ERROR`
-    * - TODO
+    * - Asynchronous motion command execution failed
       - :literal:`ASYNCHRONOUS_MOTION_ERROR`
-    * - TODO
+    * - Synchronous motion command execution failed
       - :literal:`SYNCHRONOUS_MOTION_ERROR`
-    * - TODO
+    * - Joint subscript is out of range
       - :literal:`INVALID_JOINT_ERROR`
-    * - TODO
+    * - An operation or function receives an argument that has the right type but an inappropriate value
       - :literal:`VALUE_ERROR`
+    * - No error. This is not a guarantee that there are no errors
+      - :literal:`NO_ERROR`
 
 .. autoclass:: libiiwa.Error
     :undoc-members:
