@@ -5,7 +5,7 @@ ROS & ROS2
     :trim:
 
 .. contents:: Table of Contents
-   :depth: 2
+   :depth: 3
    :local:
    :backlinks: none
 
@@ -89,3 +89,57 @@ Launch parameters
         .. literalinclude:: ../../../ros2/src/libiiwa_ros2/launch/default.py
             :language: python
             :emphasize-lines: 10-12, 29-34, 36-38, 41-43
+
+ROS/ROS2 messages
+-----------------
+
+Services
+^^^^^^^^
+
+GetBool.srv
+"""""""""""
+
+.. literalinclude:: ../../../ros/src/libiiwa_msgs/srv/GetBool.srv
+    :language: yaml
+
+GetError.srv
+""""""""""""
+
+.. literalinclude:: ../../../ros/src/libiiwa_msgs/srv/GetError.srv
+    :language: yaml
+
+GetNumber.srv
+"""""""""""""
+
+.. literalinclude:: ../../../ros/src/libiiwa_msgs/srv/GetNumber.srv
+    :language: yaml
+
+SetArray.srv
+""""""""""""
+
+.. literalinclude:: ../../../ros/src/libiiwa_msgs/srv/SetArray.srv
+    :language: yaml
+
+SetNumber.srv
+"""""""""""""
+
+.. literalinclude:: ../../../ros/src/libiiwa_msgs/srv/SetNumber.srv
+    :language: yaml
+
+SetString.srv
+"""""""""""""
+
+.. literalinclude:: ../../../ros/src/libiiwa_msgs/srv/SetString.srv
+    :language: yaml
+
+SetXYZABC.srv
+"""""""""""""
+
+.. literalinclude:: ../../../ros/src/libiiwa_msgs/srv/SetXYZABC.srv
+    :language: yaml
+
+SetXYZABCParam.srv
+""""""""""""""""""
+
+.. literalinclude:: ../../../ros/src/libiiwa_msgs/srv/SetXYZABCParam.srv
+    :language: yaml
