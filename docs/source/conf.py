@@ -59,5 +59,5 @@ html_css_files = ['css/s5defs-roles.css',
 # -- Options for EPUB output
 epub_show_urls = 'footnote'
 
-copybutton_prompt_text = r'>>> |\.\.\. '
+copybutton_prompt_text = r'>>> |\.\.\. |\$ '
 copybutton_prompt_is_regexp = True
