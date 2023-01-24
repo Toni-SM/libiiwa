@@ -25,7 +25,7 @@ Set joint stiffness
       - Limits
       - Units
     * - :literal:`/iiwa/set_joint_stiffness`
-      - libiiwa_msgs/SetArray
+      - `libiiwa_msgs/SetArray <ros.html#setarray-srv>`_
       - [0.0, Inf)
       - :literal:`Nm/rad`
 
@@ -87,7 +87,7 @@ Set joint damping
       - Limits
       - Units
     * - :literal:`/iiwa/set_joint_damping`
-      - libiiwa_msgs/SetArray
+      - `libiiwa_msgs/SetArray <ros.html#setarray-srv>`_
       - [0.0, 1.0]
       - unitless
 
@@ -151,7 +151,7 @@ Set Cartesian stiffness
       - Limits
       - Units
     * - :literal:`/iiwa/set_cartesian_stiffness`
-      - libiiwa_msgs/SetXYZABCParam
+      - `libiiwa_msgs/SetXYZABCParam <ros.html#setxyzabcparam-srv>`_
       - translational: [0.0,\ |_| \5000.0], rotational: [0.0,\ |_| \300.0], null_space: [0.0,\ |_| \Inf)
       - translational:\ |_|\ :literal:`N/m`, rotational:\ |_|\ :literal:`Nm/rad`, null_space:\ |_|\ :literal:`Nm/rad`
 
@@ -212,7 +212,7 @@ Set Cartesian damping
       - Limits
       - Units
     * - :literal:`/iiwa/set_cartesian_damping`
-      - libiiwa_msgs/SetXYZABCParam
+      - `libiiwa_msgs/SetXYZABCParam <ros.html#setxyzabcparam-srv>`_
       - translational: [0.1,\ |_| \1.0], rotational: [0.1,\ |_| \1.0], null_space: [0.3,\ |_| \0.1]
       - unitless
 
@@ -273,7 +273,7 @@ Set Cartesian additional control force
       - Limits
       - Units
     * - :literal:`/iiwa/set_cartesian_additional_control_force`
-      - libiiwa_msgs/SetXYZABC
+      - `libiiwa_msgs/SetXYZABC <ros.html#setxyzabc-srv>`_
       - \-
       - translational:\ |_|\ :literal:`N`, rotational:\ |_|\ :literal:`Nm`
 
@@ -334,7 +334,7 @@ Set Cartesian maximum control force
       - Limits
       - Units
     * - :literal:`/iiwa/set_cartesian_max_control_force`
-      - libiiwa_msgs/SetXYZABCParam
+      - `libiiwa_msgs/SetXYZABCParam <ros.html#setxyzabcparam-srv>`_
       - translational: [0.0,\ |_| \Inf), rotational: [0.0,\ |_| \Inf)
       - translational:\ |_|\ :literal:`N`, rotational:\ |_|\ :literal:`Nm`
 
@@ -395,7 +395,7 @@ Set Cartesian maximum velocity
       - Limits
       - Units
     * - :literal:`/iiwa/set_cartesian_max_velocity`
-      - libiiwa_msgs/SetXYZABC
+      - `libiiwa_msgs/SetXYZABC <ros.html#setxyzabc-srv>`_
       - translational: [0.0,\ |_| \Inf), rotational: [0.0,\ |_| \Inf)
       - translational:\ |_|\ :literal:`m/s`, rotational:\ |_|\ :literal:`rad/s`
 
@@ -456,7 +456,7 @@ Set Cartesian maximum path deviation
       - Limits
       - Units
     * - :literal:`/iiwa/set_cartesian_max_path_deviation`
-      - libiiwa_msgs/SetXYZABC
+      - `libiiwa_msgs/SetXYZABC <ros.html#setxyzabc-srv>`_
       - translational: [0.0,\ |_| \Inf), rotational: [0.0,\ |_| \Inf)
       - translational:\ |_|\ :literal:`m`, rotational:\ |_|\ :literal:`radians`
 

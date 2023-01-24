@@ -22,7 +22,7 @@ The KUKA LBR iiwa can be operated with a number of different controllers
       - Service type (srv)
       - Allowed values (case-insensitive)
     * - :literal:`/iiwa/set_control_mode`
-      - libiiwa_msgs/SetString
+      - `libiiwa_msgs/SetString <ros.html#setstring-srv>`_
       - :literal:`POSITION`, :literal:`JOINT_IMPEDANCE`, :literal:`CARTESIAN_IMPEDANCE`, :literal:`CARTESIAN_SINE_IMPEDANCE`
 
 Example:
@@ -81,7 +81,7 @@ The KUKA LBR iiwa can programmed to perform different types of motion
       - Service type (srv)
       - Allowed values (case-insensitive)
     * - :literal:`/iiwa/set_motion_type`
-      - libiiwa_msgs/SetString
+      - `libiiwa_msgs/SetString <ros.html#setstring-srv>`_
       - :literal:`PTP`, :literal:`LIN`, :literal:`LIN_REL`, :literal:`CIRC`
 
 Example:
@@ -140,7 +140,7 @@ The KUKA LBR iiwa can be operated with a number of different motion classes
       - Service type (srv)
       - Allowed values (case-insensitive)
     * - :literal:`/iiwa/set_control_interface`
-      - libiiwa_msgs/SetString
+      - `libiiwa_msgs/SetString <ros.html#setstring-srv>`_
       - :literal:`STANDARD`, :literal:`SERVO`
 
 Example:
@@ -199,7 +199,7 @@ Motion commands can be executed synchronously or asynchronously
       - Service type (srv)
       - Allowed values (case-insensitive)
     * - :literal:`/iiwa/set_execution_type`
-      - libiiwa_msgs/SetString
+      - `libiiwa_msgs/SetString <ros.html#setstring-srv>`_
       - :literal:`ASYNCHRONOUS`, :literal:`SYNCHRONOUS`
 
 Example:

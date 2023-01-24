@@ -179,7 +179,7 @@ Whether motion has terminated due to a break condition
     * - Default service name
       - Service type (srv)
     * - :literal:`/iiwa/has_fired_condition`
-      - libiiwa_msgs/GetBool
+      - `libiiwa_msgs/GetBool <ros.html#getbool-srv>`_
 
 .. tabs::
 
@@ -230,7 +230,7 @@ Whether the robot is ready for motion. A true value does not necessarily mean th
     * - Default service name
       - Service type (srv)
     * - :literal:`/iiwa/is_ready_to_move`
-      - libiiwa_msgs/GetBool
+      - `libiiwa_msgs/GetBool <ros.html#getbool-srv>`_
 
 .. tabs::
 
@@ -281,7 +281,7 @@ Whether the robot is active. It does not provide any information on whether the 
     * - Default service name
       - Service type (srv)
     * - :literal:`/iiwa/has_active_motion`
-      - libiiwa_msgs/GetBool
+      - `libiiwa_msgs/GetBool <ros.html#getbool-srv>`_
 
 .. tabs::
 
@@ -338,7 +338,7 @@ Last registered error code
     * - Default service name
       - Service type (srv)
     * - :literal:`/iiwa/last_error`
-      - libiiwa_msgs/GetError
+      - `libiiwa_msgs/GetError <ros.html#geterror-srv>`_
 
 .. tabs::
 

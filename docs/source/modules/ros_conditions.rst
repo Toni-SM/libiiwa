@@ -71,7 +71,7 @@ Define the force condition (threshold and tolerance) for each Cartesian axis
       - Message type (srv)
       - Units
     * - :literal:`/iiwa/set_force_condition`
-      - libiiwa_msgs/SetArray
+      - `libiiwa_msgs/SetArray <ros.html#setarray-srv>`_
       - # TODO
 
 Implementation details
@@ -136,7 +136,7 @@ Define the joint torque condition (lower and upper limits) for each joint axis
       - Message type (srv)
       - Units
     * - :literal:`/iiwa/set_joint_torque_condition`
-      - libiiwa_msgs/SetArray
+      - `libiiwa_msgs/SetArray <ros.html#setarray-srv>`_
       - # TODO
 
 Implementation details
