@@ -120,6 +120,16 @@ External packages
 Python
 """"""
 
+The Python module is cross-platform, where the only dependencies are `numpy <https://numpy.org/>`_ and `scipy <https://scipy.org/>`_. These dependencies can be installed as follows:
+
+.. code-block:: bash
+
+    pip install numpy scipy
+
+To use the Python module you only need to download the :literal:`libiiwa.py` file and place it in the :literal:`PYTHONPATH` or any other reachable location during import (e.g. together with the main code)
+
+| :download:`libiiwa.py <../../../libiiwa/libiiwa.py>`
+
 ROS/ROS2
 """"""""
 
