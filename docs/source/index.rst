@@ -41,8 +41,9 @@ User guide
 
 .. toctree::
     :maxdepth: 1
-    :caption: Python
+    :caption: Python API
 
+    modules/python
     modules/python_state_and_errors
     modules/python_command
     modules/python_limits
@@ -52,7 +53,7 @@ User guide
 
 .. toctree::
     :maxdepth: 1
-    :caption: ROS & ROS2
+    :caption: ROS & ROS2 API
 
     modules/ros
     modules/ros_state_and_errors
