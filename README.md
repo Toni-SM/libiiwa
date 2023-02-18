@@ -20,3 +20,18 @@
 https://libiiwa.readthedocs.io/en/latest/
 
 <br>
+
+### Citing this library
+
+To cite this library in publications, please use the following reference:
+
+```bibtex
+@inproceedings{serrano2023scalable,
+  title={A Scalable and Unified Multi-Control Framework for KUKA LBR iiwa Collaborative Robots},
+  author={Serrano-Mu{\~n}oz, Antonio and Elguea-Aguinaco, {\'I}{\~n}igo and Chrysostomou, Dimitris and B{\o}gh, Simon and Arana-Arexolaleiba, Nestor},
+  booktitle={2023 IEEE/SICE International Symposium on System Integration (SII)},
+  pages={1--5},
+  year={2023},
+  organization={IEEE}
+}
+```

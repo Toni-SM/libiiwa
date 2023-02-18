@@ -7,16 +7,18 @@ libiiwa - Scalable and Unified Multi-Control Framework for the KUKA LBR iiwa (|v
 | **GitHub repository:** https://github.com/Toni-SM/libiiwa
 | **Questions or discussions:** https://github.com/Toni-SM/libiiwa/discussions 
 
-.. **Citing libiiwa:** To cite this library (created at `Mondragon Unibertsitatea <https://www.mondragon.edu/en/home>`_) use the following reference to its `article <TODO>`_: *"TODO"*
+**Citing libiiwa:** To cite this library (created at `Mondragon Unibertsitatea <https://www.mondragon.edu/en/home>`_) use the following reference to its `article <https://ieeexplore.ieee.org/abstract/document/10039308>`_: *"A Scalable and Unified Multi-Control Framework for KUKA LBR iiwa Collaborative Robots"*
 
-.. .. code-block:: bibtex
+.. code-block:: bibtex
 
-..     @article{serrano2022libiiwa,
-..     title={A Scalable and Unified Multi-Control Framework for KUKA LBR iiwa Collaborative Robots},
-..     author={Serrano-Mu{\~n}oz, Antonio and Elguea-Aguinaco, \'{I}{\~n}igo and Chrysostomou, Dimitrios and B{\o}gh, Simon and Arana-Arexolaleiba, Nestor},
-..     journal={TODO},
-..     year={2022}
-..     }
+    @inproceedings{serrano2023scalable,
+      title={A Scalable and Unified Multi-Control Framework for KUKA LBR iiwa Collaborative Robots},
+      author={Serrano-Mu{\~n}oz, Antonio and Elguea-Aguinaco, {\'I}{\~n}igo and Chrysostomou, Dimitris and B{\o}gh, Simon and Arana-Arexolaleiba, Nestor},
+      booktitle={2023 IEEE/SICE International Symposium on System Integration (SII)},
+      pages={1--5},
+      year={2023},
+      organization={IEEE}
+    }
 
 .. raw:: html
 
