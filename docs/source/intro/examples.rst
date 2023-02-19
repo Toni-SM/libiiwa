@@ -98,3 +98,32 @@ MoveIt in RViz
     <video width="100%" controls autoplay>
         <source src="https://user-images.githubusercontent.com/22400377/213265349-215f02fb-fb3e-4c7d-9540-c26849d8bfe1.mp4" type="video/mp4">
     </video>
+    <br><br>
+
+In order to run this demonstration, in addition to the packages listed in :doc:`../intro/installation` (under ROS/ROS2 section), the following packages are required in the ROS workspace. Make sure to source the ROS distribution and build the workspace
+
+.. list-table::
+    :header-rows: 1
+
+    * - Package
+      - ROS
+    * - KUKA LBR iiwa URDF
+      - :download:`iiwa_description.zip <https://github.com/Toni-SM/libiiwa/files/10776962/iiwa_description.zip>`
+    * - MoveIt configuration for LBR iiwa 14
+      - :download:`iiwa14_moveit_config.zip <https://github.com/Toni-SM/libiiwa/files/10776961/iiwa14_moveit_config.zip>`
+
+.. tabs::
+
+    .. group-tab:: ROS
+
+        Launch the libiiwa ROS node in a terminal and execute the Java library installed in the KUKA Sunrise Cabinet via the smartHMI
+
+        .. code-block:: bash
+
+            $ roslaunch libiiwa_ros default.launch
+        
+        Launch MoveIt with RViz in another terminal
+
+        .. code-block:: bash
+
+            $ roslaunch iiwa14_moveit_config real.launch
