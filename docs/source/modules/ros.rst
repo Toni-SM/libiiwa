@@ -25,13 +25,13 @@ Launching the node
 
         .. code-block:: bash
 
-            roslaunch libiiwa_ros default.launch
+            $ roslaunch libiiwa_ros default.launch
 
     .. group-tab:: ROS2
 
         .. code-block:: bash
 
-            ros2 launch libiiwa_ros2 default.py
+            $ ros2 launch libiiwa_ros2 default.py
 
 .. note::
 
