@@ -5,9 +5,9 @@ MoveIt support
     :trim:
 
 .. contents:: Table of Contents
-   :depth: 2
-   :local:
-   :backlinks: none
+    :depth: 2
+    :local:
+    :backlinks: none
 
 .. raw:: html
   
@@ -78,14 +78,12 @@ Edit the MoveIt configuration package :literal:`launch/trajectory_execution.laun
 
 * Disable execution duration monitoring
 
-  .. code-block:: xml
-      :emphasize-lines: 4
-      
-      <param name="trajectory_execution/execution_duration_monitoring" value="false" />
+    .. code-block:: xml
+        
+        <param name="trajectory_execution/execution_duration_monitoring" value="false" />
 
 * Adjust the execution duration scaling (e.g. 5)
 
-  .. code-block:: xml
-      :emphasize-lines: 4
-      
-      <param name="trajectory_execution/allowed_execution_duration_scaling" value="5.0"/>
+    .. code-block:: xml
+        
+        <param name="trajectory_execution/allowed_execution_duration_scaling" value="5.0"/>

@@ -33,6 +33,10 @@ Launching the node
 
             ros2 launch libiiwa_ros2 default.py
 
+.. note::
+
+    After launching the node, program execution is blocked until the Java library installed in the KUKA Sunrise Cabinet is executed via the smartHMI.
+
 Launch parameters
 ^^^^^^^^^^^^^^^^^
 

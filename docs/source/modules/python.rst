@@ -1,5 +1,5 @@
-Class
-=====
+Python class
+============
 
 .. |_| unicode:: 0xA0 
     :trim:
@@ -13,8 +13,8 @@ Class
   
     <hr>
 
-Python class
-------------
+Class
+-----
 
 Basic usage
 ^^^^^^^^^^^
@@ -33,7 +33,7 @@ Basic usage
 
 .. note::
 
-    After the :literal:`LibIiwa` class is instantiated, the program execution is blocked until the Java library installed in the KUKA Sunrise Cabinet is ready to be launched via the smartHMI.
+    After the :literal:`LibIiwa` class is instantiated, program execution is blocked until the Java library installed in the KUKA Sunrise Cabinet is executed via the smartHMI.
 
 Class constructor
 ^^^^^^^^^^^^^^^^^
