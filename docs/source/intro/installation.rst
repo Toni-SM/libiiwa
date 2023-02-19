@@ -4,9 +4,15 @@ Installation
 .. |_| unicode:: 0xA0 
     :trim:
 
-.. raw:: html
+.. contents:: Table of Contents
+   :depth: 3
+   :local:
+   :backlinks: none
 
-    <hr><hr>
+.. raw:: html
+  
+    <hr>
+    <style>.section > h3 { display: none; }</style>
 
 Requirements
 ------------
@@ -117,6 +123,12 @@ Sunrise project
 External packages
 ^^^^^^^^^^^^^^^^^
 
+The following steps describe how to install the available control workflows
+
+.. note::
+
+    Only one, the python module or the ROS or ROS2 node, can be in use at a time. 
+
 Python
 """"""
 
@@ -128,10 +140,36 @@ The Python module is cross-platform, where the only dependencies are `numpy <htt
 
 To use the Python module you only need to download the :literal:`libiiwa.py` file and place it in the :literal:`PYTHONPATH` or any other reachable location during import (e.g. together with the main code)
 
-| :download:`libiiwa.py <../../../libiiwa/libiiwa.py>`
+.. list-table::
+
+    * - Python module
+      - :download:`libiiwa.py <../../../libiiwa/libiiwa.py>`
+
+Visit :doc:`../modules/python` to get started with the Python module
 
 ROS/ROS2
 """"""""
+
+Download and unzip the following packages in a ROS/ROS2 workspace, according to the version of the distribution. Make sure to source the ROS/ROS2 distribution and build the workspace
+
+.. warning::
+
+    The message packages for both the ROS and ROS2 distributions have the same name.
+
+.. list-table::
+    :header-rows: 1
+
+    * - Package
+      - ROS
+      - ROS2
+    * - LibIiwa node
+      - :download:`libiiwa_ros <https://github.com/Toni-SM/libiiwa/files/10775125/libiiwa_ros.zip>`
+      - :download:`libiiwa_ros2 <https://github.com/Toni-SM/libiiwa/files/10775187/libiiwa_ros2.zip>`
+    * - LibIiwa message definitions
+      - :download:`libiiwa_msgs <https://github.com/Toni-SM/libiiwa/files/10775124/libiiwa_msgs.zip>`
+      - :download:`libiiwa_msgs <https://github.com/Toni-SM/libiiwa/files/10775186/libiiwa_msgs.zip>`
+
+Visit :doc:`../modules/ros` to get started with the ROS/ROS2 nodes
 
 .. raw:: html
 
