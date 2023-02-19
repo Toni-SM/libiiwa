@@ -509,6 +509,6 @@ Example
 Cartesian sine impedance control
 --------------------------------
 
-:orange:`WILL BE INCLUDED SOON!`
+:maroon:`It will be included in upcoming releases`. Open a new `discussion <https://github.com/Toni-SM/libiiwa/discussions>`_ if you need to use this functionality ahead of time.
 
 .. # TODO: add support for cartesian sine impedance control
