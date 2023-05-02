@@ -69,22 +69,8 @@ Sunrise project
 
     .. tab:: Common environment
 
-        .. code-block:: xml
-
-                <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-                <RoboticsAPIData version="3">
-                    <world>
-                        <gravitation x="0.0" y="0.0" z="9.81"/>
-                    </world>
-                    <objectTemplates>
-                    </objectTemplates>
-                    <processDataContainer>
-                        <processData dataType="java.lang.String" defaultValue="172.31.1.25" displayName="Controller: IP Address" editableOnHmi="true" id="controller_ip" value="172.31.1.25"/>
-                        <processData dataType="java.lang.Integer" defaultValue="12225" displayName="Controller: Port" editableOnHmi="true" id="controller_port" max="65535" min="1024" value="12225"/>
-                        <processData dataType="java.lang.Boolean" defaultValue="false" displayName="Communication: Use double precision" editableOnHmi="true" id="communication_double_precision" value="false"/>
-                        <processData dataType="java.lang.Boolean" defaultValue="false" displayName="Enable verbose log" editableOnHmi="true" id="verbose" value="false"/>
-                    </processDataContainer>
-                </RoboticsAPIData>
+        .. literalinclude:: ../../../java/src/RoboticsAPI.data.xml
+            :language: xml
 
 .. raw:: html
 
@@ -105,9 +91,12 @@ Sunrise project
     * - Communication: Use double precision
       - :literal:`false`
       - Whether\ |_| \to\ |_| \use\ |_| \double\ |_| \precision\ |_| \(64\ |_| \bits) in both the request and the response (default: float precision (32 bits))
-    * - Enable verbose log
+    * - SmartPAD: Logging (info)
       - :literal:`false`
       - Whether to display information about received commands or any other data on the smartHMI. **The excessive use of the message display could degrade the application performance and the smartHMI operation**
+    * - SmartPAD: Logging (warning)
+      - :literal:`true`
+      - Whether to display warning messages on the smartHMI. **The excessive use of the message display could degrade the application performance and the smartHMI operation**
 
 5. Install the :literal:`StationSetup.cat` (wait for Cabinet reset) and synchronize the project
 
