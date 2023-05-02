@@ -9,6 +9,7 @@
         <processData dataType="java.lang.String" defaultValue="172.31.1.25" displayName="Controller: IP Address" editableOnHmi="true" id="controller_ip" value="172.31.1.25"/>
         <processData dataType="java.lang.Integer" defaultValue="12225" displayName="Controller: Port" editableOnHmi="true" id="controller_port" max="65535" min="1024" value="12225"/>
         <processData dataType="java.lang.Boolean" defaultValue="false" displayName="Communication: Use double precision" editableOnHmi="true" id="communication_double_precision" value="false"/>
-        <processData dataType="java.lang.Boolean" defaultValue="false" displayName="Enable verbose log" editableOnHmi="true" id="verbose" value="false"/>
+        <processData dataType="java.lang.Boolean" defaultValue="false" displayName="SmartPAD: Logging (info)" editableOnHmi="true" id="verbose_info" value="false"/>
+        <processData dataType="java.lang.Boolean" defaultValue="true" displayName="SmartPAD: Logging (warning)" editableOnHmi="true" id="verbose_warn" value="true"/>
     </processDataContainer>
 </RoboticsAPIData>

@@ -105,7 +105,8 @@ public class LibIiwa extends RoboticsAPIApplication {
 	// ===========================================================
 
 	// settings 
-	private boolean VERBOSE = false;
+	private boolean VERBOSE_INFO = false;
+	private boolean VERBOSE_WARN = true;
 
 	// communication
 	private LibIiwaCommunication propCommunication;
@@ -251,7 +252,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 			}
 			catch (Exception e) {
 				this.enumLastError = LibIiwaEnum.VALIDATION_FOR_IMPEDANCE_ERROR;
-				getLogger().warn(e.getMessage());
+				if (VERBOSE_WARN) getLogger().warn(e.getMessage());
 				return false;
 			}
 		
@@ -284,7 +285,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 			}
 			catch (Exception e) {
 				this.enumLastError = LibIiwaEnum.VALIDATION_FOR_IMPEDANCE_ERROR;
-				getLogger().warn(e.getMessage());
+				if (VERBOSE_WARN) getLogger().warn(e.getMessage());
 				return false;
 			}
 		
@@ -338,7 +339,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 				}
 				catch (Exception e) {
 					this.enumLastError = LibIiwaEnum.SYNCHRONOUS_MOTION_ERROR;
-					getLogger().warn(e.getMessage());
+					if (VERBOSE_WARN) getLogger().warn(e.getMessage());
 					return false;
 				}
 			}
@@ -353,7 +354,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		// check for asynchronous execution
 		if (this.enumExecutionType == LibIiwaEnum.EXECUTION_TYPE_SYNCHRONOUS) {
 			this.enumLastError = LibIiwaEnum.INVALID_CONFIGURATION_ERROR;
-			getLogger().warn("Invalid configuration: Servo cannot run in synchronous execution");
+			if (VERBOSE_WARN) getLogger().warn("Invalid configuration: Servo cannot run in synchronous execution");
 			return false;
 		}
 		// move
@@ -370,7 +371,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		// check for asynchronous execution
 		if (this.enumExecutionType == LibIiwaEnum.EXECUTION_TYPE_SYNCHRONOUS) {
 			this.enumLastError = LibIiwaEnum.INVALID_CONFIGURATION_ERROR;
-			getLogger().warn("Invalid configuration: Servo cannot run in synchronous execution");
+			if (VERBOSE_WARN) getLogger().warn("Invalid configuration: Servo cannot run in synchronous execution");
 			return false;
 		}
 		// move
@@ -387,7 +388,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		// check for asynchronous execution
 		if (this.enumExecutionType == LibIiwaEnum.EXECUTION_TYPE_SYNCHRONOUS) {
 			this.enumLastError = LibIiwaEnum.INVALID_CONFIGURATION_ERROR;
-			getLogger().warn("Invalid configuration: Servo cannot run in synchronous execution");
+			if (VERBOSE_WARN) getLogger().warn("Invalid configuration: Servo cannot run in synchronous execution");
 			return false;
 		}
 		// move
@@ -418,12 +419,12 @@ public class LibIiwa extends RoboticsAPIApplication {
 	 */
 	public boolean methSetDesiredJointVelocityRel(double jointVelocityRel) {
 		if (jointVelocityRel < 0 || jointVelocityRel > 1.0) {
-			if (VERBOSE) getLogger().warn("Invalid joint velocity: " + jointVelocityRel);
+			if (VERBOSE_WARN) getLogger().warn("Invalid joint velocity: " + jointVelocityRel);
 			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 		this.propDesiredJointVelocityRel = jointVelocityRel;
-		if (VERBOSE) getLogger().info("Desired joint velocity: " + jointVelocityRel);
+		if (VERBOSE_INFO) getLogger().info("Desired joint velocity: " + jointVelocityRel);
 		return true;
 	}
 
@@ -437,12 +438,12 @@ public class LibIiwa extends RoboticsAPIApplication {
 	 */
 	public boolean methSetDesiredJointAccelerationRel(double jointAccelerationRel) {
 		if (jointAccelerationRel < 0 || jointAccelerationRel > 1.0) {
-			if (VERBOSE) getLogger().warn("Invalid joint acceleration: " + jointAccelerationRel);
+			if (VERBOSE_WARN) getLogger().warn("Invalid joint acceleration: " + jointAccelerationRel);
 			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 		this.propDesiredJointAccelerationRel = jointAccelerationRel;
-		if (VERBOSE) getLogger().info("Desired joint acceleration: " + jointAccelerationRel);
+		if (VERBOSE_INFO) getLogger().info("Desired joint acceleration: " + jointAccelerationRel);
 		return true;
 	}
 
@@ -456,12 +457,12 @@ public class LibIiwa extends RoboticsAPIApplication {
 	 */
 	public boolean methSetDesiredJointJerkRel(double jointJerkRel) {
 		if (jointJerkRel < 0 || jointJerkRel > 1.0) {
-			if (VERBOSE) getLogger().warn("Invalid joint jerk: " + jointJerkRel);
+			if (VERBOSE_WARN) getLogger().warn("Invalid joint jerk: " + jointJerkRel);
 			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 		this.propDesiredJointJerkRel = jointJerkRel;
-		if (VERBOSE) getLogger().info("Desired joint jerk: " + jointJerkRel);
+		if (VERBOSE_INFO) getLogger().info("Desired joint jerk: " + jointJerkRel);
 		return true;
 	}
 
@@ -475,12 +476,12 @@ public class LibIiwa extends RoboticsAPIApplication {
 	 */
 	public boolean methSetDesiredCartesianVelocity(double cartesianVelocity) {
 		if (cartesianVelocity <= 0) {
-			if (VERBOSE) getLogger().warn("Invalid cartesian velocity: " + cartesianVelocity);
+			if (VERBOSE_WARN) getLogger().warn("Invalid cartesian velocity: " + cartesianVelocity);
 			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 		this.propDesiredCartesianVelocity = cartesianVelocity;
-		if (VERBOSE) getLogger().info("Desired cartesian velocity: " + cartesianVelocity);
+		if (VERBOSE_INFO) getLogger().info("Desired cartesian velocity: " + cartesianVelocity);
 		return true;
 	}
 
@@ -494,12 +495,12 @@ public class LibIiwa extends RoboticsAPIApplication {
 	 */
 	public boolean methSetDesiredCartesianAcceleration(double cartesianAcceleration) {
 		if (cartesianAcceleration <= 0) {
-			if (VERBOSE) getLogger().warn("Invalid cartesian acceleration: " + cartesianAcceleration);
+			if (VERBOSE_WARN) getLogger().warn("Invalid cartesian acceleration: " + cartesianAcceleration);
 			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 		this.propDesiredCartesianAcceleration = cartesianAcceleration;
-		if (VERBOSE) getLogger().info("Desired cartesian acceleration: " + cartesianAcceleration);
+		if (VERBOSE_INFO) getLogger().info("Desired cartesian acceleration: " + cartesianAcceleration);
 		return true;
 	}
 
@@ -513,12 +514,12 @@ public class LibIiwa extends RoboticsAPIApplication {
 	 */
 	public boolean methSetDesiredCartesianJerk(double cartesianJerk) {
 		if (cartesianJerk <= 0) {
-			if (VERBOSE) getLogger().warn("Invalid cartesian jerk: " + cartesianJerk);
+			if (VERBOSE_WARN) getLogger().warn("Invalid cartesian jerk: " + cartesianJerk);
 			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 		this.propDesiredCartesianJerk = cartesianJerk;
-		if (VERBOSE) getLogger().info("Desired cartesian jerk: " + cartesianJerk);
+		if (VERBOSE_INFO) getLogger().info("Desired cartesian jerk: " + cartesianJerk);
 		return true;
 	}
 	
@@ -545,7 +546,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 			if (!(Double.isNaN(condition[i]) || Double.isNaN(condition[i + 3]))) {
 				// invalid limits
 				if (condition[i] < 0 || condition[i + 3] <= 0) {
-					getLogger().warn("Invalid force condition (threshold / tolerance): " + condition[i] + " " + condition[i + 3]);
+					if (VERBOSE_WARN) getLogger().warn("Invalid force condition (threshold / tolerance): " + condition[i] + " " + condition[i + 3]);
 					this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 				    status = false;
 				    continue;
@@ -555,7 +556,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 				this.propForceConditionsEnabled[i] = true;
 			}
 		}
-		if (VERBOSE) getLogger().info("Force condition: " + Arrays.toString(condition));
+		if (VERBOSE_INFO) getLogger().info("Force condition: " + Arrays.toString(condition));
 		return status;
 	}
 
@@ -574,14 +575,14 @@ public class LibIiwa extends RoboticsAPIApplication {
 		this.methStopAndResetMotion();
 		// joint number
 		if (joint < 0 || joint >= lbr.getJointCount()) {
-			getLogger().warn("Invalid joint number: " + joint);
+			if (VERBOSE_WARN) getLogger().warn("Invalid joint number: " + joint);
 			this.enumLastError = LibIiwaEnum.INVALID_JOINT_ERROR;
 			return false;
 		}
 		if (!(Double.isNaN(condition[0]) || Double.isNaN(condition[1]))) {
 			// lower and upper limits
 			if (condition[0] >= condition[1]) {
-				getLogger().warn("Invalid limits: " + condition[0] + " >= " + condition[1]);
+				if (VERBOSE_WARN) getLogger().warn("Invalid limits: " + condition[0] + " >= " + condition[1]);
 				this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 				return false;
 			}
@@ -589,7 +590,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 			this.propJointTorqueConditions[joint] = new JointTorqueCondition(_JointEnum(joint), condition[0], condition[1]);
 			this.propJointTorqueConditionsEnabled[joint] = true;
 		}
-		if (VERBOSE) getLogger().info("Joint torque condition (J" + joint + "): " + condition[0] + " to " + condition[1]);
+		if (VERBOSE_INFO) getLogger().info("Joint torque condition (J" + joint + "): " + condition[0] + " to " + condition[1]);
 		return true;
 	}
 	
@@ -633,13 +634,13 @@ public class LibIiwa extends RoboticsAPIApplication {
 					} 
 					catch (Exception e) {
 						this.enumLastError = LibIiwaEnum.ASYNCHRONOUS_MOTION_ERROR;
-						getLogger().warn(e.getMessage());
+						if (VERBOSE_WARN) getLogger().warn(e.getMessage());
 						return false;
 					}
 				}
 			}
 		}
-		if (VERBOSE) getLogger().info("Cartesian stiffness: " + Arrays.toString(stiffness));
+		if (VERBOSE_INFO) getLogger().info("Cartesian stiffness: " + Arrays.toString(stiffness));
 		return true;
 	}
 	
@@ -683,13 +684,13 @@ public class LibIiwa extends RoboticsAPIApplication {
 					} 
 					catch (Exception e) {
 						this.enumLastError = LibIiwaEnum.ASYNCHRONOUS_MOTION_ERROR;
-						getLogger().warn(e.getMessage());
+						if (VERBOSE_WARN) getLogger().warn(e.getMessage());
 						return false;
 					}
 				}
 			}
 		}
-		if (VERBOSE) getLogger().info("Cartesian damping: " + Arrays.toString(damping));
+		if (VERBOSE_INFO) getLogger().info("Cartesian damping: " + Arrays.toString(damping));
 		return true;
 	}
 	
@@ -709,7 +710,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		this.propControlModeCartesianImpedance.parametrize(CartDOF.A).setAdditionalControlForce(force[3]);
 		this.propControlModeCartesianImpedance.parametrize(CartDOF.B).setAdditionalControlForce(force[4]);
 		this.propControlModeCartesianImpedance.parametrize(CartDOF.C).setAdditionalControlForce(force[5]);
-		if (VERBOSE) getLogger().info("Cartesian additional control force: " + Arrays.toString(force));
+		if (VERBOSE_INFO) getLogger().info("Cartesian additional control force: " + Arrays.toString(force));
 		return true;
 	}
 	
@@ -733,7 +734,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		double c = force[5] >= 0 ? force[5] : 1e6;
 
 		this.propControlModeCartesianImpedance.setMaxControlForce(x, y, z, a, b, c, addStopCondition);
-		if (VERBOSE) getLogger().info("Max Cartesian control force: " + Arrays.toString(force));
+		if (VERBOSE_INFO) getLogger().info("Max Cartesian control force: " + Arrays.toString(force));
 		return true;
 	}
 	
@@ -756,7 +757,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		double c = velocity[5] >= 0 ? velocity[5] : 1e6;
 		
 		this.propControlModeCartesianImpedance.setMaxCartesianVelocity(x, y, z, a, b, c);
-		if (VERBOSE) getLogger().info("Max Cartesian velocity: " + Arrays.toString(velocity));
+		if (VERBOSE_INFO) getLogger().info("Max Cartesian velocity: " + Arrays.toString(velocity));
 		return true;
 	}
 	
@@ -779,7 +780,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		double c = deviation[5] >= 0 ? deviation[5] : 1e6;
 		
 		this.propControlModeCartesianImpedance.setMaxPathDeviation(x, y, z, a, b, c);
-		if (VERBOSE) getLogger().info("Max path deviation: " + Arrays.toString(deviation));
+		if (VERBOSE_INFO) getLogger().info("Max path deviation: " + Arrays.toString(deviation));
 		return true;
 	}
 	
@@ -797,7 +798,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 			if (stiffness[i] < 0 || Double.isInfinite(stiffness[i]))
 				stiffness[i] = currentStiffness[i];
 		this.propControlModeJointImpedance.setStiffness(stiffness);
-		if (VERBOSE) getLogger().info("Joint stiffness: " + stiffness);
+		if (VERBOSE_INFO) getLogger().info("Joint stiffness: " + stiffness);
 		return true;
 	}
 	
@@ -815,7 +816,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 			if (damping[i] < 0.0 || damping[i] > 1.0)
 				damping[i] = currentDamping[i];
 		this.propControlModeJointImpedance.setDamping(damping);
-		if (VERBOSE) getLogger().info("Joint damping: " + damping);
+		if (VERBOSE_INFO) getLogger().info("Joint damping: " + damping);
 		return true;
 	}
 	
@@ -835,12 +836,12 @@ public class LibIiwa extends RoboticsAPIApplication {
 		else if (controlInterface.getCode() == LibIiwaEnum.CONTROL_INTERFACE_SERVO.getCode())
 			this.enumControlInterface = LibIiwaEnum.CONTROL_INTERFACE_SERVO;
 		else {
-			if (VERBOSE) getLogger().warn("Invalid control interface: " + controlInterface.getCode());
+			if (VERBOSE_WARN) getLogger().warn("Invalid control interface: " + controlInterface.getCode());
 			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 
-		if (VERBOSE) getLogger().info("Control interface: " + this.enumControlInterface.toString());
+		if (VERBOSE_INFO) getLogger().info("Control interface: " + this.enumControlInterface.toString());
 		return true;
 	}
 
@@ -864,12 +865,12 @@ public class LibIiwa extends RoboticsAPIApplication {
 		else if (motionType.getCode() == LibIiwaEnum.MOTION_TYPE_CIRC.getCode())
 			this.enumMotionType = LibIiwaEnum.MOTION_TYPE_CIRC;
 		else {
-			if (VERBOSE) getLogger().warn("Invalid motion type: " + motionType.getCode());
+			if (VERBOSE_WARN) getLogger().warn("Invalid motion type: " + motionType.getCode());
 			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 
-		if (VERBOSE) getLogger().info("Motion type: " + this.enumMotionType.toString());
+		if (VERBOSE_INFO) getLogger().info("Motion type: " + this.enumMotionType.toString());
 		return true;
 	}
 	
@@ -882,7 +883,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	public boolean methSetControlMode(LibIiwaEnum controlMode) {
 		// stop and reset motion
 		this.methStopAndResetMotion();
-		
+
 		// set control mode
 		if (controlMode.getCode() == LibIiwaEnum.CONTROL_MODE_POSITION.getCode()) {
 			this.enumControlMode = LibIiwaEnum.CONTROL_MODE_POSITION;
@@ -901,12 +902,12 @@ public class LibIiwa extends RoboticsAPIApplication {
 			this.propCurrentControlMode = this.propControlModeCartesianSineImpedance;
 		}
 		else {
-			if (VERBOSE) getLogger().warn("Invalid control mode: " + controlMode.getCode());
+			if (VERBOSE_WARN) getLogger().warn("Invalid control mode: " + controlMode.getCode());
 			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 
-		if (VERBOSE) getLogger().info("Control mode: " + this.enumControlMode.toString());
+		if (VERBOSE_INFO) getLogger().info("Control mode: " + this.enumControlMode.toString());
 		return true;
 	}
 	
@@ -926,12 +927,12 @@ public class LibIiwa extends RoboticsAPIApplication {
 		else if (executionType.getCode() == LibIiwaEnum.EXECUTION_TYPE_SYNCHRONOUS.getCode())
 			this.enumExecutionType = LibIiwaEnum.EXECUTION_TYPE_SYNCHRONOUS;
 		else {
-			if (VERBOSE) getLogger().warn("Invalid execution type: " + executionType.getCode());
+			if (VERBOSE_WARN) getLogger().warn("Invalid execution type: " + executionType.getCode());
 			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
 			return false;
 		}
 
-		if (VERBOSE) getLogger().info("Execution type: " + this.enumExecutionType.toString());
+		if (VERBOSE_INFO) getLogger().info("Execution type: " + this.enumExecutionType.toString());
 		return true;
 	}
 	
@@ -951,11 +952,11 @@ public class LibIiwa extends RoboticsAPIApplication {
 		else if (communicationMode.getCode() == LibIiwaEnum.COMMUNICATION_MODE_PERIODICAL.getCode())
 			this.propCommunicationMode = LibIiwaEnum.COMMUNICATION_MODE_PERIODICAL;
 		else {
-			if (VERBOSE) getLogger().warn("Invalid communication mode: " + communicationMode.getCode());
+			if (VERBOSE_WARN) getLogger().warn("Invalid communication mode: " + communicationMode.getCode());
 			return false;
 		}
 
-		if (VERBOSE) getLogger().info("Communication mode: " + this.propCommunicationMode.toString());
+		if (VERBOSE_INFO) getLogger().info("Communication mode: " + this.propCommunicationMode.toString());
 		return true;
 	}
 
@@ -984,7 +985,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		// TODO: add other BasicMotions
 		JointPosition jointPosition = lbr.getCurrentJointPosition();
 
-		if (VERBOSE) getLogger().info(String.format("Joint position %1$s", Arrays.toString(joints)));
+		if (VERBOSE_INFO) getLogger().info(String.format("Joint position %1$s", Arrays.toString(joints)));
 
 		// validate
 		for (int i = 0; i < 7; i++)
@@ -992,7 +993,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 				if (joints[i] >= propMinJointPositionLimits.get(i) && joints[i] <= propMaxJointPositionLimits.get(i))
 					jointPosition.set(i, joints[i]);
 
-		if (VERBOSE) getLogger().info(String.format("Joint position %1$s", Arrays.toString(jointPosition.get())));
+		if (VERBOSE_INFO) getLogger().info(String.format("Joint position %1$s", Arrays.toString(jointPosition.get())));
 
 		// move
 		if (enumControlInterface == LibIiwaEnum.CONTROL_INTERFACE_STANDARD) {
@@ -1015,7 +1016,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		// TODO: add LINREL
 		Frame frame = lbr.getCurrentCartesianPosition(lbr.getFlange());
 
-		if (VERBOSE) getLogger().info(String.format("Cartesian pose [%.4f %.4f %.4f] [%.4f %.4f %.4f]", 
+		if (VERBOSE_INFO) getLogger().info(String.format("Cartesian pose [%.4f %.4f %.4f] [%.4f %.4f %.4f]", 
 				pose[0], pose[1], pose[2], pose[3], pose[4], pose[5]));
 
 		// validate
@@ -1032,7 +1033,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		if (!Double.isNaN(pose[5]))
 			frame.setGammaRad(pose[5]);
 
-		if (VERBOSE) getLogger().info(String.format("Cartesian pose [%.4f %.4f %.4f] [%.4f %.4f %.4f]", 
+		if (VERBOSE_INFO) getLogger().info(String.format("Cartesian pose [%.4f %.4f %.4f] [%.4f %.4f %.4f]", 
 				frame.getX(), frame.getY(), frame.getZ(), frame.getAlphaRad(), frame.getBetaRad(), frame.getGammaRad()));
 
 		// move
@@ -1071,7 +1072,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		MotionBatch motionBatch = new MotionBatch(BasicMotions.circ(auxiliaryPoint, endPoint).setJointJerkRel(this.propDesiredJointJerkRel).
 				setCartVelocity(this.propDesiredCartesianVelocity).setCartAcceleration(this.propDesiredCartesianAcceleration));
 		
-		if (VERBOSE) getLogger().info(String.format("CIRC motion [%.4f %.4f %.4f] [%.4f %.4f %.4f]", 
+		if (VERBOSE_INFO) getLogger().info(String.format("CIRC motion [%.4f %.4f %.4f] [%.4f %.4f %.4f]", 
 				auxiliaryPoint.getX(), auxiliaryPoint.getY(), auxiliaryPoint.getZ(), endPoint.getX(), endPoint.getY(), endPoint.getZ()));
 		
 		// move
@@ -1080,7 +1081,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		}
 		else if (enumControlInterface == LibIiwaEnum.CONTROL_INTERFACE_SERVO) {
 			this.enumLastError = LibIiwaEnum.INVALID_CONFIGURATION_ERROR;
-			getLogger().warn("Invalid configuration: CIRC motion is not implemented for Servo");
+			if (VERBOSE_WARN) getLogger().warn("Invalid configuration: CIRC motion is not implemented for Servo");
 			return false;
 		}
 		return false;
@@ -1101,7 +1102,9 @@ public class LibIiwa extends RoboticsAPIApplication {
 		if (this.propCurrentStandardMotionContainer != null)
 			try {
 				firedInfo = this.propCurrentStandardMotionContainer.getFiredBreakConditionInfo();
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
+				// TODO: handle exception
 			}
 		this.propCurrentState[STATE_FIRED_CONDITION] = firedInfo == null ? 0 : 1;
 		
@@ -1161,127 +1164,127 @@ public class LibIiwa extends RoboticsAPIApplication {
 		int commandCode = (int)Math.round(command[0]);
 		// empty commands
 		if (commandCode == LibIiwaEnum.COMMAND_PASS.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_PASS.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_PASS.toString());
 			return true;
 		}
 		// move command
 		else if (commandCode == LibIiwaEnum.COMMAND_STOP.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_STOP.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_STOP.toString());
 			return this.methStop();
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_JOINT_POSITION.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_JOINT_POSITION.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_JOINT_POSITION.toString());
 			return this.methGoToJointPosition(Arrays.copyOfRange(command, 1, 1 + 7));
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_CARTESIAN_POSE.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_CARTESIAN_POSE.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_CARTESIAN_POSE.toString());
 			return this.methGoToCartesianPose(Arrays.copyOfRange(command, 1, 1 + 6));
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_CIRC_MOTION.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_CIRC_MOTION.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_CIRC_MOTION.toString());
 			return this.methGoToCirc(Arrays.copyOfRange(command, 1, 1 + 6));
 		}
 		// configuration commands (limits and constants)
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_DESIRED_JOINT_VELOCITY_REL.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_DESIRED_JOINT_VELOCITY_REL.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_DESIRED_JOINT_VELOCITY_REL.toString());
 			return this.methSetDesiredJointVelocityRel(command[1]);
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_DESIRED_JOINT_ACCELERATION_REL.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_DESIRED_JOINT_ACCELERATION_REL.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_DESIRED_JOINT_ACCELERATION_REL.toString());
 			return this.methSetDesiredJointAccelerationRel(command[1]);
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_DESIRED_JOINT_JERK_REL.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_DESIRED_JOINT_JERK_REL.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_DESIRED_JOINT_JERK_REL.toString());
 			return this.methSetDesiredJointJerkRel(command[1]);
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_DESIRED_CARTESIAN_VELOCITY.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_DESIRED_CARTESIAN_VELOCITY.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_DESIRED_CARTESIAN_VELOCITY.toString());
 			return this.methSetDesiredCartesianVelocity(command[1]);
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_DESIRED_CARTESIAN_ACCELERATION.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_DESIRED_CARTESIAN_ACCELERATION.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_DESIRED_CARTESIAN_ACCELERATION.toString());
 			return this.methSetDesiredCartesianAcceleration(command[1]);
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_DESIRED_CARTESIAN_JERK.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_DESIRED_CARTESIAN_JERK.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_DESIRED_CARTESIAN_JERK.toString());
 			return this.methSetDesiredCartesianJerk(command[1]);
 		}
 		// configuration commands (conditions)
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_FORCE_CONDITION.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_FORCE_CONDITION.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_FORCE_CONDITION.toString());
 			return this.methSetForceCondition(Arrays.copyOfRange(command, 1, 1 + 6));
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_JOINT_TORQUE_CONDITION.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_JOINT_TORQUE_CONDITION.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_JOINT_TORQUE_CONDITION.toString());
 			return this.methSetJointTorqueCondition((int)Math.round(command[1]), Arrays.copyOfRange(command, 2, 2 + 2));
 		}
 		// configuration commands (impedance control)
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_STIFFNESS.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_STIFFNESS.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_STIFFNESS.toString());
 			return this.methSetCartesianStiffness(Arrays.copyOfRange(command, 1, 1 + 7));
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_DAMPING.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_DAMPING.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_DAMPING.toString());
 			return this.methSetCartesianDamping(Arrays.copyOfRange(command, 1, 1 + 7));
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_ADDITIONAL_CONTROL_FORCE.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_ADDITIONAL_CONTROL_FORCE.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_ADDITIONAL_CONTROL_FORCE.toString());
 			return this.methSetCartesianAdditionalControlForce(Arrays.copyOfRange(command, 1, 1 + 6));
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_MAX_CONTROL_FORCE.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_MAX_CONTROL_FORCE.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_MAX_CONTROL_FORCE.toString());
 			boolean addStopCondition = command[7] > 0;
 			return this.methSetCartesianMaxControlForce(Arrays.copyOfRange(command, 1, 1 + 6), addStopCondition);
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_MAX_CARTESIAN_VELOCITY.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_MAX_CARTESIAN_VELOCITY.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_MAX_CARTESIAN_VELOCITY.toString());
 			return this.methSetCartesianMaxCartesianVelocity(Arrays.copyOfRange(command, 1, 1 + 6));
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_MAX_PATH_DEVIATION.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_MAX_PATH_DEVIATION.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_MAX_PATH_DEVIATION.toString());
 			return this.methSetCartesianMaxPathDeviation(Arrays.copyOfRange(command, 1, 1 + 6));
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_JOINT_STIFFNESS.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_JOINT_STIFFNESS.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_JOINT_STIFFNESS.toString());
 			return this.methSetJointStiffness(Arrays.copyOfRange(command, 1, 1 + 7));
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_JOINT_DAMPING.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_JOINT_DAMPING.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_JOINT_DAMPING.toString());
 			return this.methSetJointDamping(Arrays.copyOfRange(command, 1, 1 + 7));
 		}
 		// configuration commands (motion and control)
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_CONTROL_INTERFACE.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_CONTROL_INTERFACE.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CONTROL_INTERFACE.toString());
 			LibIiwaEnum controlInterface = LibIiwaEnum.CONTROL_INTERFACE;
 			controlInterface.setCode(command[1]);
 			return this.methSetControlInterface(controlInterface);
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_MOTION_TYPE.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_MOTION_TYPE.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_MOTION_TYPE.toString());
 			LibIiwaEnum motionType = LibIiwaEnum.MOTION_TYPE;
 			motionType.setCode(command[1]);
 			return this.methSetMotionType(motionType);
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_CONTROL_MODE.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_CONTROL_MODE.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CONTROL_MODE.toString());
 			LibIiwaEnum controlMode = LibIiwaEnum.CONTROL_MODE;
 			controlMode.setCode(command[1]);
 			return this.methSetControlMode(controlMode);
 		}
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_EXECUTION_TYPE.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_EXECUTION_TYPE.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_EXECUTION_TYPE.toString());
 			LibIiwaEnum executionType = LibIiwaEnum.EXECUTION_TYPE;
 			executionType.setCode(command[1]);
 			return this.methSetExecutionType(executionType);
 		}
 		// configuration commands (communication)
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_COMMUNICATION_MODE.getCode()){
-			if (VERBOSE) getLogger().info(LibIiwaEnum.COMMAND_SET_COMMUNICATION_MODE.toString());
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_COMMUNICATION_MODE.toString());
 			LibIiwaEnum communicationMode = LibIiwaEnum.COMMUNICATION_MODE;
 			communicationMode.setCode(command[1]);
 			return this.methSetCommunicationMode(communicationMode);
 		}
-		if (VERBOSE) getLogger().warn("Unknown command code: " + commandCode);
+		if (VERBOSE_WARN) getLogger().warn("Unknown command code: " + commandCode);
 		return false;
 	}
 
@@ -1307,7 +1310,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 		double[] state = methUpdateAndGetCurrentState();
 		state[STATE_COMMAND_STATUS] = commandStatus ? 1.0 : 0.0;
 		state[STATE_LAST_ERROR] = this.enumLastError.getCode();
-		// if (VERBOSE) getLogger().info("STATE: " + state[STATE_COMMAND_STATUS] + " " + state[STATE_LAST_ERROR]);
+		// if (VERBOSE_INFO) getLogger().info("STATE: " + state[STATE_COMMAND_STATUS] + " " + state[STATE_LAST_ERROR]);
 		// send state
 		if (!this.propCommunication.methSendData(state)){
 			this.propShouldContinue = false;
@@ -1327,7 +1330,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 			long previousTimeStamp = 0;
 			double[] previousPosition = new double[lbr.getJointCount()];
 
-			if (VERBOSE) getLogger().info("App.thread: ComputeVelocity started");
+			if (VERBOSE_INFO) getLogger().info("App.thread: ComputeVelocity started");
 			
 			while(propShouldContinue) {
 				long currentTimeStamp = System.nanoTime();
@@ -1341,7 +1344,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 				ThreadUtil.milliSleep(10);
 			}
 			
-			if (VERBOSE) getLogger().info("App.thread: ComputeVelocity stopped");
+			if (VERBOSE_INFO) getLogger().info("App.thread: ComputeVelocity stopped");
 		}
 	};
 
@@ -1349,7 +1352,8 @@ public class LibIiwa extends RoboticsAPIApplication {
 	public void initialize() {
 		// application data
 		this.propApplicationData = getApplicationData();
-		VERBOSE = this.propApplicationData.getProcessData("verbose").getValue();
+		VERBOSE_INFO = this.propApplicationData.getProcessData("verbose_info").getValue();
+		VERBOSE_WARN = this.propApplicationData.getProcessData("verbose_warn").getValue();
 		
 		// TODO: get robot and tool
 		getController(CONTROLLER_NAME);
@@ -1364,7 +1368,8 @@ public class LibIiwa extends RoboticsAPIApplication {
 		this.propCurrentState = new double[STATE_LENGTH];
 		this.propCurrentJointVelocity = new double[lbr.getJointCount()];
 
-		this.propCommunication = new LibIiwaCommunication(getLogger(), COMMAND_LENGTH, false);
+		boolean double_precision = this.propApplicationData.getProcessData("communication_double_precision").getValue();
+		this.propCommunication = new LibIiwaCommunication(getLogger(), COMMAND_LENGTH, double_precision);
 		
 		this.propControlModePosition = new PositionControlMode();
 		this.propControlModeJointImpedance = new JointImpedanceControlMode(2000.0, 2000.0, 2000.0, 2000.0, 2000.0, 2000.0, 2000.0);
@@ -1392,10 +1397,10 @@ public class LibIiwa extends RoboticsAPIApplication {
 			@Override
 			public ErrorHandlingAction handleError(Device device, IMotionContainer failedContainer, List<IMotionContainer> canceledContainers) {
 				enumLastError = LibIiwaEnum.ASYNCHRONOUS_MOTION_ERROR;
-				getLogger().warn("Excecution of the following motion failed: " + failedContainer.getCommand().toString());
-				getLogger().warn("The following motions will not be executed:");
+				if (VERBOSE_WARN) getLogger().warn("Excecution of the following motion failed: " + failedContainer.getCommand().toString());
+				if (VERBOSE_WARN) getLogger().warn("The following motions will not be executed:");
 				for (int i = 0; i < canceledContainers.size(); i++)
-					getLogger().warn(" - " + canceledContainers.get(i).getCommand().toString());
+					if (VERBOSE_WARN) getLogger().warn(" - " + canceledContainers.get(i).getCommand().toString());
 				return ErrorHandlingAction.Ignore;
 			}
 		};
