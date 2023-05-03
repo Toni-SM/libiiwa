@@ -24,6 +24,7 @@ import com.kuka.roboticsAPI.executionModel.IFiredConditionInfo;
 import com.kuka.roboticsAPI.geometricModel.math.CoordinateAxis;
 
 import com.kuka.roboticsAPI.geometricModel.CartDOF;
+import com.kuka.roboticsAPI.geometricModel.CartPlane;
 import com.kuka.roboticsAPI.geometricModel.Frame;
 import com.kuka.roboticsAPI.geometricModel.Tool;
 
@@ -212,6 +213,42 @@ public class LibIiwa extends RoboticsAPIApplication {
 				return CoordinateAxis.Z;
 		}
 		throw new IllegalArgumentException("Invalid CoordinateAxis index: " + index);
+	}
+
+	private CartPlane _CartPlane(int index) {
+		switch (index) {
+			case 0:
+				return CartPlane.XY;
+			case 1:
+				return CartPlane.XZ;
+			case 2:
+				return CartPlane.YZ;
+		}
+		throw new IllegalArgumentException("Invalid CartPlane index: " + index);
+	}
+
+	private CartDOF _CartDOF(int index) {
+		switch (index) {
+			case 0:
+				return CartDOF.X;
+			case 1:
+				return CartDOF.Y;
+			case 2:
+				return CartDOF.Z;
+			case 3:
+				return CartDOF.A;
+			case 4:
+				return CartDOF.B;
+			case 5:
+				return CartDOF.C;
+			case 6:
+				return CartDOF.TRANSL;
+			case 7:
+				return CartDOF.ROT;
+			case 8:
+				return CartDOF.ALL;
+		}
+		throw new IllegalArgumentException("Invalid CartPlane index: " + index);
 	}
 
 	// ===========================================================
@@ -597,6 +634,8 @@ public class LibIiwa extends RoboticsAPIApplication {
 	/**
 	 * Define the Cartesian impedance control stiffness (translational: Nm, rotational: Nm/rad, null space: Nm/rad)
 	 * <p>
+	 * This method also affects the Cartesian impedance controller with overlaid force oscillation
+	 * <p>
 	 * translational: [0.0, 5000.0] (default: 2000.0)
 	 * <p>
 	 * rotational: [0.0, 300.0] (default: 200.0)
@@ -608,22 +647,36 @@ public class LibIiwa extends RoboticsAPIApplication {
 	 */
 	public boolean methSetCartesianStiffness(double[] stiffness) {
 		// translational
-		if (stiffness[0] >= 0.0 && stiffness[0] <= 5000.0)
+		if (stiffness[0] >= 0.0 && stiffness[0] <= 5000.0) {
 			this.propControlModeCartesianImpedance.parametrize(CartDOF.X).setStiffness(stiffness[0]);
-		if (stiffness[1] >= 0.0 && stiffness[1] <= 5000.0)
+			this.propControlModeCartesianSineImpedance.parametrize(CartDOF.X).setStiffness(stiffness[0]);
+		}
+		if (stiffness[1] >= 0.0 && stiffness[1] <= 5000.0) {
 			this.propControlModeCartesianImpedance.parametrize(CartDOF.Y).setStiffness(stiffness[1]);
-		if (stiffness[2] >= 0.0 && stiffness[2] <= 5000.0)
+			this.propControlModeCartesianSineImpedance.parametrize(CartDOF.Y).setStiffness(stiffness[1]);
+		}
+		if (stiffness[2] >= 0.0 && stiffness[2] <= 5000.0) {
 			this.propControlModeCartesianImpedance.parametrize(CartDOF.Z).setStiffness(stiffness[2]);
+			this.propControlModeCartesianSineImpedance.parametrize(CartDOF.Z).setStiffness(stiffness[2]);
+		}
 		// rotational
-		if (stiffness[3] >= 0.0 && stiffness[3] <= 300.0)
+		if (stiffness[3] >= 0.0 && stiffness[3] <= 300.0) {
 			this.propControlModeCartesianImpedance.parametrize(CartDOF.A).setStiffness(stiffness[3]);
-		if (stiffness[4] >= 0.0 && stiffness[4] <= 300.0)
+			this.propControlModeCartesianSineImpedance.parametrize(CartDOF.A).setStiffness(stiffness[3]);
+		}
+		if (stiffness[4] >= 0.0 && stiffness[4] <= 300.0) {
 			this.propControlModeCartesianImpedance.parametrize(CartDOF.B).setStiffness(stiffness[4]);
-		if (stiffness[5] >= 0.0 && stiffness[5] <= 300.0)
+			this.propControlModeCartesianSineImpedance.parametrize(CartDOF.B).setStiffness(stiffness[4]);
+		}
+		if (stiffness[5] >= 0.0 && stiffness[5] <= 300.0) {
 			this.propControlModeCartesianImpedance.parametrize(CartDOF.C).setStiffness(stiffness[5]);
+			this.propControlModeCartesianSineImpedance.parametrize(CartDOF.C).setStiffness(stiffness[5]);
+		}
 		// null space
-		if (stiffness[6] >= 0.0)
+		if (stiffness[6] >= 0.0) {
 			this.propControlModeCartesianImpedance.setNullSpaceStiffness(stiffness[6]);
+			this.propControlModeCartesianSineImpedance.setNullSpaceStiffness(stiffness[6]);
+		}
 		
 		// update smart servo
 		if (this.enumControlInterface == LibIiwaEnum.CONTROL_INTERFACE_SERVO) {
@@ -631,6 +684,18 @@ public class LibIiwa extends RoboticsAPIApplication {
 				if (this.propCurrentSmartServoRuntime != null){
 					try {
 						this.propCurrentSmartServoRuntime.changeControlModeSettings(this.propControlModeCartesianImpedance);
+					} 
+					catch (Exception e) {
+						this.enumLastError = LibIiwaEnum.ASYNCHRONOUS_MOTION_ERROR;
+						if (VERBOSE_WARN) getLogger().warn(e.getMessage());
+						return false;
+					}
+				}
+			}
+			else if (this.enumControlMode == LibIiwaEnum.CONTROL_MODE_CARTESIAN_SINE_IMPEDANCE) {
+				if (this.propCurrentSmartServoRuntime != null){
+					try {
+						this.propCurrentSmartServoRuntime.changeControlModeSettings(this.propControlModeCartesianSineImpedance);
 					} 
 					catch (Exception e) {
 						this.enumLastError = LibIiwaEnum.ASYNCHRONOUS_MOTION_ERROR;
@@ -647,6 +712,8 @@ public class LibIiwa extends RoboticsAPIApplication {
 	/**
 	 * Define the Cartesian impedance control damping
 	 * <p>
+	 * This method also affects the Cartesian impedance controller with overlaid force oscillation
+	 * <p>
 	 * translational: [0.1, 1.0] (default: 0.7)
 	 * <p>
 	 * rotational: [0.1, 1.0] (default: 0.7)
@@ -658,22 +725,36 @@ public class LibIiwa extends RoboticsAPIApplication {
 	 */
 	public boolean methSetCartesianDamping(double[] damping) {
 		// translational
-		if (damping[0] >= 0.1 && damping[0] <= 1.0)
+		if (damping[0] >= 0.1 && damping[0] <= 1.0) {
 			this.propControlModeCartesianImpedance.parametrize(CartDOF.X).setDamping(damping[0]);
-		if (damping[1] >= 0.1 && damping[1] <= 1.0)
+			this.propControlModeCartesianSineImpedance.parametrize(CartDOF.X).setDamping(damping[0]);
+		}
+		if (damping[1] >= 0.1 && damping[1] <= 1.0) {
 			this.propControlModeCartesianImpedance.parametrize(CartDOF.Y).setDamping(damping[1]);
-		if (damping[2] >= 0.1 && damping[2] <= 1.0)
+			this.propControlModeCartesianSineImpedance.parametrize(CartDOF.Y).setDamping(damping[1]);
+		}
+		if (damping[2] >= 0.1 && damping[2] <= 1.0) {
 			this.propControlModeCartesianImpedance.parametrize(CartDOF.Z).setDamping(damping[2]);
+			this.propControlModeCartesianSineImpedance.parametrize(CartDOF.Z).setDamping(damping[2]);
+		}
 		// rotational
-		if (damping[3] >= 0.1 && damping[3] <= 1.0)
+		if (damping[3] >= 0.1 && damping[3] <= 1.0) {
 			this.propControlModeCartesianImpedance.parametrize(CartDOF.A).setDamping(damping[3]);
-		if (damping[4] >= 0.1 && damping[4] <= 1.0)
+			this.propControlModeCartesianSineImpedance.parametrize(CartDOF.A).setDamping(damping[3]);
+		}
+		if (damping[4] >= 0.1 && damping[4] <= 1.0) {
 			this.propControlModeCartesianImpedance.parametrize(CartDOF.B).setDamping(damping[4]);
-		if (damping[5] >= 0.1 && damping[5] <= 1.0)
+			this.propControlModeCartesianSineImpedance.parametrize(CartDOF.B).setDamping(damping[4]);
+		}
+		if (damping[5] >= 0.1 && damping[5] <= 1.0) {
 			this.propControlModeCartesianImpedance.parametrize(CartDOF.C).setDamping(damping[5]);
+			this.propControlModeCartesianSineImpedance.parametrize(CartDOF.C).setDamping(damping[5]);
+		}
 		// null space
-		if (damping[6] >= 0.3 && damping[6] <= 1.0)
+		if (damping[6] >= 0.3 && damping[6] <= 1.0) {
 			this.propControlModeCartesianImpedance.setNullSpaceDamping(damping[6]);
+			this.propControlModeCartesianSineImpedance.setNullSpaceDamping(damping[6]);
+		}
 		
 		// update smart servo
 		if (this.enumControlInterface == LibIiwaEnum.CONTROL_INTERFACE_SERVO) {
@@ -681,6 +762,18 @@ public class LibIiwa extends RoboticsAPIApplication {
 				if (this.propCurrentSmartServoRuntime != null){
 					try {
 						this.propCurrentSmartServoRuntime.changeControlModeSettings(this.propControlModeCartesianImpedance);
+					} 
+					catch (Exception e) {
+						this.enumLastError = LibIiwaEnum.ASYNCHRONOUS_MOTION_ERROR;
+						if (VERBOSE_WARN) getLogger().warn(e.getMessage());
+						return false;
+					}
+				}
+			}
+			else if (this.enumControlMode == LibIiwaEnum.CONTROL_MODE_CARTESIAN_SINE_IMPEDANCE) {
+				if (this.propCurrentSmartServoRuntime != null){
+					try {
+						this.propCurrentSmartServoRuntime.changeControlModeSettings(this.propControlModeCartesianSineImpedance);
 					} 
 					catch (Exception e) {
 						this.enumLastError = LibIiwaEnum.ASYNCHRONOUS_MOTION_ERROR;
@@ -717,6 +810,8 @@ public class LibIiwa extends RoboticsAPIApplication {
 	/**
 	 * Define the limitation of the maximum force / torque on the TCP (translational: N, rotational: Nm)
 	 * <p>
+	 * This method also affects the Cartesian impedance controller with overlaid force oscillation
+	 * <p>
 	 * translational: [0.0, Inf) (default: 1e6)
 	 * <p>
 	 * rotational: [0.0, Inf) (default: 1e6)
@@ -734,12 +829,15 @@ public class LibIiwa extends RoboticsAPIApplication {
 		double c = force[5] >= 0 ? force[5] : 1e6;
 
 		this.propControlModeCartesianImpedance.setMaxControlForce(x, y, z, a, b, c, addStopCondition);
+		this.propControlModeCartesianSineImpedance.setMaxControlForce(x, y, z, a, b, c, addStopCondition);
 		if (VERBOSE_INFO) getLogger().info("Max Cartesian control force: " + Arrays.toString(force));
 		return true;
 	}
 	
 	/**
 	 * Define the maximum Cartesian velocity at which motion is aborted if the limit is exceeded (translational: mm/s, rotational: rad/s)
+	 * <p>
+	 * This method also affects the Cartesian impedance controller with overlaid force oscillation
 	 * <p>
 	 * translational: [0.0, Inf) (default if invalid: 1e6)
 	 * <p>
@@ -757,12 +855,15 @@ public class LibIiwa extends RoboticsAPIApplication {
 		double c = velocity[5] >= 0 ? velocity[5] : 1e6;
 		
 		this.propControlModeCartesianImpedance.setMaxCartesianVelocity(x, y, z, a, b, c);
+		this.propControlModeCartesianSineImpedance.setMaxCartesianVelocity(x, y, z, a, b, c);
 		if (VERBOSE_INFO) getLogger().info("Max Cartesian velocity: " + Arrays.toString(velocity));
 		return true;
 	}
 	
 	/**
 	 * Define the maximum permissible Cartesian path deviation at which motion is aborted if the limit is exceeded (translational: mm, rotational: rad)
+	 * <p>
+	 * This method also affects the Cartesian impedance controller with overlaid force oscillation
 	 * <p>
 	 * translational: [0.0, Inf) (default if invalid: 1e6)
 	 * <p>
@@ -780,7 +881,306 @@ public class LibIiwa extends RoboticsAPIApplication {
 		double c = deviation[5] >= 0 ? deviation[5] : 1e6;
 		
 		this.propControlModeCartesianImpedance.setMaxPathDeviation(x, y, z, a, b, c);
-		if (VERBOSE_INFO) getLogger().info("Max path deviation: " + Arrays.toString(deviation));
+		this.propControlModeCartesianSineImpedance.setMaxPathDeviation(x, y, z, a, b, c);
+		if (VERBOSE_INFO) getLogger().info("Max Cartesian path deviation: " + Arrays.toString(deviation));
+		return true;
+	}
+	
+	/**
+	 * Define the amplitude of the force oscillation (translational: N, rotational: Nm)
+	 * <p>
+	 * translational: [0.0, Inf) (default if invalid: 0)
+	 * <p>
+	 * rotational: [0.0, Inf) (default if invalid: 0)
+	 * 
+	 * @param amplitude translational (3) and rotational (3) amplitude
+	 * @return true
+	 */
+	public boolean methSetCartesianAmplitude(double[] amplitude) {
+		double x = amplitude[0] >= 0 ? amplitude[0] : 0.0;
+		double y = amplitude[1] >= 0 ? amplitude[1] : 0.0;
+		double z = amplitude[2] >= 0 ? amplitude[2] : 0.0;
+		double a = amplitude[3] >= 0 ? amplitude[3] : 0.0;
+		double b = amplitude[4] >= 0 ? amplitude[4] : 0.0;
+		double c = amplitude[5] >= 0 ? amplitude[5] : 0.0;
+
+		// translational
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.X).setAmplitude(x);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.Y).setAmplitude(y);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.Z).setAmplitude(z);
+		// rotational
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.A).setAmplitude(a);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.B).setAmplitude(b);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.C).setAmplitude(c);
+		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) amplitude: " + Arrays.toString(amplitude));
+		return true;
+	}
+	
+	/**
+	 * Define the frequency of the force oscillation (frequency: Hz)
+	 * <p>
+	 * frequency: [0.0, 15.0] (default if invalid: 0)
+	 * 
+	 * @param frequency translational (3) and rotational (3) frequency
+	 * @return true
+	 */
+	public boolean methSetCartesianFrequency(double[] frequency) {
+		double x = frequency[0] >= 0 ? frequency[0] : 0.0;
+		double y = frequency[1] >= 0 ? frequency[1] : 0.0;
+		double z = frequency[2] >= 0 ? frequency[2] : 0.0;
+		double a = frequency[3] >= 0 ? frequency[3] : 0.0;
+		double b = frequency[4] >= 0 ? frequency[4] : 0.0;
+		double c = frequency[5] >= 0 ? frequency[5] : 0.0;
+
+		// translational
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.X).setFrequency(x);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.Y).setFrequency(y);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.Z).setFrequency(z);
+		// rotational
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.A).setFrequency(a);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.B).setFrequency(b);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.C).setFrequency(c);
+		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) frequency: " + Arrays.toString(frequency));
+		return true;
+	}
+	
+	/**
+	 * Define the phase offset of the force oscillation at the start of the force overlay (phase: degrees)
+	 * <p>
+	 * phase: [0.0, Inf) (default if invalid: 0)
+	 * 
+	 * @param phase translational (3) and rotational (3) phase
+	 * @return true
+	 */
+	public boolean methSetCartesianPhaseDeg(double[] phase) {
+		double x = phase[0] >= 0 ? phase[0] : 0.0;
+		double y = phase[1] >= 0 ? phase[1] : 0.0;
+		double z = phase[2] >= 0 ? phase[2] : 0.0;
+		double a = phase[3] >= 0 ? phase[3] : 0.0;
+		double b = phase[4] >= 0 ? phase[4] : 0.0;
+		double c = phase[5] >= 0 ? phase[5] : 0.0;
+
+		// translational
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.X).setPhaseDeg(x);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.Y).setPhaseDeg(y);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.Z).setPhaseDeg(z);
+		// rotational
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.A).setPhaseDeg(a);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.B).setPhaseDeg(b);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.C).setPhaseDeg(c);
+		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) phase: " + Arrays.toString(phase));
+		return true;
+	}
+	
+	/**
+	 * Define a constant force overlaid in addition to the
+overlaid force oscillation (translational: N, rotational: Nm)
+	 * <p>
+	 * translational: (-Inf, Inf) (default 0)
+	 * <p>
+	 * rotational: (-Inf, Inf) (default 0)
+	 * 
+	 * @param bias translational (3) and rotational (3) bias
+	 * @return true
+	 */
+	public boolean methSetCartesianBias(double[] bias) {
+		// translational
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.X).setBias(bias[0]);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.Y).setBias(bias[1]);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.Z).setBias(bias[2]);
+		// rotational
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.A).setBias(bias[3]);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.B).setBias(bias[4]);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.C).setBias(bias[5]);
+		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) bias: " + Arrays.toString(bias));
+		return true;
+	}
+	
+	/**
+	 * Define the force limitation of the force oscillation (translational: N, rotational: Nm)
+	 * <p>
+	 * translational: [0.0, Inf) (default if invalid: 1e6)
+	 * <p>
+	 * rotational: [0.0, Inf) (default if invalid: 1e6)
+	 * 
+	 * @param force translational (3) and rotational (3) force
+	 * @return true
+	 */
+	public boolean methSetCartesianForceLimit(double[] force) {
+		double x = force[0] >= 0 ? force[0] : 1e6;
+		double y = force[1] >= 0 ? force[1] : 1e6;
+		double z = force[2] >= 0 ? force[2] : 1e6;
+		double a = force[3] >= 0 ? force[3] : 1e6;
+		double b = force[4] >= 0 ? force[4] : 1e6;
+		double c = force[5] >= 0 ? force[5] : 1e6;
+
+		// translational
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.X).setForceLimit(x);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.Y).setForceLimit(y);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.Z).setForceLimit(z);
+		// rotational
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.A).setForceLimit(a);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.B).setForceLimit(b);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.C).setForceLimit(c);
+		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) force limit: " + Arrays.toString(force));
+		return true;
+	}
+	
+	/**
+	 * Define the maximum deflection due to the force oscillation (translational: mm, rotational: radians)
+	 * <p>
+	 * translational: [0.0, Inf) (default if invalid: 1e6)
+	 * <p>
+	 * rotational: [0.0, Inf) (default if invalid: 1e6)
+	 * 
+	 * @param position translational (3) and rotational (3) position
+	 * @return true
+	 */
+	public boolean methSetCartesianPositionLimit(double[] position) {
+		double x = position[0] >= 0 ? position[0] : 1e6;
+		double y = position[1] >= 0 ? position[1] : 1e6;
+		double z = position[2] >= 0 ? position[2] : 1e6;
+		double a = position[3] >= 0 ? position[3] : 1e6;
+		double b = position[4] >= 0 ? position[4] : 1e6;
+		double c = position[5] >= 0 ? position[5] : 1e6;
+
+		// translational
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.X).setPositionLimit(x);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.Y).setPositionLimit(y);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.Z).setPositionLimit(z);
+		// rotational
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.A).setPositionLimit(a);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.B).setPositionLimit(b);
+		this.propControlModeCartesianSineImpedance.parametrize(CartDOF.C).setPositionLimit(c);
+		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) position limit: " + Arrays.toString(position));
+		return true;
+	}
+	
+	/**
+	 * Define the overall duration of the force oscillation (time: seconds)
+	 * <p>
+	 * time: [0.0, Inf) (default if invalid: 1e9)
+	 * 
+	 * @param time duration of the force oscillation
+	 * @return true
+	 */
+	public boolean methSetCartesianTotalTime(double time) {
+		time = time >= 0 ? time : 1e9;
+
+		this.propControlModeCartesianSineImpedance.setTotalTime(time);
+		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) total time: " + time);
+		return true;
+	}
+	
+	/**
+	 * Define the rise time of the force oscillation (time: seconds)
+	 * <p>
+	 * time: [0.0, Inf) (default if invalid: 0)
+	 * 
+	 * @param time rise time
+	 * @return true
+	 */
+	public boolean methSetCartesianRiseTime(double time) {
+		time = time >= 0 ? time : 0.0;
+
+		this.propControlModeCartesianSineImpedance.setRiseTime(time);
+		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) rise time: " + time);
+		return true;
+	}
+	
+	/**
+	 * Define the hold time of the force oscillation (time: seconds)
+	 * <p>
+	 * time: [0.0, Inf) (default if invalid: 1e9)
+	 * 
+	 * @param time hold time
+	 * @return true
+	 */
+	public boolean methSetCartesianHoldTime(double time) {
+		time = time >= 0 ? time : 1e9;
+
+		this.propControlModeCartesianSineImpedance.setHoldTime(time);
+		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) hold time: " + time);
+		return true;
+	}
+	
+	/**
+	 * Define the fall time of the force oscillation (time: seconds)
+	 * <p>
+	 * time: [0.0, Inf) (default if invalid: 0)
+	 * 
+	 * @param time fall time
+	 * @return true
+	 */
+	public boolean methSetCartesianFallTime(double time) {
+		time = time >= 0 ? time : 0.0;
+
+		this.propControlModeCartesianSineImpedance.setFallTime(time);
+		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) fall time: " + time);
+		return true;
+	}
+	
+	/**
+	 * Define whether the oscillation is terminated or continued after the end of the motion
+	 * 
+	 * @param active if the oscillation is continued after the end of the motion
+	 * @return true
+	 */
+	public boolean methSetCartesianStayActiveUntilPatternFinished(boolean active) {
+		this.propControlModeCartesianSineImpedance.setStayActiveUntilPatternFinished(active);
+		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) stay active: " + active);
+		return true;
+	}
+	
+	/**
+	 * Overlay a constant force, in one Cartesian direction, that does not change over time
+	 * 
+	 * @param overlay Cartesian DOF (1), force (1) and stiffness (1)
+	 * @return true
+	 */
+	public boolean methSetCartesianCreateDesiredForce(double[] overlay) {
+		CartDOF dof = _CartDOF((int)Math.round(overlay[0]));
+		this.propControlModeCartesianSineImpedance = CartesianSineImpedanceControlMode.createDesiredForce(dof, overlay[1], overlay[2]);
+		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) create desired force: " + overlay);
+		return true;
+	}
+	
+	/**
+	 * Overlay a simple force oscillation in one Cartesian direction
+	 * 
+	 * @param overlay Cartesian DOF (1), frequency (1), amplitude (1) and stiffness (1)
+	 * @return true
+	 */
+	public boolean methSetCartesianCreateSinePattern(double[] overlay) {
+		CartDOF dof = _CartDOF((int)Math.round(overlay[0]));
+		this.propControlModeCartesianSineImpedance = CartesianSineImpedanceControlMode.createSinePattern(dof, overlay[1], overlay[2], overlay[3]);
+		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) create sine pattern: " + overlay);
+		return true;
+	}
+	
+	/**
+	 * Overlay a 2-dimensional oscillation in one plane
+	 * 
+	 * @param overlay plane (1), frequency (1), amplitude (1) and stiffness (1)
+	 * @return true
+	 */
+	public boolean methSetCartesianCreateLissajousPattern(double[] overlay) {
+		CartPlane plane = _CartPlane((int)Math.round(overlay[0]));
+		this.propControlModeCartesianSineImpedance = CartesianSineImpedanceControlMode.createLissajousPattern(plane, overlay[1], overlay[2], overlay[3]);
+		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) create Lissajous pattern: " + overlay);
+		return true;
+	}
+	
+	/**
+	 * Overlay a spiral-shaped force oscillation in one plane
+	 * 
+	 * @param overlay plane (1), frequency (1), amplitude (1), stiffness (1) and total time (1)
+	 * @return true
+	 */
+	public boolean methSetCartesianCreateSpiralPattern(double[] overlay) {
+		CartPlane plane = _CartPlane((int)Math.round(overlay[0]));
+		this.propControlModeCartesianSineImpedance = CartesianSineImpedanceControlMode.createSpiralPattern(plane, overlay[1], overlay[2], overlay[3], overlay[4]);
+		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) create spiral pattern: " + overlay);
 		return true;
 	}
 	
@@ -1251,6 +1651,67 @@ public class LibIiwa extends RoboticsAPIApplication {
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_JOINT_DAMPING.getCode()){
 			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_JOINT_DAMPING.toString());
 			return this.methSetJointDamping(Arrays.copyOfRange(command, 1, 1 + 7));
+		}
+		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_AMPLITUDE.getCode()){
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_AMPLITUDE.toString());
+			return this.methSetCartesianAmplitude(Arrays.copyOfRange(command, 1, 1 + 6));
+		}
+		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_FREQUENCY.getCode()){
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_FREQUENCY.toString());
+			return this.methSetCartesianFrequency(Arrays.copyOfRange(command, 1, 1 + 6));
+		}
+		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_PHASE.getCode()){
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_PHASE.toString());
+			return this.methSetCartesianPhaseDeg(Arrays.copyOfRange(command, 1, 1 + 6));
+		}
+		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_BIAS.getCode()){
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_BIAS.toString());
+			return this.methSetCartesianBias(Arrays.copyOfRange(command, 1, 1 + 6));
+		}
+		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_FORCE_LIMIT.getCode()){
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_FORCE_LIMIT.toString());
+			return this.methSetCartesianForceLimit(Arrays.copyOfRange(command, 1, 1 + 6));
+		}
+		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_POSITION_LIMIT.getCode()){
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_POSITION_LIMIT.toString());
+			return this.methSetCartesianPositionLimit(Arrays.copyOfRange(command, 1, 1 + 6));
+		}
+		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_TOTAL_TIME.getCode()){
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_TOTAL_TIME.toString());
+			return this.methSetCartesianTotalTime(command[1]);
+		}
+		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_RISE_TIME.getCode()){
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_RISE_TIME.toString());
+			return this.methSetCartesianRiseTime(command[1]);
+		}
+		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_HOLD_TIME.getCode()){
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_HOLD_TIME.toString());
+			return this.methSetCartesianHoldTime(command[1]);
+		}
+		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_FALL_TIME.getCode()){
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_FALL_TIME.toString());
+			return this.methSetCartesianFallTime(command[1]);
+		}
+		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_STAY_ACTIVE_UNTIL_PATTERN_FINISHED.getCode()){
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_STAY_ACTIVE_UNTIL_PATTERN_FINISHED.toString());
+			boolean active = command[1] > 0;
+			return this.methSetCartesianStayActiveUntilPatternFinished(active);
+		}
+		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_CREATE_DESIRED_FORCE.getCode()){
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_CREATE_DESIRED_FORCE.toString());
+			return this.methSetCartesianCreateDesiredForce(Arrays.copyOfRange(command, 1, 1 + 3));
+		}
+		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_CREATE_SINE_PATTERN.getCode()){
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_CREATE_SINE_PATTERN.toString());
+			return this.methSetCartesianCreateSinePattern(Arrays.copyOfRange(command, 1, 1 + 4));
+		}
+		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_CREATE_LISSAJOUS_PATTERN.getCode()){
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_CREATE_LISSAJOUS_PATTERN.toString());
+			return this.methSetCartesianCreateLissajousPattern(Arrays.copyOfRange(command, 1, 1 + 4));
+		}
+		else if (commandCode == LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_CREATE_SPIRAL_PATTERN.getCode()){
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_CARTESIAN_SINE_CREATE_SPIRAL_PATTERN.toString());
+			return this.methSetCartesianCreateSpiralPattern(Arrays.copyOfRange(command, 1, 1 + 5));
 		}
 		// configuration commands (motion and control)
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_CONTROL_INTERFACE.getCode()){
