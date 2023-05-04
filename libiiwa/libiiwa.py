@@ -19,8 +19,8 @@ __all__ = [
     'API_VERSION',
 ]
 
-__version__ = '0.1.0-beta'
-API_VERSION = "0.1.1-beta"
+__version__ = '0.1.1-beta'
+API_VERSION = "0.2.1-beta"
 
 # application errors
 class Error(Enum):
