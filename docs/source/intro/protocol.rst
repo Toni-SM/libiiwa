@@ -106,6 +106,51 @@ Request (command)
     * - 228
       - 7-element numeric array (axis 1 to 7) in range [0, 1]
       - Define the damping for joint impedance control 
+    * - 229
+      - 
+      - Define the Cartesian overlaid force oscillation amplitude
+    * - 230
+      - 
+      - Define the Cartesian overlaid force oscillation frequency
+    * - 231
+      - 
+      - Define the Cartesian overlaid force oscillation phase
+    * - 232
+      - 
+      - Define the Cartesian overlaid force oscillation bias
+    * - 233
+      - 
+      - Define the Cartesian overlaid force oscillation foce limit
+    * - 234
+      - 
+      - Define the Cartesian overlaid force oscillation position limit
+    * - 235
+      - 
+      - Define the Cartesian overlaid force oscillation total time
+    * - 236
+      - 
+      - Define the Cartesian overlaid force oscillation rise time
+    * - 237
+      - 
+      - Define the Cartesian overlaid force oscillation hold time
+    * - 238
+      - 
+      - Define the Cartesian overlaid force oscillation fall time
+    * - 239 
+      - 
+      - Define whether the Cartesian overlaid force oscillation is terminated or continued after the end of the motion
+    * - 240
+      - 3-element numeric array (Cartesian DOF, force and stiffness)
+      - Overlay a constant force, in one Cartesian direction
+    * - 241
+      - 4-element numeric array (Cartesian DOF, frequency, amplitude and stiffness)
+      - Overlay a simple force oscillation in one Cartesian direction
+    * - 242
+      - 4-element numeric array (Cartesian plane, frequency, amplitude and stiffness)
+      - Overlay a 2-dimensional oscillation in one plane (Lissajous curve)
+    * - 243
+      - 5-element numeric array (Cartesian plane, frequency, amplitude and stiffness and total time)
+      - Overlay a spiral-shaped force oscillation in one plane
     * - 
       - 
       - 
@@ -213,7 +258,7 @@ Communication modes
 
 .. warning::
 
-    Periodical communication mode is not currently implemente!
+    Periodical communication mode is not currently implemented
 
 .. list-table::
     :header-rows: 1
