@@ -74,6 +74,25 @@ class ExecutionType(Enum):
     EXECUTION_TYPE_ASYNCHRONOUS = 51
     EXECUTION_TYPE_SYNCHRONOUS = 52
 
+# Cartesian DOF
+class CartesianDOF(Enum):
+    """Cartesian DOF
+    """
+    X = 0
+    Y = 1
+    Z = 2
+    A = 3
+    B = 4
+    C = 5
+
+# Cartesian plane
+class CartesianPlane(Enum):
+    """Cartesian plane
+    """
+    XY = 0
+    XZ = 1
+    YZ = 2
+
 # control command
 COMMAND_STOP = 101
 COMMAND_JOINT_POSITION = 102
@@ -99,6 +118,21 @@ COMMAND_SET_CARTESIAN_MAX_CARTESIAN_VELOCITY = 225
 COMMAND_SET_CARTESIAN_MAX_PATH_DEVIATION = 226
 COMMAND_SET_JOINT_STIFFNESS = 227
 COMMAND_SET_JOINT_DAMPING = 228
+COMMAND_SET_CARTESIAN_SINE_AMPLITUDE = 229
+COMMAND_SET_CARTESIAN_SINE_FREQUENCY = 230
+COMMAND_SET_CARTESIAN_SINE_PHASE = 231
+COMMAND_SET_CARTESIAN_SINE_BIAS = 232
+COMMAND_SET_CARTESIAN_SINE_FORCE_LIMIT = 233
+COMMAND_SET_CARTESIAN_SINE_POSITION_LIMIT = 234
+COMMAND_SET_CARTESIAN_SINE_TOTAL_TIME = 235
+COMMAND_SET_CARTESIAN_SINE_RISE_TIME = 236
+COMMAND_SET_CARTESIAN_SINE_HOLD_TIME = 237
+COMMAND_SET_CARTESIAN_SINE_FALL_TIME = 238
+COMMAND_SET_CARTESIAN_SINE_STAY_ACTIVE_UNTIL_PATTERN_FINISHED = 239
+COMMAND_SET_CARTESIAN_SINE_CREATE_DESIRED_FORCE = 240
+COMMAND_SET_CARTESIAN_SINE_CREATE_SINE_PATTERN = 241
+COMMAND_SET_CARTESIAN_SINE_CREATE_LISSAJOUS_PATTERN = 242
+COMMAND_SET_CARTESIAN_SINE_CREATE_SPIRAL_PATTERN = 243
 
 # configuration commands (motion and control)
 COMMAND_SET_COMMUNICATION_MODE = 301
@@ -447,7 +481,7 @@ class LibIiwa:
                                 millimeters: bool = False) -> bool:
         """Perform a circular motion
 
-        Circular motion is deined by an auxiliary position and an end position. 
+        Circular motion is defined by an auxiliary position and an end position.
         The coordinates of the auxiliary position and end position are Cartesian and absolute.
         The current frame orientation will be used to calculate the circular motion
 
@@ -946,6 +980,173 @@ class LibIiwa:
             rotational = np.radians(rotational)
         command = [COMMAND_SET_CARTESIAN_MAX_PATH_DEVIATION] + translational.tolist() + rotational.tolist() \
             + [0] * (self._communication.COMMAND_LENGTH - 7)
+        return self._communication.set_command(command)
+
+    def overlay_desired_force(self,
+                              dof: CartesianDOF,
+                              force: float,          
+                              stiffness: float) -> bool:
+        """Overlay a constant force, in one Cartesian direction, that does not change over time
+
+        :param dof: Cartesian DOF
+        :type dof: CartesianDOF
+        :param force: Overlaid constant force.
+                      In N for translational DOFs, in Nm for rotational DOFs
+        :type force: float
+        :param stiffness: Stiffness value for the specified DOF.
+                          In N/m for translational DOFs, in Nm/rad for rotational DOFs
+        :type stiffness: float
+
+        :raises AssertionError: If the force is not in the range [0.0, Inf)
+        :raises AssertionError: If the stiffness is not in the range [0.0, 5000] for translational DOFs or [0.0, 300] for rotational DOFs
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+
+        Example::
+
+            # exert an additional pressing constant force of 5 N in the Z direction
+            >>> iiwa.overlay_desired_force(CartesianDOF.Z, 5.0, 4000.0)
+            True
+        """
+        assert force >= 0.0, "Invalid range [0.0, Inf)"
+        if dof.value <= 2:
+            assert stiffness >= 0.0 and stiffness <= 5000.0, "Invalid range [0.0, 5000.0]"
+        else:
+            assert stiffness >= 0.0 and stiffness <= 300.0, "Invalid range [0.0, 300.0]"
+        command = [COMMAND_SET_CARTESIAN_SINE_CREATE_SINE_PATTERN] + [dof.value, force, stiffness] + \
+            + [0] * (self._communication.COMMAND_LENGTH - 4)
+        return self._communication.set_command(command)
+
+    def overlay_sine_pattern(self,
+                             dof: CartesianDOF,
+                             frequency: float,          
+                             amplitude: float,
+                             stiffness: float) -> bool:
+        """Overlay a simple force oscillation in one Cartesian direction
+
+        :param dof: Cartesian DOF
+        :type dof: CartesianDOF
+        :param frequency: Frequency of the oscillation in Hz
+        :type frequency: float
+        :param amplitude: Amplitude of the oscillation which is overlaid in the direction of the specified DOF.
+                          In N for translational DOFs, in Nm for rotational DOFs
+        :type amplitude: float
+        :param stiffness: Stiffness value for the specified DOF.
+                          In N/m for translational DOFs, in Nm/rad for rotational DOFs
+        :type stiffness: float
+
+        :raises AssertionError: If the frequency is not in the range [0.0, 15.0]
+        :raises AssertionError: If the amplitude is not in the range [0.0, Inf)
+        :raises AssertionError: If the stiffness is not in the range [0.0, 5000] for translational DOFs or [0.0, 300] for rotational DOFs
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+
+        Example::
+
+            # move in a wave path with a deflection of about 0.10 meters (derived from amplitude and stiffness) 
+            # and a frequency of 2 Hz in the X direction
+            >>> iiwa.overlay_sine_pattern(CartesianDOF.X, 2.0, 50.0, 500.0)
+            True
+        """
+        assert frequency >= 0.0 and frequency <= 15.0, "Invalid range [0.0, 15.0]"
+        assert amplitude >= 0.0, "Invalid range [0.0, Inf)"
+        if dof.value <= 2:
+            assert stiffness >= 0.0 and stiffness <= 5000.0, "Invalid range [0.0, 5000.0]"
+        else:
+            assert stiffness >= 0.0 and stiffness <= 300.0, "Invalid range [0.0, 300.0]"
+        command = [COMMAND_SET_CARTESIAN_SINE_CREATE_SINE_PATTERN] + [dof.value, frequency, amplitude, stiffness] + \
+            + [0] * (self._communication.COMMAND_LENGTH - 5)
+        return self._communication.set_command(command)
+
+    def overlay_lissajous_pattern(self,
+                                  plane: CartesianPlane,
+                                  frequency: float,          
+                                  amplitude: float,
+                                  stiffness: float) -> bool:
+        """Overlay a 2-dimensional oscillation in one plane
+
+        The parameters of the second DOF of the plane are calculated to generate a Lissajous curve
+
+        - amplitude ratio (1st DOF : 2nd DOF): 1 : 1
+        - frequency ratio (1st DOF : 2nd DOF): 1 : 0.4
+        - phase offset between 1st and 2nd DOF: pi / 2
+
+        :param dof: Cartesian plane
+        :type dof: CartesianPlane
+        :param frequency: Frequency of the oscillation for the first DOF of the plane in Hz
+        :type frequency: float
+        :param amplitude: Amplitude of the oscillation for both DOFs in N
+        :type amplitude: float
+        :param stiffness: Stiffness value for both DOFs in N/m
+        :type stiffness: float
+
+        :raises AssertionError: If the frequency is not in the range [0.0, 15.0]
+        :raises AssertionError: If the amplitude is not in the range [0.0, Inf)
+        :raises AssertionError: If the stiffness is not in the range [0.0, 5000]
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+
+        Example::
+
+            # generate an oscillation with a frequency ratio X : Y of 1 : 0.4
+            >>> iiwa.overlay_lissajous_pattern(CartesianPlane.XY, 10.0, 50.0, 500.0)
+            True
+        """
+        assert frequency >= 0.0 and frequency <= 15.0, "Invalid range [0.0, 15.0]"
+        assert amplitude >= 0.0, "Invalid range [0.0, Inf)"
+        assert stiffness >= 0.0 and stiffness <= 5000.0, "Invalid range [0.0, 5000.0]"
+        command = [COMMAND_SET_CARTESIAN_SINE_CREATE_SINE_PATTERN] + [plane.value, frequency, amplitude, stiffness] + \
+            + [0] * (self._communication.COMMAND_LENGTH - 5)
+        return self._communication.set_command(command)
+
+    def overlay_spiral_pattern(self,
+                               plane: CartesianPlane,
+                               frequency: float,          
+                               amplitude: float,
+                               stiffness: float,
+                               total_time: float) -> bool:
+        """Overlay a spiral-shaped force oscillation in one plane
+
+        The force characteristic is created by overlaying 2 sinusoidal force oscillations
+
+        - phase offset between 1st and 2nd DOF: pi / 2
+
+        :param dof: Cartesian plane
+        :type dof: CartesianPlane
+        :param frequency: Frequency of the oscillation for both DOFs in Hz
+        :type frequency: float
+        :param amplitude: Amplitude of the oscillation for both DOFs in N
+        :type amplitude: float
+        :param stiffness: Stiffness value for both DOFs in N/m
+        :type stiffness: float
+        :param total_time: Total time for the spiral-shaped oscillation in seconds
+        :type total_time: float
+
+        :raises AssertionError: If the frequency is not in the range [0.0, 15.0]
+        :raises AssertionError: If the amplitude is not in the range [0.0, Inf)
+        :raises AssertionError: If the stiffness is not in the range [0.0, 5000]
+        :raises AssertionError: If the total_time is not in the range [0.0, Inf)
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+
+        Example::
+
+            # increase the force in a spiral to a maximum of 100 N.
+            # The force curve should rotate once per second around the starting point of the spiral.
+            # The force spiral should rise and fall within 10 seconds
+            >>> iiwa.overlay_spiral_pattern(CartesianPlane.XY, 1.0, 100.0, 500.0, 10)
+            True
+        """
+        assert frequency >= 0.0 and frequency <= 15.0, "Invalid range [0.0, 15.0]"
+        assert amplitude >= 0.0, "Invalid range [0.0, Inf)"
+        assert stiffness >= 0.0 and stiffness <= 5000.0, "Invalid range [0.0, 5000.0]"
+        assert total_time >= 0.0, "Invalid range [0.0, Inf)"
+        command = [COMMAND_SET_CARTESIAN_SINE_CREATE_SINE_PATTERN] + [plane.value, frequency, amplitude, stiffness, total_time] + \
+            + [0] * (self._communication.COMMAND_LENGTH - 6)
         return self._communication.set_command(command)
 
     def set_joint_stiffness(self, stiffness: Union[List[float], np.ndarray]) -> bool:
