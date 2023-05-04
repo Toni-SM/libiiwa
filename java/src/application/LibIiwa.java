@@ -1141,7 +1141,9 @@ overlaid force oscillation (translational: N, rotational: Nm)
 	public boolean methSetCartesianCreateDesiredForce(double[] overlay) {
 		CartDOF dof = _CartDOF((int)Math.round(overlay[0]));
 		this.propControlModeCartesianSineImpedance = CartesianSineImpedanceControlMode.createDesiredForce(dof, overlay[1], overlay[2]);
-		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) create desired force: " + overlay);
+		if (this.enumControlMode == LibIiwaEnum.CONTROL_MODE_CARTESIAN_SINE_IMPEDANCE)
+			this.propCurrentControlMode = this.propControlModeCartesianSineImpedance;
+		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) create desired force: " + Arrays.toString(overlay));
 		return true;
 	}
 	
@@ -1154,7 +1156,9 @@ overlaid force oscillation (translational: N, rotational: Nm)
 	public boolean methSetCartesianCreateSinePattern(double[] overlay) {
 		CartDOF dof = _CartDOF((int)Math.round(overlay[0]));
 		this.propControlModeCartesianSineImpedance = CartesianSineImpedanceControlMode.createSinePattern(dof, overlay[1], overlay[2], overlay[3]);
-		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) create sine pattern: " + overlay);
+		if (this.enumControlMode == LibIiwaEnum.CONTROL_MODE_CARTESIAN_SINE_IMPEDANCE)
+			this.propCurrentControlMode = this.propControlModeCartesianSineImpedance;
+		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) create sine pattern: " + Arrays.toString(overlay));
 		return true;
 	}
 	
@@ -1167,7 +1171,9 @@ overlaid force oscillation (translational: N, rotational: Nm)
 	public boolean methSetCartesianCreateLissajousPattern(double[] overlay) {
 		CartPlane plane = _CartPlane((int)Math.round(overlay[0]));
 		this.propControlModeCartesianSineImpedance = CartesianSineImpedanceControlMode.createLissajousPattern(plane, overlay[1], overlay[2], overlay[3]);
-		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) create Lissajous pattern: " + overlay);
+		if (this.enumControlMode == LibIiwaEnum.CONTROL_MODE_CARTESIAN_SINE_IMPEDANCE)
+			this.propCurrentControlMode = this.propControlModeCartesianSineImpedance;
+		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) create Lissajous pattern: " + Arrays.toString(overlay));
 		return true;
 	}
 	
@@ -1180,7 +1186,9 @@ overlaid force oscillation (translational: N, rotational: Nm)
 	public boolean methSetCartesianCreateSpiralPattern(double[] overlay) {
 		CartPlane plane = _CartPlane((int)Math.round(overlay[0]));
 		this.propControlModeCartesianSineImpedance = CartesianSineImpedanceControlMode.createSpiralPattern(plane, overlay[1], overlay[2], overlay[3], overlay[4]);
-		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) create spiral pattern: " + overlay);
+		if (this.enumControlMode == LibIiwaEnum.CONTROL_MODE_CARTESIAN_SINE_IMPEDANCE)
+			this.propCurrentControlMode = this.propControlModeCartesianSineImpedance;
+		if (VERBOSE_INFO) getLogger().info("Cartesian (sine) create spiral pattern: " + Arrays.toString(overlay));
 		return true;
 	}
 	

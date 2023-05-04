@@ -1014,7 +1014,7 @@ class LibIiwa:
             assert stiffness >= 0.0 and stiffness <= 5000.0, "Invalid range [0.0, 5000.0]"
         else:
             assert stiffness >= 0.0 and stiffness <= 300.0, "Invalid range [0.0, 300.0]"
-        command = [COMMAND_SET_CARTESIAN_SINE_CREATE_SINE_PATTERN] + [dof.value, force, stiffness] + \
+        command = [COMMAND_SET_CARTESIAN_SINE_CREATE_SINE_PATTERN] + [dof.value, force, stiffness] \
             + [0] * (self._communication.COMMAND_LENGTH - 4)
         return self._communication.set_command(command)
 
@@ -1056,7 +1056,7 @@ class LibIiwa:
             assert stiffness >= 0.0 and stiffness <= 5000.0, "Invalid range [0.0, 5000.0]"
         else:
             assert stiffness >= 0.0 and stiffness <= 300.0, "Invalid range [0.0, 300.0]"
-        command = [COMMAND_SET_CARTESIAN_SINE_CREATE_SINE_PATTERN] + [dof.value, frequency, amplitude, stiffness] + \
+        command = [COMMAND_SET_CARTESIAN_SINE_CREATE_SINE_PATTERN] + [dof.value, frequency, amplitude, stiffness] \
             + [0] * (self._communication.COMMAND_LENGTH - 5)
         return self._communication.set_command(command)
 
@@ -1098,7 +1098,7 @@ class LibIiwa:
         assert frequency >= 0.0 and frequency <= 15.0, "Invalid range [0.0, 15.0]"
         assert amplitude >= 0.0, "Invalid range [0.0, Inf)"
         assert stiffness >= 0.0 and stiffness <= 5000.0, "Invalid range [0.0, 5000.0]"
-        command = [COMMAND_SET_CARTESIAN_SINE_CREATE_SINE_PATTERN] + [plane.value, frequency, amplitude, stiffness] + \
+        command = [COMMAND_SET_CARTESIAN_SINE_CREATE_SINE_PATTERN] + [plane.value, frequency, amplitude, stiffness] \
             + [0] * (self._communication.COMMAND_LENGTH - 5)
         return self._communication.set_command(command)
 
@@ -1145,7 +1145,7 @@ class LibIiwa:
         assert amplitude >= 0.0, "Invalid range [0.0, Inf)"
         assert stiffness >= 0.0 and stiffness <= 5000.0, "Invalid range [0.0, 5000.0]"
         assert total_time >= 0.0, "Invalid range [0.0, Inf)"
-        command = [COMMAND_SET_CARTESIAN_SINE_CREATE_SINE_PATTERN] + [plane.value, frequency, amplitude, stiffness, total_time] + \
+        command = [COMMAND_SET_CARTESIAN_SINE_CREATE_SINE_PATTERN] + [plane.value, frequency, amplitude, stiffness, total_time] \
             + [0] * (self._communication.COMMAND_LENGTH - 6)
         return self._communication.set_command(command)
 
