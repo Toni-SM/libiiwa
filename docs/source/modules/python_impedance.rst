@@ -62,6 +62,34 @@ set_cartesian_max_path_deviation
 Cartesian sine impedance control
 --------------------------------
 
-:maroon:`It will be included in upcoming releases`. Open a new `discussion <https://github.com/Toni-SM/libiiwa/discussions>`_ if you need to use this functionality ahead of time.
+.. autoclass:: libiiwa.CartesianDOF
+    :undoc-members:
+    :show-inheritance:
+    :members:
 
-.. # TODO: add support for cartesian sine impedance control
+.. autoclass:: libiiwa.CartesianPlane
+    :undoc-members:
+    :show-inheritance:
+    :members:
+
+overlay_desired_force
+^^^^^^^^^^^^^^^^^^^^^
+
+.. automethod:: libiiwa.LibIiwa.overlay_desired_force
+
+overlay_sine_pattern
+^^^^^^^^^^^^^^^^^^^^
+
+.. automethod:: libiiwa.LibIiwa.overlay_sine_pattern
+
+overlay_lissajous_pattern
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automethod:: libiiwa.LibIiwa.overlay_lissajous_pattern
+
+overlay_spiral_pattern
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. automethod:: libiiwa.LibIiwa.overlay_spiral_pattern
+
+.. # TODO: add support for non-static cartesian sine impedance control
