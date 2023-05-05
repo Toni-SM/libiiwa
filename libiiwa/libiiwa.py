@@ -969,9 +969,9 @@ class LibIiwa:
         :type translational: 3-element list or numpy.ndarray
         :param rotational: Maximum path deviation (default: [1e6, 1e6, 1e6])
         :type rotational: 3-element list or numpy.ndarray
-        :param millimeters: Whether the rotation is in millimeters or meters (default: meters)
+        :param millimeters: Whether the translation is in millimeters or meters (default: meters)
         :type millimeters: bool
-        :param degrees: Whether the orientation is in degrees or radians (default: radians)
+        :param degrees: Whether the rotation is in degrees or radians (default: radians)
         :type degrees: bool
 
         :raises AssertionError: If the length of the translational and rotational is not equal to the number of axes
@@ -1000,6 +1000,321 @@ class LibIiwa:
             rotational = np.radians(rotational)
         command = [COMMAND_SET_CARTESIAN_MAX_PATH_DEVIATION] + translational.tolist() + rotational.tolist() \
             + [0] * (self._communication.COMMAND_LENGTH - 7)
+        return self._communication.set_command(command)
+
+    def set_cartesian_amplitude(self,
+                                translational : Union[List[float], np.ndarray] = [0.0, 0.0, 0.0],
+                                rotational : Union[List[float], np.ndarray] = [0.0, 0.0, 0.0]) -> bool:
+        """Define the amplitude of the force oscillation
+
+        :param translational: Translational amplitude in N (default: [0.0, 0.0, 0.0])
+        :type translational: 3-element list or numpy.ndarray
+        :param rotational: Rotational amplitude in Nm (default: [0.0, 0.0, 0.0])
+        :type rotational: 3-element list or numpy.ndarray
+
+        :raises AssertionError: If the length of the translational and rotational is not equal to the number of axes
+        :raises AssertionError: If the translational is not in the range [0.0, Inf)
+        :raises AssertionError: If the rotational is not in the range [0.0, Inf)
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+
+        Example::
+
+            # TODO
+            >>> 
+            >>> iiwa.set_cartesian_amplitude()
+            True
+        """
+        translational = np.array(translational, dtype=np.float32).flatten()
+        rotational = np.array(rotational, dtype=np.float32).flatten()
+        assert translational.size == 3, "Invalid translational length"
+        assert rotational.size == 3, "Invalid rotational length"
+        assert np.all(translational >= 0.0), "Invalid range [0.0, Inf)"
+        assert np.all(rotational >= 0.0), "Invalid range [0.0, Inf)"
+        command = [COMMAND_SET_CARTESIAN_SINE_AMPLITUDE] + translational.tolist() + rotational.tolist() \
+            + [0] * (self._communication.COMMAND_LENGTH - 7)
+        return self._communication.set_command(command)
+    
+    def set_cartesian_frequency(self,
+                                translational : Union[List[float], np.ndarray] = [0.0, 0.0, 0.0],
+                                rotational : Union[List[float], np.ndarray] = [0.0, 0.0, 0.0]) -> bool:
+        """Define the frequency of the force oscillation
+
+        :param translational: Translational frequency in Hz (default: [0.0, 0.0, 0.0])
+        :type translational: 3-element list or numpy.ndarray
+        :param rotational: Rotational frequency in Hz (default: [0.0, 0.0, 0.0])
+        :type rotational: 3-element list or numpy.ndarray
+
+        :raises AssertionError: If the length of the translational and rotational is not equal to the number of axes
+        :raises AssertionError: If the translational is not in the range [0.0, 15.0]
+        :raises AssertionError: If the rotational is not in the range [0.0, 15.0]
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+
+        Example::
+
+            # TODO
+            >>> 
+            >>> iiwa.set_cartesian_frequency()
+            True
+        """
+        translational = np.array(translational, dtype=np.float32).flatten()
+        rotational = np.array(rotational, dtype=np.float32).flatten()
+        assert translational.size == 3, "Invalid translational length"
+        assert rotational.size == 3, "Invalid rotational length"
+        assert np.all(translational >= 0.0), "Invalid range [0.0, 15.0]"
+        assert np.all(translational <= 15.0), "Invalid range [0.0, 15.0]"
+        assert np.all(rotational >= 0.0), "Invalid range [0.0, 15.0]"
+        assert np.all(rotational <= 15.0), "Invalid range [0.0, 15.0]"
+        command = [COMMAND_SET_CARTESIAN_SINE_FREQUENCY] + translational.tolist() + rotational.tolist() \
+            + [0] * (self._communication.COMMAND_LENGTH - 7)
+        return self._communication.set_command(command)
+
+    def set_cartesian_phase(self,
+                            translational : Union[List[float], np.ndarray] = [0.0, 0.0, 0.0],
+                            rotational : Union[List[float], np.ndarray] = [0.0, 0.0, 0.0],
+                            degrees: bool = False) -> bool:
+        """Define the phase offset of the force oscillation at the start of the force overlay
+
+        :param translational: Translational phase (default: [0.0, 0.0, 0.0])
+        :type translational: 3-element list or numpy.ndarray
+        :param rotational: Rotational phase (default: [0.0, 0.0, 0.0])
+        :type rotational: 3-element list or numpy.ndarray
+        :param degrees: Whether the rotational is in degrees or radians (default: radians)
+        :type degrees: bool
+
+        :raises AssertionError: If the length of the translational and rotational is not equal to the number of axes
+        :raises AssertionError: If the translational is not in the range [0.0, Inf)
+        :raises AssertionError: If the rotational is not in the range [0.0, Inf)
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+
+        Example::
+
+            # TODO
+            >>> 
+            >>> iiwa.set_cartesian_phase()
+            True
+        """
+        translational = np.array(translational, dtype=np.float32).flatten()
+        rotational = np.array(rotational, dtype=np.float32).flatten()
+        assert translational.size == 3, "Invalid translational length"
+        assert rotational.size == 3, "Invalid rotational length"
+        assert np.all(translational >= 0.0), "Invalid range [0.0, Inf)"
+        assert np.all(rotational >= 0.0), "Invalid range [0.0, Inf)"
+        if not degrees:  # expected unit: degrees
+            rotational = np.degrees(rotational)  
+        command = [COMMAND_SET_CARTESIAN_SINE_PHASE] + translational.tolist() + rotational.tolist() \
+            + [0] * (self._communication.COMMAND_LENGTH - 7)
+        return self._communication.set_command(command)
+
+    def set_cartesian_bias(self,
+                           translational : Union[List[float], np.ndarray] = [0.0, 0.0, 0.0],
+                           rotational : Union[List[float], np.ndarray] = [0.0, 0.0, 0.0]) -> bool:
+        """Define a constant force overlaid (bias) in addition to the overlaid force oscillation
+
+        :param translational: Translational bias in N (default: [0.0, 0.0, 0.0])
+        :type translational: 3-element list or numpy.ndarray
+        :param rotational: Rotational bias in Nm (default: [0.0, 0.0, 0.0])
+        :type rotational: 3-element list or numpy.ndarray
+
+        :raises AssertionError: If the length of the translational and rotational is not equal to the number of axes
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+
+        Example::
+
+            # TODO
+            >>> 
+            >>> iiwa.set_cartesian_bias()
+            True
+        """
+        translational = np.array(translational, dtype=np.float32).flatten()
+        rotational = np.array(rotational, dtype=np.float32).flatten()
+        assert translational.size == 3, "Invalid translational length"
+        assert rotational.size == 3, "Invalid rotational length"
+        command = [COMMAND_SET_CARTESIAN_SINE_BIAS] + translational.tolist() + rotational.tolist() \
+            + [0] * (self._communication.COMMAND_LENGTH - 7)
+        return self._communication.set_command(command)
+
+    def set_cartesian_force_limit(self,
+                                  translational : Union[List[float], np.ndarray] = [1e6, 1e6, 1e6],
+                                  rotational : Union[List[float], np.ndarray] = [1e6, 1e6, 1e6]) -> bool:
+        """Define the force limit of the force oscillation
+
+        :param translational: Translational force limit in N (default: [1e6, 1e6, 1e6])
+        :type translational: 3-element list or numpy.ndarray
+        :param rotational: Rotational force limit in Nm (default: [1e6, 1e6, 1e6])
+        :type rotational: 3-element list or numpy.ndarray
+
+        :raises AssertionError: If the length of the translational and rotational is not equal to the number of axes
+        :raises AssertionError: If the translational is not in the range [0.0, Inf)
+        :raises AssertionError: If the rotational is not in the range [0.0, Inf)
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+
+        Example::
+
+            # TODO
+            >>> 
+            >>> iiwa.set_cartesian_force_limit()
+            True
+        """
+        translational = np.array(translational, dtype=np.float32).flatten()
+        rotational = np.array(rotational, dtype=np.float32).flatten()
+        assert translational.size == 3, "Invalid translational length"
+        assert rotational.size == 3, "Invalid rotational length"
+        assert np.all(translational >= 0.0), "Invalid range [0.0, Inf)"
+        assert np.all(rotational >= 0.0), "Invalid range [0.0, Inf)"
+        command = [COMMAND_SET_CARTESIAN_SINE_FORCE_LIMIT] + translational.tolist() + rotational.tolist() \
+            + [0] * (self._communication.COMMAND_LENGTH - 7)
+        return self._communication.set_command(command)
+
+    def set_cartesian_position_limit(self,
+                                     translational : Union[List[float], np.ndarray] = [1e6, 1e6, 1e6],
+                                     rotational : Union[List[float], np.ndarray] = [1e6, 1e6, 1e6], 
+                                     millimeters: bool = False,
+                                     degrees: bool = False) -> bool:
+        """Define the maximum deflection due to the force oscillation
+
+        :param translational: Translational maximum deflection (default: [1e6, 1e6, 1e6])
+        :type translational: 3-element list or numpy.ndarray
+        :param rotational: Rotational maximum deflection (default: [1e6, 1e6, 1e6])
+        :type rotational: 3-element list or numpy.ndarray
+        :param millimeters: Whether the translation is in millimeters or meters (default: meters)
+        :type millimeters: bool
+        :param degrees: Whether the rotation is in degrees or radians (default: radians)
+        :type degrees: bool
+
+        :raises AssertionError: If the length of the translational and rotational is not equal to the number of axes
+        :raises AssertionError: If the translational is not in the range [0.0, Inf)
+        :raises AssertionError: If the rotational is not in the range [0.0, Inf)
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+
+        Example::
+
+            # TODO
+            >>> 
+            >>> iiwa.set_cartesian_position_limit()
+            True
+        """
+        translational = np.array(translational, dtype=np.float32).flatten()
+        rotational = np.array(rotational, dtype=np.float32).flatten()
+        assert translational.size == 3, "Invalid translational length"
+        assert rotational.size == 3, "Invalid rotational length"
+        assert np.all(translational >= 0.0), "Invalid range [0.0, Inf)"
+        assert np.all(rotational >= 0.0), "Invalid range [0.0, Inf)"
+        if not millimeters:
+            translational *= 1000
+        if degrees:
+            rotational = np.radians(rotational)
+        command = [COMMAND_SET_CARTESIAN_SINE_POSITION_LIMIT] + translational.tolist() + rotational.tolist() \
+            + [0] * (self._communication.COMMAND_LENGTH - 7)
+        return self._communication.set_command(command)
+
+    def set_cartesian_total_time(self, value: float) -> bool:
+        """Define the overall duration of the force oscillation
+
+        :param value: Duration of the force oscillation in seconds
+        :type value: float
+
+        :raises AssertionError: If the value is not in the range [0, Inf)
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+
+        Example::
+
+            >>> iiwa.set_cartesian_total_time(60)
+            True
+        """
+        assert value >= 0, "Invalid range [0, Inf)"
+        command = [COMMAND_SET_CARTESIAN_SINE_TOTAL_TIME] + [value] + [0] * (self._communication.COMMAND_LENGTH - 2)
+        return self._communication.set_command(command)
+
+    def set_cartesian_rise_time(self, value: float) -> bool:
+        """Define the rise time of the force oscillation
+
+        :param value: Rise time of the force oscillation in seconds
+        :type value: float
+
+        :raises AssertionError: If the value is not in the range [0, Inf)
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+
+        Example::
+
+            >>> iiwa.set_cartesian_rise_time(5)
+            True
+        """
+        assert value >= 0, "Invalid range [0, Inf)"
+        command = [COMMAND_SET_CARTESIAN_SINE_RISE_TIME] + [value] + [0] * (self._communication.COMMAND_LENGTH - 2)
+        return self._communication.set_command(command)
+
+    def set_cartesian_hold_time(self, value: float) -> bool:
+        """Define the hold time of the force oscillation
+
+        :param value: Hold time of the force oscillation in seconds
+        :type value: float
+
+        :raises AssertionError: If the value is not in the range [0, Inf)
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+
+        Example::
+
+            >>> iiwa.set_cartesian_hold_time(50)
+            True
+        """
+        assert value >= 0, "Invalid range [0, Inf)"
+        command = [COMMAND_SET_CARTESIAN_SINE_HOLD_TIME] + [value] + [0] * (self._communication.COMMAND_LENGTH - 2)
+        return self._communication.set_command(command)
+
+    def set_cartesian_fall_time(self, value: float) -> bool:
+        """Define the fall time of the force oscillation
+
+        :param value: Fall time of the force oscillation in seconds
+        :type value: float
+
+        :raises AssertionError: If the value is not in the range [0, Inf)
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+
+        Example::
+
+            >>> iiwa.set_cartesian_fall_time(5)
+            True
+        """
+        assert value >= 0, "Invalid range [0, Inf)"
+        command = [COMMAND_SET_CARTESIAN_SINE_FALL_TIME] + [value] + [0] * (self._communication.COMMAND_LENGTH - 2)
+        return self._communication.set_command(command)
+
+    def set_cartesian_stay_active_until_pattern_finished(self, active: bool) -> bool:
+        """Define whether the oscillation is terminated or continued after the end of the motion
+
+        :param active: Whether the oscillation is continued after the end of the motion
+        :type active: bool
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+
+        Example::
+
+            >>> iiwa.set_cartesian_stay_active_until_pattern_finished(True)
+            True
+        """
+        command = [COMMAND_SET_CARTESIAN_SINE_STAY_ACTIVE_UNTIL_PATTERN_FINISHED] + [float(active)] \
+            + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
 
     def overlay_desired_force(self,
