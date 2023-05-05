@@ -92,4 +92,57 @@ overlay_spiral_pattern
 
 .. automethod:: libiiwa.LibIiwa.overlay_spiral_pattern
 
-.. # TODO: add support for non-static cartesian sine impedance control
+set_cartesian_amplitude
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automethod:: libiiwa.LibIiwa.set_cartesian_amplitude
+
+set_cartesian_frequency
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automethod:: libiiwa.LibIiwa.set_cartesian_frequency
+
+set_cartesian_phase
+^^^^^^^^^^^^^^^^^^^
+
+.. automethod:: libiiwa.LibIiwa.set_cartesian_phase
+
+set_cartesian_bias
+^^^^^^^^^^^^^^^^^^
+
+.. automethod:: libiiwa.LibIiwa.set_cartesian_bias
+
+set_cartesian_force_limit
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automethod:: libiiwa.LibIiwa.set_cartesian_force_limit
+
+set_cartesian_position_limit
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automethod:: libiiwa.LibIiwa.set_cartesian_position_limit
+
+set_cartesian_total_time
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automethod:: libiiwa.LibIiwa.set_cartesian_total_time
+
+set_cartesian_rise_time
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automethod:: libiiwa.LibIiwa.set_cartesian_rise_time
+
+set_cartesian_hold_time
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automethod:: libiiwa.LibIiwa.set_cartesian_hold_time
+
+set_cartesian_fall_time
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automethod:: libiiwa.LibIiwa.set_cartesian_fall_time
+
+set_cartesian_stay_active_until_pattern_finished
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automethod:: libiiwa.LibIiwa.set_cartesian_stay_active_until_pattern_finished
