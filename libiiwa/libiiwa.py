@@ -755,6 +755,10 @@ class LibIiwa:
                                 null_space: float = 100) -> bool:
         """Define the stiffness (translational and rotational) for Cartesian impedance control 
 
+        .. note::
+        
+            This method also affects the Cartesian impedance controller with overlaid force oscillation
+
         :param  translational: Translational stiffness in N/m [0.0, 5000.0] (default: [2000.0, 2000.0, 2000.0])
         :type translational: 3-element list or numpy.ndarray
         :param rotational: Rotational stiffness in Nm/rad [0.0, 300.0] (default: [200.0, 200.0, 200.0])
@@ -795,6 +799,10 @@ class LibIiwa:
                               rotational : Union[List[float], np.ndarray] = [0.7, 0.7, 0.7],
                               null_space: float = 0.7) -> bool:
         """Define the damping (translational and rotational) for Cartesian impedance control 
+
+        .. note::
+        
+            This method also affects the Cartesian impedance controller with overlaid force oscillation
 
         :param  translational: Translational damping [0.1, 1.0] (default: [0.7, 0.7, 0.7])
         :type translational: 3-element list or numpy.ndarray
@@ -867,6 +875,10 @@ class LibIiwa:
                                         add_stop_condition: bool = False) -> bool:
         """Define the limitation of the maximum force (translational) / torque (rotational) on the TCP
 
+        .. note::
+        
+            This method also affects the Cartesian impedance controller with overlaid force oscillation
+
         :param translational: Maximum force in N (default: [1e6, 1e6, 1e6])
         :type translational: 3-element list or numpy.ndarray
         :param rotational: Maximum torque in Nm (default: [1e6, 1e6, 1e6])
@@ -903,6 +915,10 @@ class LibIiwa:
                                    translational : Union[List[float], np.ndarray] = [1e6, 1e6, 1e6],
                                    rotational : Union[List[float], np.ndarray] = [1e6, 1e6, 1e6]) -> bool:
         """Define the maximum Cartesian velocity at which motion is aborted if the limit is exceeded
+
+        .. note::
+        
+            This method also affects the Cartesian impedance controller with overlaid force oscillation
 
         The Cartesian velocity will be automatically converted to mm/s before sending to the robot.
         Assign high values to the degrees of freedom that are not to be limited
@@ -942,6 +958,10 @@ class LibIiwa:
                                          millimeters: bool = False,
                                          degrees: bool = False) -> bool:
         """Define the maximum permissible Cartesian path deviation at which motion is aborted if the limit is exceeded
+
+        .. note::
+        
+            This method also affects the Cartesian impedance controller with overlaid force oscillation
 
         Assign high values to the degrees of freedom that are not to be limited
 
@@ -988,6 +1008,11 @@ class LibIiwa:
                               stiffness: float) -> bool:
         """Overlay a constant force, in one Cartesian direction, that does not change over time
 
+        .. note::
+
+            Because this method creates a new controller instance, any previous impedance control configuration calls will have no effect. 
+            If applicable, configure the impedance controller after calling this method
+
         :param dof: Cartesian DOF
         :type dof: CartesianDOF
         :param force: Overlaid constant force.
@@ -1024,6 +1049,11 @@ class LibIiwa:
                              amplitude: float,
                              stiffness: float) -> bool:
         """Overlay a simple force oscillation in one Cartesian direction
+
+        .. note::
+
+            Because this method creates a new controller instance, any previous impedance control configuration calls will have no effect. 
+            If applicable, configure the impedance controller after calling this method
 
         :param dof: Cartesian DOF
         :type dof: CartesianDOF
@@ -1067,6 +1097,11 @@ class LibIiwa:
                                   stiffness: float) -> bool:
         """Overlay a 2-dimensional oscillation in one plane
 
+        .. note::
+
+            Because this method creates a new controller instance, any previous impedance control configuration calls will have no effect. 
+            If applicable, configure the impedance controller after calling this method
+
         The parameters of the second DOF of the plane are calculated to generate a Lissajous curve
 
         - amplitude ratio (1st DOF : 2nd DOF): 1 : 1
@@ -1109,6 +1144,11 @@ class LibIiwa:
                                stiffness: float,
                                total_time: float) -> bool:
         """Overlay a spiral-shaped force oscillation in one plane
+
+        .. note::
+
+            Because this method creates a new controller instance, any previous impedance control configuration calls will have no effect. 
+            If applicable, configure the impedance controller after calling this method
 
         The force characteristic is created by overlaying 2 sinusoidal force oscillations
 
