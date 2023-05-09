@@ -84,7 +84,7 @@ public class LibIiwa extends RoboticsAPIApplication {
 	// ===========================================================
 
 	@SuppressWarnings("unused")
-	private static final String API_VERSION = "0.2.1-beta";
+	private static final String API_VERSION = "0.3.1-beta";
 
 	private static final int STATE_COMMAND_STATUS = 0;  		// vector(1)
 	private static final int STATE_JOINT_POSITION = 1;  		// vector(7)
