@@ -141,6 +141,9 @@ COMMAND_SET_MOTION_TYPE = 303
 COMMAND_SET_CONTROL_MODE = 304
 COMMAND_SET_EXECUTION_TYPE = 305
 
+# configuration commands (tools)
+COMMAND_SET_TOOL = 400
+
 
 class LibIiwaCommunication:
     def __init__(self,
@@ -519,6 +522,29 @@ class LibIiwa:
             end_position *= 1000
         command = [COMMAND_CIRC_MOTION] + auxiliary_position.tolist() + end_position.tolist() \
             + [0] * (self._communication.COMMAND_LENGTH - 7)
+        return self._communication.set_command(command)
+
+    # configuration commands (tools)
+    def set_tool(self, index: int) -> bool:
+        """Attach/detach tool
+
+        :param index: Tool index
+        :type index: int
+
+        :return: True if successful, False otherwise
+        :rtype: bool
+
+        Example::
+
+            # attach the first defined tool
+            >>> iiwa.set_tool(0)
+            True
+
+            # detach tool
+            >>> iiwa.set_tool(-1)
+            True
+        """
+        command = [COMMAND_SET_TOOL] + [index] + [0] * (self._communication.COMMAND_LENGTH - 2)
         return self._communication.set_command(command)
 
     # configuration commands (limits)
