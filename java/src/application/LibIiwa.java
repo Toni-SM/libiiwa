@@ -26,6 +26,7 @@ import com.kuka.roboticsAPI.geometricModel.math.CoordinateAxis;
 import com.kuka.roboticsAPI.geometricModel.CartDOF;
 import com.kuka.roboticsAPI.geometricModel.CartPlane;
 import com.kuka.roboticsAPI.geometricModel.Frame;
+import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.geometricModel.Tool;
 
 import com.kuka.roboticsAPI.motionModel.controlModeModel.CartesianImpedanceControlMode;
@@ -113,14 +114,12 @@ public class LibIiwa extends RoboticsAPIApplication {
 	private LibIiwaCommunication propCommunication;
 	private LibIiwaEnum propCommunicationMode = LibIiwaEnum.COMMUNICATION_MODE_ON_DEMAND;
 
-	private String TOOL_NAME = "tool";
-	private String FRAME_NAME = "/World";
 	private String CONTROLLER_NAME = "KUKA_Sunrise_Cabinet_1";
 
 	// robot and tool
 	private IApplicationData propApplicationData = null;
-	private LBR lbr;
-	private Tool tool;
+	private LBR lbr = null;
+	private Tool tool = null;
 
 	private double propCurrentState[];
 	private double propCurrentJointVelocity[];
@@ -293,7 +292,10 @@ public class LibIiwa extends RoboticsAPIApplication {
 				return false;
 			}
 		
-		lbr.getFlange().moveAsync(smartServo.setMode(this.propCurrentControlMode));
+		if (this.tool != null)
+			this.tool.moveAsync(smartServo.setMode(this.propCurrentControlMode));
+		else
+			this.lbr.moveAsync(smartServo.setMode(this.propCurrentControlMode));
 
 		this.propCurrentSmartServoRuntime = smartServo.getRuntime(true);
 		return true;
@@ -303,7 +305,9 @@ public class LibIiwa extends RoboticsAPIApplication {
 		if (this.propCurrentSmartServoLINRuntime != null)
 			return true;
 
-		SmartServoLIN smartServoLIN = new SmartServoLIN(lbr.getCurrentCartesianPosition(lbr.getFlange()));
+		ObjectFrame objectFrame = this.tool == null ? this.lbr.getFlange() : this.tool.getDefaultMotionFrame();
+
+		SmartServoLIN smartServoLIN = new SmartServoLIN(this.lbr.getCurrentCartesianPosition(objectFrame));
 
 		//		smartServoLIN.setMaxTranslationVelocity(...);
 		//		smartServoLIN.setMaxTranslationAcceleration(...);
@@ -326,7 +330,10 @@ public class LibIiwa extends RoboticsAPIApplication {
 				return false;
 			}
 		
-		lbr.getFlange().moveAsync(smartServoLIN.setMode(this.propCurrentControlMode));
+		if (this.tool != null)
+			this.tool.moveAsync(smartServoLIN.setMode(this.propCurrentControlMode));
+		else
+			this.lbr.moveAsync(smartServoLIN.setMode(this.propCurrentControlMode));
 
 		this.propCurrentSmartServoLINRuntime = smartServoLIN.getRuntime(true); 
 		return true;
@@ -372,7 +379,10 @@ public class LibIiwa extends RoboticsAPIApplication {
 			// execute motion
 			if (this.enumExecutionType == LibIiwaEnum.EXECUTION_TYPE_SYNCHRONOUS) {
 				try {
-					this.propCurrentStandardMotionContainer = this.lbr.move(motionBatch.setMode(this.propCurrentControlMode));
+					if (this.tool != null)
+						this.propCurrentStandardMotionContainer = this.tool.move(motionBatch.setMode(this.propCurrentControlMode));
+					else
+						this.propCurrentStandardMotionContainer = this.lbr.move(motionBatch.setMode(this.propCurrentControlMode));
 				}
 				catch (Exception e) {
 					this.enumLastError = LibIiwaEnum.SYNCHRONOUS_MOTION_ERROR;
@@ -380,8 +390,12 @@ public class LibIiwa extends RoboticsAPIApplication {
 					return false;
 				}
 			}
-			else if (this.enumExecutionType == LibIiwaEnum.EXECUTION_TYPE_ASYNCHRONOUS)	
-				this.propCurrentStandardMotionContainer = lbr.moveAsync(motionBatch.setMode(this.propCurrentControlMode));
+			else if (this.enumExecutionType == LibIiwaEnum.EXECUTION_TYPE_ASYNCHRONOUS)	{
+				if (this.tool != null)
+					this.propCurrentStandardMotionContainer = this.tool.moveAsync(motionBatch.setMode(this.propCurrentControlMode));
+				else
+					this.propCurrentStandardMotionContainer = this.lbr.moveAsync(motionBatch.setMode(this.propCurrentControlMode));
+			}
 			return true;
 		}
 		return false;
@@ -1369,6 +1383,54 @@ overlaid force oscillation (translational: N, rotational: Nm)
 	}
 
 	// ===========================================================
+	// TOOLS
+	// ===========================================================
+
+	/** PARTIAL
+	 * Attach/detach a tool
+	 * 
+	 * @param index tool index
+	 * @return true if the control was successful, otherwise false
+	 */
+	public boolean methSetTool(int index) {
+		// stop and reset motion
+		this.methStopAndResetMotion();
+		
+		// get tool names
+		String raw = this.propApplicationData.getProcessData("tools").getValue();
+		String[] tools = raw.trim().split("\\s*,\\s*");
+		if (VERBOSE_INFO) getLogger().info("Tools: " + Arrays.toString(tools));
+		if (index >= tools.length) {
+			this.enumLastError = LibIiwaEnum.VALUE_ERROR;
+			if (VERBOSE_WARN) getLogger().warn("Invalid tool index: " + index);
+			return false;
+		}
+		
+		// detach tool
+		if (this.tool != null) {
+			this.tool.detach();
+			this.tool = null;
+			if (VERBOSE_INFO) getLogger().info("Tool detached");
+		}
+		if (index < 0) 
+			return true;
+		
+		// attach tool
+		try {
+			this.tool = getApplicationData().createFromTemplate(tools[index]);
+			this.tool.attachTo(this.lbr.getFlange());
+			if (VERBOSE_INFO) getLogger().info("Tool attached: " + tools[index]);
+		}
+		catch (Exception e) {
+			this.tool = null;
+			this.enumLastError = LibIiwaEnum.INVALID_CONFIGURATION_ERROR;
+			if (VERBOSE_WARN) getLogger().warn(e.getMessage());
+			return false;
+		}
+		return true;
+	}
+
+	// ===========================================================
 	// CONTROL METHODS
 	// ===========================================================
 	/** PARTIAL
@@ -1422,7 +1484,8 @@ overlaid force oscillation (translational: N, rotational: Nm)
 	 */
 	private boolean methGoToCartesianPose(double[] pose) {
 		// TODO: add LINREL
-		Frame frame = lbr.getCurrentCartesianPosition(lbr.getFlange());
+		ObjectFrame objectFrame = this.tool == null ? this.lbr.getFlange() : this.tool.getDefaultMotionFrame();
+		Frame frame = this.lbr.getCurrentCartesianPosition(objectFrame);
 
 		if (VERBOSE_INFO) getLogger().info(String.format("Cartesian pose [%.4f %.4f %.4f] [%.4f %.4f %.4f]", 
 				pose[0], pose[1], pose[2], pose[3], pose[4], pose[5]));
@@ -1473,7 +1536,8 @@ overlaid force oscillation (translational: N, rotational: Nm)
 	 * @return true if the control was successful, otherwise false
 	 */
 	private boolean methGoToCirc(double[] circ) {
-		Frame frame = lbr.getCurrentCartesianPosition(lbr.getFlange());
+		ObjectFrame objectFrame = this.tool == null ? this.lbr.getFlange() : this.tool.getDefaultMotionFrame();
+		Frame frame = this.lbr.getCurrentCartesianPosition(objectFrame);
 		
 		Frame auxiliaryPoint = new Frame(circ[0], circ[1], circ[2], frame.getAlphaRad(), frame.getBetaRad(), frame.getGammaRad());
 		Frame endPoint = new Frame(circ[3], circ[4], circ[5], frame.getAlphaRad(), frame.getBetaRad(), frame.getGammaRad());
@@ -1501,9 +1565,10 @@ overlaid force oscillation (translational: N, rotational: Nm)
 
 	private double[] methUpdateAndGetCurrentState() {
 		JointPosition jointPosition = lbr.getCurrentJointPosition();
-		Frame frame = lbr.getCurrentCartesianPosition(lbr.getFlange());
+		ObjectFrame objectFrame = this.tool == null ? this.lbr.getFlange() : this.tool.getDefaultMotionFrame();
+		Frame frame = this.lbr.getCurrentCartesianPosition(objectFrame);
 		TorqueSensorData torqueSensorData = lbr.getExternalTorque();
-		ForceSensorData forceSensorData = lbr.getExternalForceTorque(lbr.getFlange());
+		ForceSensorData forceSensorData = lbr.getExternalForceTorque(lbr.getFlange());  // TODO: objectFrame
 		
 		// conditions
 		IFiredConditionInfo firedInfo = null;
@@ -1591,6 +1656,11 @@ overlaid force oscillation (translational: N, rotational: Nm)
 		else if (commandCode == LibIiwaEnum.COMMAND_CIRC_MOTION.getCode()){
 			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_CIRC_MOTION.toString());
 			return this.methGoToCirc(Arrays.copyOfRange(command, 1, 1 + 6));
+		}
+		// configuration commands (tool)
+		else if (commandCode == LibIiwaEnum.COMMAND_SET_TOOL.getCode()){
+			if (VERBOSE_INFO) getLogger().info(LibIiwaEnum.COMMAND_SET_TOOL.toString());
+			return this.methSetTool((int)Math.round(command[1]));
 		}
 		// configuration commands (limits and constants)
 		else if (commandCode == LibIiwaEnum.COMMAND_SET_DESIRED_JOINT_VELOCITY_REL.getCode()){
@@ -1826,9 +1896,7 @@ overlaid force oscillation (translational: N, rotational: Nm)
 		
 		// TODO: get robot and tool
 		getController(CONTROLLER_NAME);
-		lbr = getContext().getDeviceFromType(LBR.class);
-		// tool = getApplicationData().createFromTemplate(TOOL_NAME);
-		// tool.attachTo(lbr.getFlange());
+		this.lbr = getContext().getDeviceFromType(LBR.class);
 
 		// initialize variables
 		this.propMaxJointPositionLimits = lbr.getJointLimits().getMaxJointPosition();
