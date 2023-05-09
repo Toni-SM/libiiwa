@@ -50,6 +50,7 @@ User guide
     modules/python_motion_and_control
     modules/python_impedance
     modules/python_conditions
+    modules/python_tools
 
 .. toctree::
     :maxdepth: 1

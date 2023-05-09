@@ -169,6 +169,12 @@ Request (command)
     * - 305
       - Enumeration value (1). See `Execution types <#id5>`_
       - Set the execution type
+    * - 
+      - 
+      - 
+    * - 400
+      - Non negative integer (starting at zero) for attaching the tool. -1 for detaching the tool
+      - Attach/detach tool
 
 .. raw:: html
 

@@ -82,21 +82,24 @@ Sunrise project
     * - Data
       - Default
       - Description
+    * - Communication: Use double precision
+      - :literal:`false`
+      - Whether\ |_| \to\ |_| \use\ |_| \double\ |_| \precision\ |_| \(64\ |_| \bits) in both the request and the response (default: float precision (32 bits))
     * - Controller: IP Address
       - :literal:`172.31.1.25`
       - External\ |_| \control\ |_| \workstation\ |_| \IP\ |_| \address
     * - Controller: Port
       - :literal:`12225`
       - External control workstation port
-    * - Communication: Use double precision
-      - :literal:`false`
-      - Whether\ |_| \to\ |_| \use\ |_| \double\ |_| \precision\ |_| \(64\ |_| \bits) in both the request and the response (default: float precision (32 bits))
-    * - SmartPAD: Logging (info)
+    * - Log to SmartPad: Info
       - :literal:`false`
       - Whether to display information about received commands or any other data on the smartHMI. **The excessive use of the message display could degrade the application performance and the smartHMI operation**
-    * - SmartPAD: Logging (warning)
+    * - Log to SmartPad: Warning
       - :literal:`true`
       - Whether to display warning messages on the smartHMI. **The excessive use of the message display could degrade the application performance and the smartHMI operation**
+    * - Robot: Tools
+      - :literal:`""`
+      - List of tool names separated by commas
 
 5. Install the :literal:`StationSetup.cat` (wait for Cabinet reset) and synchronize the project
 
