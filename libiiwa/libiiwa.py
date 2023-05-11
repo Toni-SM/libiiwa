@@ -7,6 +7,7 @@ import threading
 import collections
 import numpy as np
 from enum import Enum
+from scipy.spatial.transform import Rotation
 
 
 __all__ = [
@@ -16,6 +17,7 @@ __all__ = [
     'ExecutionType',
     'ControlInterface',
     'Error',
+    'utils',
     'API_VERSION',
 ]
 
@@ -143,6 +145,58 @@ COMMAND_SET_EXECUTION_TYPE = 305
 
 # configuration commands (tools)
 COMMAND_SET_TOOL = 400
+
+
+class utils:
+    """Utilities for math and others
+    """
+    @staticmethod
+    def to_quat(orientation: Union[List[float], np.ndarray],
+                format: str = "xyzw",
+                degrees: bool = False) -> np.ndarray:
+        """Convert orientation (A,B,C) to quaternion
+
+        :param orientation: The cartesian orientation to convert to quaternion
+        :type orientation: 3-element list or np.ndarray, optional
+        :param format: Quaternion format (default: "xyzw")
+        :type format: str, optional
+        :param degrees: Whether the orientation is in degrees or radians (default: radians)
+        :type degrees: bool, optional
+
+        :raises AssertionError: If the format is not valid
+
+        :return: Quaternion in the specified format
+        :rtype: np.ndarray
+        """
+        assert format in ["xyzw", "wxyz"], "Invalid format"
+        rotation = Rotation.from_euler('xyz', [orientation[2], orientation[1], orientation[0]], degrees=degrees)
+        if format == "xyzw":
+            return rotation.as_quat()
+        return rotation.as_quat()[[3,0,1,2]]
+
+    @staticmethod
+    def from_quat(quaternion: Union[List[float], np.ndarray],
+                  format: str = "xyzw",
+                  degrees: bool = False) -> np.ndarray:
+        """Convert quaternion to orientation (A,B,C)
+
+        :param quaternion: The cartesian orientation to convert to quaternion
+        :type quaternion: 3-element list or np.ndarray, optional
+        :param format: Quaternion format (default: "xyzw")
+        :type format: str, optional
+        :param degrees: Whether the orientation will be returned in degrees or radians (default: radians)
+        :type degrees: bool, optional
+
+        :raises AssertionError: If the format is not valid
+
+        :return: Cartesian orientation (A,B,C)
+        :rtype: np.ndarray
+        """
+        assert format in ["xyzw", "wxyz"], "Invalid format"
+        if format == "wxyz":
+            quaternion = np.array(quaternion)[[1,2,3,0]]
+        orientation = Rotation.from_quat(quaternion).as_euler("xyz", degrees=degrees)
+        return orientation[[2,1,0]]
 
 
 class LibIiwaCommunication:
