@@ -59,5 +59,12 @@ html_css_files = ['css/s5defs-roles.css',
 # -- Options for EPUB output
 epub_show_urls = 'footnote'
 
+# autodoc ext
+autodoc_mock_imports = [
+    "numpy",
+    "scipy",
+]
+
+# copybutton ext
 copybutton_prompt_text = r'>>> |\.\.\. |\$ '
 copybutton_prompt_is_regexp = True
