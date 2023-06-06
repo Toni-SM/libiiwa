@@ -1426,7 +1426,7 @@ class LibIiwa:
         Example::
 
             # exert an additional pressing constant force of 5 N in the Z direction
-            >>> iiwa.overlay_desired_force(CartesianDOF.Z, 5.0, 4000.0)
+            >>> iiwa.overlay_desired_force(libiiwa.CartesianDOF.Z, 5.0, 4000.0)
             True
         """
         assert force >= 0.0, "Invalid range [0.0, Inf)"
@@ -1472,7 +1472,7 @@ class LibIiwa:
 
             # move in a wave path with a deflection of about 0.10 meters (derived from amplitude and stiffness) 
             # and a frequency of 2 Hz in the X direction
-            >>> iiwa.overlay_sine_pattern(CartesianDOF.X, 2.0, 50.0, 500.0)
+            >>> iiwa.overlay_sine_pattern(libiiwa.CartesianDOF.X, 2.0, 50.0, 500.0)
             True
         """
         assert frequency >= 0.0 and frequency <= 15.0, "Invalid range [0.0, 15.0]"
@@ -1522,7 +1522,7 @@ class LibIiwa:
         Example::
 
             # generate an oscillation with a frequency ratio X : Y of 1 : 0.4
-            >>> iiwa.overlay_lissajous_pattern(CartesianPlane.XY, 10.0, 50.0, 500.0)
+            >>> iiwa.overlay_lissajous_pattern(libiiwa.CartesianPlane.XY, 10.0, 50.0, 500.0)
             True
         """
         assert frequency >= 0.0 and frequency <= 15.0, "Invalid range [0.0, 15.0]"
@@ -1573,7 +1573,7 @@ class LibIiwa:
             # increase the force in a spiral to a maximum of 100 N.
             # The force curve should rotate once per second around the starting point of the spiral.
             # The force spiral should rise and fall within 10 seconds
-            >>> iiwa.overlay_spiral_pattern(CartesianPlane.XY, 1.0, 100.0, 500.0, 10)
+            >>> iiwa.overlay_spiral_pattern(libiiwa.CartesianPlane.XY, 1.0, 100.0, 500.0, 10)
             True
         """
         assert frequency >= 0.0 and frequency <= 15.0, "Invalid range [0.0, 15.0]"
