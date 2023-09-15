@@ -969,6 +969,15 @@ class FollowJointTrajectory:
         self._action_result_message = control_msgs.msg.FollowJointTrajectoryResult()
         self._action_feedback_message = control_msgs.msg.FollowJointTrajectoryFeedback()
 
+    def _log_info(self, msg):
+        rospy.loginfo(msg)
+    
+    def _log_warn(self, msg):
+        rospy.logwarn(msg)
+    
+    def _log_error(self, msg):
+        rospy.logerr(msg)
+
     def start(self) -> None:
         """Start the action server
         """
