@@ -1140,7 +1140,9 @@ class FollowJointTrajectory:
                 error_string = "Robot has not active motion"
 
             if should_abort:
-                self._log_warn("FollowJointTrajectory: aborted execution. ")
+                self._log_warn("FollowJointTrajectory: aborted execution.")
+                if self._verbose:
+                    self._log_info("FollowJointTrajectory: {} ({})".format(error_string, error_code))
                 self._action_goal = None
                 self._action_result_message.error_code = error_code
                 self._action_result_message.error_string = error_string
