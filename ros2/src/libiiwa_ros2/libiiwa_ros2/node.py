@@ -65,6 +65,7 @@ class Iiwa:
     def __init__(self, 
                  node: Node,
                  interface: libiiwa.LibIiwa, 
+                 prefix: str,
                  joints: Mapping[str, dict], 
                  names: Optional[Mapping[str, str]] = {}, 
                  qos_profile: QoSProfile = QoSPresetProfiles.SENSOR_DATA.value,
@@ -75,6 +76,8 @@ class Iiwa:
         :type node: rclpy.node.Node
         :param interface: libiiwa.LibIiwa object
         :type interface: libiiwa.LibIiwa
+        :param prefix: Prefix name for topics, services and actions (e.g. /<prefix>/state/joint_states)
+        :type prefix: str
         :param joints: Joint names and parameters
         :type joints: Mapping[str, dict]
         :param names: Topics and services mapping to the corresponding ROS names (default: {})
@@ -86,6 +89,7 @@ class Iiwa:
         """
         self._node = node
         self._names = names
+        self._prefix = prefix
         self._joints = joints
         self._interface = interface
         self._qos_profile = qos_profile
@@ -703,13 +707,13 @@ class Iiwa:
         self.stop()
 
         # create publishers
-        self._pub_joint_states = self._node.create_publisher(topic=self._names.get("joint_states", "/iiwa/state/joint_states"),
+        self._pub_joint_states = self._node.create_publisher(topic=self._names.get("joint_states", f"/{self._prefix}/state/joint_states"),
                                                              msg_type=sensor_msgs.msg.JointState,
                                                              qos_profile=self._qos_profile)
-        self._pub_end_effector_pose = self._node.create_publisher(topic=self._names.get("end_effector_pose", "/iiwa/state/end_effector_pose"),
+        self._pub_end_effector_pose = self._node.create_publisher(topic=self._names.get("end_effector_pose", f"/{self._prefix}/state/end_effector_pose"),
                                                                   msg_type=geometry_msgs.msg.Pose,
                                                                   qos_profile=self._qos_profile)
-        self._pub_end_effector_wrench = self._node.create_publisher(topic=self._names.get("end_effector_wrench", "/iiwa/state/end_effector_wrench"),
+        self._pub_end_effector_wrench = self._node.create_publisher(topic=self._names.get("end_effector_wrench", f"/{self._prefix}/state/end_effector_wrench"),
                                                                     msg_type=geometry_msgs.msg.Wrench,
                                                                     qos_profile=self._qos_profile)
 
@@ -718,15 +722,15 @@ class Iiwa:
                             self._pub_end_effector_wrench]
 
         # create subscribers
-        self._sub_stop_command = self._node.create_subscription(topic=self._names.get("stop_command", "/iiwa/command/stop"),
+        self._sub_stop_command = self._node.create_subscription(topic=self._names.get("stop_command", f"/{self._prefix}/command/stop"),
                                                                 msg_type=std_msgs.msg.Empty,
                                                                 callback=self._callback_stop_command,
                                                                 qos_profile=self._qos_profile)
-        self._sub_joint_command = self._node.create_subscription(topic=self._names.get("joint_command", "/iiwa/command/joint"),
+        self._sub_joint_command = self._node.create_subscription(topic=self._names.get("joint_command", f"/{self._prefix}/command/joint"),
                                                                  msg_type=sensor_msgs.msg.JointState,
                                                                  callback=self._callback_joint_command,
                                                                  qos_profile=self._qos_profile)
-        self._sub_cartesian_command = self._node.create_subscription(topic=self._names.get("cartesian_command", "/iiwa/command/cartesian"),
+        self._sub_cartesian_command = self._node.create_subscription(topic=self._names.get("cartesian_command", f"/{self._prefix}/command/cartesian"),
                                                                      msg_type=geometry_msgs.msg.Pose,
                                                                      callback=self._callback_cartesian_command,
                                                                      qos_profile=self._qos_profile)
@@ -736,132 +740,132 @@ class Iiwa:
                              self._sub_cartesian_command]
 
         # create services
-        name = self._names.get("set_desired_joint_velocity_rel", "/iiwa/set_desired_joint_velocity_rel")
+        name = self._names.get("set_desired_joint_velocity_rel", f"/{self._prefix}/set_desired_joint_velocity_rel")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=SetNumber,
                                                         callback=self._handler_set_desired_joint_velocity_rel))
 
-        name = self._names.get("set_desired_joint_acceleration_rel", "/iiwa/set_desired_joint_acceleration_rel")
+        name = self._names.get("set_desired_joint_acceleration_rel", f"/{self._prefix}/set_desired_joint_acceleration_rel")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=SetNumber,
                                                         callback=self._handler_set_desired_joint_acceleration_rel))
 
-        name = self._names.get("set_desired_joint_jerk_rel", "/iiwa/set_desired_joint_jerk_rel")
+        name = self._names.get("set_desired_joint_jerk_rel", f"/{self._prefix}/set_desired_joint_jerk_rel")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=SetNumber,
                                                         callback=self._handler_set_desired_joint_jerk_rel))
 
-        name = self._names.get("set_desired_cartesian_velocity", "/iiwa/set_desired_cartesian_velocity")
+        name = self._names.get("set_desired_cartesian_velocity", f"/{self._prefix}/set_desired_cartesian_velocity")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=SetNumber,
                                                         callback=self._handler_set_desired_cartesian_velocity))
 
-        name = self._names.get("set_desired_cartesian_acceleration", "/iiwa/set_desired_cartesian_acceleration")
+        name = self._names.get("set_desired_cartesian_acceleration", f"/{self._prefix}/set_desired_cartesian_acceleration")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=SetNumber,
                                                         callback=self._handler_set_desired_cartesian_acceleration))
 
-        name = self._names.get("set_desired_cartesian_jerk", "/iiwa/set_desired_cartesian_jerk")
+        name = self._names.get("set_desired_cartesian_jerk", f"/{self._prefix}/set_desired_cartesian_jerk")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=SetNumber,
                                                         callback=self._handler_set_desired_cartesian_jerk))
 
-        name = self._names.get("set_cartesian_additional_control_force", "/iiwa/set_cartesian_additional_control_force")
+        name = self._names.get("set_cartesian_additional_control_force", f"/{self._prefix}/set_cartesian_additional_control_force")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=SetXYZABC,
                                                         callback=self._handler_set_cartesian_additional_control_force))
 
-        name = self._names.get("set_cartesian_max_velocity", "/iiwa/set_cartesian_max_velocity")
+        name = self._names.get("set_cartesian_max_velocity", f"/{self._prefix}/set_cartesian_max_velocity")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=SetXYZABC,
                                                         callback=self._handler_set_cartesian_max_velocity))
 
-        name = self._names.get("set_cartesian_max_path_deviation", "/iiwa/set_cartesian_max_path_deviation")
+        name = self._names.get("set_cartesian_max_path_deviation", f"/{self._prefix}/set_cartesian_max_path_deviation")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=SetXYZABC,
                                                         callback=self._handler_set_cartesian_max_path_deviation))
 
-        name = self._names.get("set_cartesian_stiffness", "/iiwa/set_cartesian_stiffness")
+        name = self._names.get("set_cartesian_stiffness", f"/{self._prefix}/set_cartesian_stiffness")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=SetXYZABCParam,
                                                         callback=self._handler_set_cartesian_stiffness))
 
-        name = self._names.get("set_cartesian_damping", "/iiwa/set_cartesian_damping")
+        name = self._names.get("set_cartesian_damping", f"/{self._prefix}/set_cartesian_damping")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=SetXYZABCParam,
                                                         callback=self._handler_set_cartesian_damping))
 
-        name = self._names.get("set_cartesian_max_control_force", "/iiwa/set_cartesian_max_control_force")
+        name = self._names.get("set_cartesian_max_control_force", f"/{self._prefix}/set_cartesian_max_control_force")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=SetXYZABCParam,
                                                         callback=self._handler_set_cartesian_max_control_force))
 
-        name = self._names.get("set_joint_stiffness", "/iiwa/set_joint_stiffness")
+        name = self._names.get("set_joint_stiffness", f"/{self._prefix}/set_joint_stiffness")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=SetArray,
                                                         callback=self._handler_set_joint_stiffness))
 
-        name = self._names.get("set_joint_damping", "/iiwa/set_joint_damping")
+        name = self._names.get("set_joint_damping", f"/{self._prefix}/set_joint_damping")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=SetArray,
                                                         callback=self._handler_set_joint_damping))
 
-        name = self._names.get("reset_conditions", "/iiwa/reset_conditions")
+        name = self._names.get("reset_conditions", f"/{self._prefix}/reset_conditions")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=Empty,
                                                         callback=self._handler_reset_conditions))
 
-        name = self._names.get("set_force_condition", "/iiwa/set_force_condition")
+        name = self._names.get("set_force_condition", f"/{self._prefix}/set_force_condition")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=SetArray,
                                                         callback=self._handler_set_force_condition))
 
-        name = self._names.get("set_joint_torque_condition", "/iiwa/set_joint_torque_condition")
+        name = self._names.get("set_joint_torque_condition", f"/{self._prefix}/set_joint_torque_condition")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=SetArray,
                                                         callback=self._handler_set_joint_torque_condition))
 
-        name = self._names.get("set_control_interface", "/iiwa/set_control_interface")
+        name = self._names.get("set_control_interface", f"/{self._prefix}/set_control_interface")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=SetString,
                                                         callback=self._handler_set_control_interface))
 
-        name = self._names.get("set_motion_type", "/iiwa/set_motion_type")
+        name = self._names.get("set_motion_type", f"/{self._prefix}/set_motion_type")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=SetString,
                                                         callback=self._handler_set_motion_type))
 
-        name = self._names.get("set_control_mode", "/iiwa/set_control_mode")
+        name = self._names.get("set_control_mode", f"/{self._prefix}/set_control_mode")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=SetString,
                                                         callback=self._handler_set_control_mode))
 
-        name = self._names.get("set_execution_type", "/iiwa/set_execution_type")
+        name = self._names.get("set_execution_type", f"/{self._prefix}/set_execution_type")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=SetString,
                                                         callback=self._handler_set_execution_type))
 
-        name = self._names.get("set_communication_mode", "/iiwa/set_communication_mode")
+        name = self._names.get("set_communication_mode", f"/{self._prefix}/set_communication_mode")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=SetString,
                                                         callback=self._handler_set_communication_mode))
 
-        name = self._names.get("last_error", "/iiwa/last_error")
+        name = self._names.get("last_error", f"/{self._prefix}/last_error")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=GetError,
                                                         callback=self._handler_last_error))
 
-        name = self._names.get("has_fired_condition", "/iiwa/has_fired_condition")
+        name = self._names.get("has_fired_condition", f"/{self._prefix}/has_fired_condition")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=GetBool,
                                                         callback=self._handler_has_fired_condition))
 
-        name = self._names.get("is_ready_to_move", "/iiwa/is_ready_to_move")
+        name = self._names.get("is_ready_to_move", f"/{self._prefix}/is_ready_to_move")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=GetBool,
                                                         callback=self._handler_is_ready_to_move))
 
-        name = self._names.get("has_active_motion", "/iiwa/has_active_motion")
+        name = self._names.get("has_active_motion", f"/{self._prefix}/has_active_motion")
         self._services.append(self._node.create_service(srv_name=name,
                                                         srv_type=GetBool,
                                                         callback=self._handler_has_active_motion))
@@ -971,9 +975,10 @@ def main():
     # load controllers
     controllers = [Iiwa(node=node,
                         interface=robot, 
+                        prefix=robot_name,
                         joints=JOINTS, 
                         verbose=verbose),
-                #    FollowJointTrajectory(node, robot, f"/{controller_name}/{action_namespace}", JOINTS)]
+                #    FollowJointTrajectory(node, robot, f"/{robot_name}/{controller_name}/{action_namespace}", JOINTS)]
     ]
 
     # control loop
