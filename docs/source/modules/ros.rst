@@ -40,17 +40,13 @@ Launching the node
 Launch parameters
 ^^^^^^^^^^^^^^^^^
 
-.. list-table:: Launch parameters*
+.. list-table:: Launch parameters
     :header-rows: 1
 
     * - Launch parameter
       - Description
       - Type
       - Default value
-    * - :literal:`robot_name`
-      - Prefix\ |_| \added\ |_| \to\ |_| \topic\ |_| \and\ |_| \service\ |_| \names (e.g. :literal:`/iiwa/...`)
-      - :literal:`str`
-      - :literal:`"iiwa"`
     * - :literal:`libiiwa_ip`
       - IP address of the library communication endpoint (default: all interfaces)
       - :literal:`str`
@@ -84,7 +80,7 @@ Launch parameters
 
         .. literalinclude:: ../../../ros/src/libiiwa_ros/launch/default.launch
             :language: xml
-            :emphasize-lines: 2, 11-12, 14, 17
+            :emphasize-lines: 9-10, 12, 15
 
     .. group-tab:: ROS2
 
@@ -92,7 +88,7 @@ Launch parameters
 
         .. literalinclude:: ../../../ros2/src/libiiwa_ros2/launch/default.py
             :language: python
-            :emphasize-lines: 10-12, 29-34, 36-38, 41-43
+            :emphasize-lines: 29-34, 36-38, 41-43
 
 ROS/ROS2 messages
 -----------------
