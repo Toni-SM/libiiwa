@@ -52,7 +52,7 @@ Launch parameters
 
         .. literalinclude:: ../../../ros/src/libiiwa_ros/launch/default.launch
             :language: xml
-            :emphasize-lines: 5-8
+            :emphasize-lines: 3-6
 
     .. group-tab:: ROS2
 
