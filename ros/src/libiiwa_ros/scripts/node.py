@@ -61,7 +61,7 @@ JOINTS = {"iiwa_joint_1": {"index": 0, "type": "revolute", "has_limits": False, 
 class Iiwa:
     def __init__(self, 
                  interface: libiiwa.LibIiwa,
-                 prefix: str,
+                 namespace: str,
                  joints: Mapping[str, dict], 
                  names: Optional[Mapping[str, str]] = {}, 
                  queue_size: int = 10,
@@ -70,8 +70,8 @@ class Iiwa:
 
         :param interface: libiiwa.LibIiwa object
         :type interface: libiiwa.LibIiwa
-        :param prefix: Prefix name for topics, services and actions (e.g. /<prefix>/state/joint_states)
-        :type prefix: str
+        :param namespace: Prefix name for topics, services and actions (e.g. /<namespace>/state/joint_states)
+        :type namespace: str
         :param joints: Joint names and parameters
         :type joints: Mapping[str, dict]
         :param names: Topics and services mapping to the corresponding ROS names (default: {})
@@ -82,9 +82,9 @@ class Iiwa:
         :type verbose: bool, optional
         """
         self._names = names
-        self._prefix = prefix
         self._joints = joints
         self._interface = interface
+        self._namespace = namespace
         self._queue_size = queue_size
         self._num_joints = len(joints)
         self._verbose = verbose
@@ -726,13 +726,13 @@ class Iiwa:
         self.stop()
 
         # create publishers
-        self._pub_joint_states = rospy.Publisher(name=self._names.get("joint_states", f"/{self._prefix}/state/joint_states"),
+        self._pub_joint_states = rospy.Publisher(name=self._names.get("joint_states", f"{self._namespace}iiwa/state/joint_states"),
                                                  data_class=sensor_msgs.msg.JointState,
                                                  queue_size=self._queue_size)
-        self._pub_end_effector_pose = rospy.Publisher(name=self._names.get("end_effector_pose", f"/{self._prefix}/state/end_effector_pose"),
+        self._pub_end_effector_pose = rospy.Publisher(name=self._names.get("end_effector_pose", f"{self._namespace}iiwa/state/end_effector_pose"),
                                                       data_class=geometry_msgs.msg.Pose,
                                                       queue_size=self._queue_size)
-        self._pub_end_effector_wrench = rospy.Publisher(name=self._names.get("end_effector_wrench", f"/{self._prefix}/state/end_effector_wrench"),
+        self._pub_end_effector_wrench = rospy.Publisher(name=self._names.get("end_effector_wrench", f"{self._namespace}iiwa/state/end_effector_wrench"),
                                                         data_class=geometry_msgs.msg.Wrench,
                                                         queue_size=self._queue_size)
 
@@ -741,13 +741,13 @@ class Iiwa:
                             self._pub_end_effector_wrench]
 
         # create subscribers
-        self._sub_stop_command = rospy.Subscriber(name=self._names.get("stop_command", f"/{self._prefix}/command/stop"),
+        self._sub_stop_command = rospy.Subscriber(name=self._names.get("stop_command", f"{self._namespace}iiwa/command/stop"),
                                                   data_class=std_msgs.msg.Empty,
                                                   callback=self._callback_stop_command)
-        self._sub_joint_command = rospy.Subscriber(name=self._names.get("joint_command", f"/{self._prefix}/command/joint"),
+        self._sub_joint_command = rospy.Subscriber(name=self._names.get("joint_command", f"{self._namespace}iiwa/command/joint"),
                                                    data_class=sensor_msgs.msg.JointState,
                                                    callback=self._callback_joint_command)
-        self._sub_cartesian_command = rospy.Subscriber(name=self._names.get("cartesian_command", f"/{self._prefix}/command/cartesian"),
+        self._sub_cartesian_command = rospy.Subscriber(name=self._names.get("cartesian_command", f"{self._namespace}iiwa/command/cartesian"),
                                                        data_class=geometry_msgs.msg.Pose,
                                                        callback=self._callback_cartesian_command)
 
@@ -756,132 +756,132 @@ class Iiwa:
                              self._sub_cartesian_command]
 
         # create services
-        name = self._names.get("set_desired_joint_velocity_rel", f"/{self._prefix}/set_desired_joint_velocity_rel")
+        name = self._names.get("set_desired_joint_velocity_rel", f"{self._namespace}iiwa/set_desired_joint_velocity_rel")
         self._services.append(rospy.Service(name=name,
                                             service_class=SetNumber,
                                             handler=self._handler_set_desired_joint_velocity_rel))
 
-        name = self._names.get("set_desired_joint_acceleration_rel", f"/{self._prefix}/set_desired_joint_acceleration_rel")
+        name = self._names.get("set_desired_joint_acceleration_rel", f"{self._namespace}iiwa/set_desired_joint_acceleration_rel")
         self._services.append(rospy.Service(name=name,
                                             service_class=SetNumber,
                                             handler=self._handler_set_desired_joint_acceleration_rel))
 
-        name = self._names.get("set_desired_joint_jerk_rel", f"/{self._prefix}/set_desired_joint_jerk_rel")
+        name = self._names.get("set_desired_joint_jerk_rel", f"{self._namespace}iiwa/set_desired_joint_jerk_rel")
         self._services.append(rospy.Service(name=name,
                                             service_class=SetNumber,
                                             handler=self._handler_set_desired_joint_jerk_rel))
 
-        name = self._names.get("set_desired_cartesian_velocity", f"/{self._prefix}/set_desired_cartesian_velocity")
+        name = self._names.get("set_desired_cartesian_velocity", f"{self._namespace}iiwa/set_desired_cartesian_velocity")
         self._services.append(rospy.Service(name=name,
                                             service_class=SetNumber,
                                             handler=self._handler_set_desired_cartesian_velocity))
 
-        name = self._names.get("set_desired_cartesian_acceleration", f"/{self._prefix}/set_desired_cartesian_acceleration")
+        name = self._names.get("set_desired_cartesian_acceleration", f"{self._namespace}iiwa/set_desired_cartesian_acceleration")
         self._services.append(rospy.Service(name=name,
                                             service_class=SetNumber,
                                             handler=self._handler_set_desired_cartesian_acceleration))
 
-        name = self._names.get("set_desired_cartesian_jerk", f"/{self._prefix}/set_desired_cartesian_jerk")
+        name = self._names.get("set_desired_cartesian_jerk", f"{self._namespace}iiwa/set_desired_cartesian_jerk")
         self._services.append(rospy.Service(name=name,
                                             service_class=SetNumber,
                                             handler=self._handler_set_desired_cartesian_jerk))
 
-        name = self._names.get("set_cartesian_additional_control_force", f"/{self._prefix}/set_cartesian_additional_control_force")
+        name = self._names.get("set_cartesian_additional_control_force", f"{self._namespace}iiwa/set_cartesian_additional_control_force")
         self._services.append(rospy.Service(name=name,
                                             service_class=SetXYZABC,
                                             handler=self._handler_set_cartesian_additional_control_force))
 
-        name = self._names.get("set_cartesian_max_velocity", f"/{self._prefix}/set_cartesian_max_velocity")
+        name = self._names.get("set_cartesian_max_velocity", f"{self._namespace}iiwa/set_cartesian_max_velocity")
         self._services.append(rospy.Service(name=name,
                                             service_class=SetXYZABC,
                                             handler=self._handler_set_cartesian_max_velocity))
 
-        name = self._names.get("set_cartesian_max_path_deviation", f"/{self._prefix}/set_cartesian_max_path_deviation")
+        name = self._names.get("set_cartesian_max_path_deviation", f"{self._namespace}iiwa/set_cartesian_max_path_deviation")
         self._services.append(rospy.Service(name=name,
                                             service_class=SetXYZABC,
                                             handler=self._handler_set_cartesian_max_path_deviation))
 
-        name = self._names.get("set_cartesian_stiffness", f"/{self._prefix}/set_cartesian_stiffness")
+        name = self._names.get("set_cartesian_stiffness", f"{self._namespace}iiwa/set_cartesian_stiffness")
         self._services.append(rospy.Service(name=name,
                                             service_class=SetXYZABCParam,
                                             handler=self._handler_set_cartesian_stiffness))
 
-        name = self._names.get("set_cartesian_damping", f"/{self._prefix}/set_cartesian_damping")
+        name = self._names.get("set_cartesian_damping", f"{self._namespace}iiwa/set_cartesian_damping")
         self._services.append(rospy.Service(name=name,
                                             service_class=SetXYZABCParam,
                                             handler=self._handler_set_cartesian_damping))
 
-        name = self._names.get("set_cartesian_max_control_force", f"/{self._prefix}/set_cartesian_max_control_force")
+        name = self._names.get("set_cartesian_max_control_force", f"{self._namespace}iiwa/set_cartesian_max_control_force")
         self._services.append(rospy.Service(name=name,
                                             service_class=SetXYZABCParam,
                                             handler=self._handler_set_cartesian_max_control_force))
 
-        name = self._names.get("set_joint_stiffness", f"/{self._prefix}/set_joint_stiffness")
+        name = self._names.get("set_joint_stiffness", f"{self._namespace}iiwa/set_joint_stiffness")
         self._services.append(rospy.Service(name=name,
                                             service_class=SetArray,
                                             handler=self._handler_set_joint_stiffness))
 
-        name = self._names.get("set_joint_damping", f"/{self._prefix}/set_joint_damping")
+        name = self._names.get("set_joint_damping", f"{self._namespace}iiwa/set_joint_damping")
         self._services.append(rospy.Service(name=name,
                                             service_class=SetArray,
                                             handler=self._handler_set_joint_damping))
 
-        name = self._names.get("reset_conditions", f"/{self._prefix}/reset_conditions")
+        name = self._names.get("reset_conditions", f"{self._namespace}iiwa/reset_conditions")
         self._services.append(rospy.Service(name=name,
                                             service_class=Empty,
                                             handler=self._handler_reset_conditions))
 
-        name = self._names.get("set_force_condition", f"/{self._prefix}/set_force_condition")
+        name = self._names.get("set_force_condition", f"{self._namespace}iiwa/set_force_condition")
         self._services.append(rospy.Service(name=name,
                                             service_class=SetArray,
                                             handler=self._handler_set_force_condition))
 
-        name = self._names.get("set_joint_torque_condition", f"/{self._prefix}/set_joint_torque_condition")
+        name = self._names.get("set_joint_torque_condition", f"{self._namespace}iiwa/set_joint_torque_condition")
         self._services.append(rospy.Service(name=name,
                                             service_class=SetArray,
                                             handler=self._handler_set_joint_torque_condition))
 
-        name = self._names.get("set_control_interface", f"/{self._prefix}/set_control_interface")
+        name = self._names.get("set_control_interface", f"{self._namespace}iiwa/set_control_interface")
         self._services.append(rospy.Service(name=name,
                                             service_class=SetString,
                                             handler=self._handler_set_control_interface))
 
-        name = self._names.get("set_motion_type", f"/{self._prefix}/set_motion_type")
+        name = self._names.get("set_motion_type", f"{self._namespace}iiwa/set_motion_type")
         self._services.append(rospy.Service(name=name,
                                             service_class=SetString,
                                             handler=self._handler_set_motion_type))
 
-        name = self._names.get("set_control_mode", f"/{self._prefix}/set_control_mode")
+        name = self._names.get("set_control_mode", f"{self._namespace}iiwa/set_control_mode")
         self._services.append(rospy.Service(name=name,
                                             service_class=SetString,
                                             handler=self._handler_set_control_mode))
 
-        name = self._names.get("set_execution_type", f"/{self._prefix}/set_execution_type")
+        name = self._names.get("set_execution_type", f"{self._namespace}iiwa/set_execution_type")
         self._services.append(rospy.Service(name=name,
                                             service_class=SetString,
                                             handler=self._handler_set_execution_type))
 
-        name = self._names.get("set_communication_mode", f"/{self._prefix}/set_communication_mode")
+        name = self._names.get("set_communication_mode", f"{self._namespace}iiwa/set_communication_mode")
         self._services.append(rospy.Service(name=name,
                                             service_class=SetString,
                                             handler=self._handler_set_communication_mode))
 
-        name = self._names.get("last_error", f"/{self._prefix}/last_error")
+        name = self._names.get("last_error", f"{self._namespace}iiwa/last_error")
         self._services.append(rospy.Service(name=name,
                                             service_class=GetError,
                                             handler=self._handler_last_error))
 
-        name = self._names.get("has_fired_condition", f"/{self._prefix}/has_fired_condition")
+        name = self._names.get("has_fired_condition", f"{self._namespace}iiwa/has_fired_condition")
         self._services.append(rospy.Service(name=name,
                                             service_class=GetBool,
                                             handler=self._handler_has_fired_condition))
 
-        name = self._names.get("is_ready_to_move", f"/{self._prefix}/is_ready_to_move")
+        name = self._names.get("is_ready_to_move", f"{self._namespace}iiwa/is_ready_to_move")
         self._services.append(rospy.Service(name=name,
                                             service_class=GetBool,
                                             handler=self._handler_is_ready_to_move))
 
-        name = self._names.get("has_active_motion", f"/{self._prefix}/has_active_motion")
+        name = self._names.get("has_active_motion", f"{self._namespace}iiwa/has_active_motion")
         self._services.append(rospy.Service(name=name,
                                             service_class=GetBool,
                                             handler=self._handler_has_active_motion))
@@ -1202,7 +1202,11 @@ def main():
     rate = rospy.Rate(50)  # Hz
 
     # get launch parameters
-    robot_name = rospy.get_param("~robot_name", "iiwa")
+    namespace = rospy.get_namespace()
+    if not namespace.startswith('/'):
+        namespace = '/' + namespace
+    if not namespace.endswith('/'):
+        namespace = namespace + '/'
 
     controller_name = rospy.get_param("~controller_name", "iiwa_controller")
     action_namespace = rospy.get_param("~action_namespace", "follow_joint_trajectory")
@@ -1230,12 +1234,12 @@ def main():
     robot.set_desired_joint_jerk_rel(0.5)
 
     # load controllers
-    controllers = [Iiwa(interface=robot, 
-                        prefix=robot_name, 
+    controllers = [Iiwa(interface=robot,
+                        namespace=namespace,
                         joints=JOINTS, 
                         verbose=verbose),
                    FollowJointTrajectory(interface=robot, 
-                                         action_name=f"/{robot_name}/{controller_name}/{action_namespace}", 
+                                         action_name=f"{namespace}{controller_name}/{action_namespace}",
                                          joints=JOINTS, 
                                          follow_all_trajectory=follow_all_trajectory, 
                                          trajectory_update_threshold=trajectory_update_threshold,
