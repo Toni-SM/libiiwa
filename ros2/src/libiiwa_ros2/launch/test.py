@@ -7,8 +7,8 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    robot_name_launch_arg = DeclareLaunchArgument(
-        "robot_name", default_value=TextSubstitution(text="iiwa")
+    namespace_launch_arg = DeclareLaunchArgument(
+        "__ns", default_value=TextSubstitution(text="/")
     )
 
     # FollowJointTrajectory action: /controller_name/action_namespace
@@ -48,11 +48,11 @@ def generate_launch_description():
     # ROS2 node
     node = Node(
         package='libiiwa_ros2',
-        namespace='libiiwa_ros2',
+        namespace=LaunchConfiguration('__ns'),
         executable='node',
         name='iiwa',
         parameters=[{
-            "robot_name": LaunchConfiguration('robot_name'),
+            "__ns": LaunchConfiguration('__ns'),
             "controller_name": LaunchConfiguration('controller_name'),
             "action_namespace": LaunchConfiguration('action_namespace'),
             "follow_all_trajectory": LaunchConfiguration('follow_all_trajectory'),
@@ -67,7 +67,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        robot_name_launch_arg,
+        namespace_launch_arg,
         controller_name_launch_arg,
         action_namespace_launch_arg,
         follow_all_trajectory_launch_arg,
