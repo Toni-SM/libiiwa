@@ -146,9 +146,17 @@ ROS/ROS2
 
 Download and unzip the following packages in a ROS/ROS2 workspace, according to the version of the distribution. Make sure to source the ROS/ROS2 distribution and build the workspace
 
+.. note::
+
+    Since the :literal:`libiiwa.py` Python module may undergo more frequent updates,  it is not included in any of the ROS/ROS2 packages although it is necessary for their operation. Download the :literal:`libiiwa.py` file (see previous section) and place it together with the :literal:`node.py` script according to the target distribution.
+
+    * ROS: :literal:`libiiwa_ros/scripts`
+    * ROS2: :literal:`libiiwa_ros2/libiiwa_ros2`
+
 .. warning::
 
     The message packages for both the ROS and ROS2 distributions have the same name.
+    **Be sure to use the correct one according to the target disto.**
 
 .. list-table::
     :header-rows: 1
