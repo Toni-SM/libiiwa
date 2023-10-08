@@ -165,8 +165,8 @@ Download and unzip the following packages in a ROS/ROS2 workspace, according to 
       - ROS
       - ROS2
     * - LibIiwa node
-      - :download:`libiiwa_ros <https://github.com/Toni-SM/libiiwa/files/10775125/libiiwa_ros.zip>`
-      - :download:`libiiwa_ros2 <https://github.com/Toni-SM/libiiwa/files/10775187/libiiwa_ros2.zip>`
+      - :download:`libiiwa_ros-v0.1.1 <https://github.com/Toni-SM/libiiwa/files/12840787/libiiwa_ros-v0.1.1.zip>`
+      - :download:`libiiwa_ros2-v0.1.1 <https://github.com/Toni-SM/libiiwa/files/12840786/libiiwa_ros2-v0.1.1.zip>`
     * - LibIiwa message definitions
       - :download:`libiiwa_msgs <https://github.com/Toni-SM/libiiwa/files/10775124/libiiwa_msgs.zip>`
       - :download:`libiiwa_msgs <https://github.com/Toni-SM/libiiwa/files/10775186/libiiwa_msgs.zip>`
