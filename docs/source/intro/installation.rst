@@ -44,6 +44,8 @@ The installation and setup is divided into two parts:
 
     <hr>
 
+.. _sunrise_project:
+
 Sunrise project
 ^^^^^^^^^^^^^^^
 
