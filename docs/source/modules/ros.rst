@@ -23,15 +23,57 @@ Launching the node
 
     .. group-tab:: ROS
 
-        .. code-block:: bash
+        .. tabs::
 
-            $ roslaunch libiiwa_ros default.launch
+            .. group-tab:: Single LBR iiwa robot
+
+                For a single robot (with the default configuration) simply launch:
+
+                .. code-block:: bash
+
+                    $ roslaunch libiiwa_ros default.launch
+
+            .. group-tab:: Multiple LBR iiwa robots
+
+                For multiple robots in the same ROS environment it is necessary to define different communication ports and namespaces for each one as follows:
+
+                * The port (:literal:`libiiwa_port`) must be unique and must also be defined on each robot's :ref:`Sunrise project <sunrise_project>` (:literal:`Controller: Port`, editable on the smartHMI).
+                * Namespace (:literal:`__ns`) will prefix each topic and service name to avoid naming conflicts.
+
+                .. code-block:: bash
+
+                    $ roslaunch libiiwa_ros default.launch libiiwa_port:=12225 __ns:=robot1
+
+                .. code-block:: bash
+
+                    $ roslaunch libiiwa_ros default.launch libiiwa_port:=12226 __ns:=robot2
 
     .. group-tab:: ROS2
 
-        .. code-block:: bash
+        .. tabs::
 
-            $ ros2 launch libiiwa_ros2 default.py
+            .. group-tab:: Single LBR iiwa robot
+
+                For a single robot (with the default configuration) simply launch:
+
+                .. code-block:: bash
+
+                    $ ros2 launch libiiwa_ros2 default.py
+
+            .. group-tab:: Multiple LBR iiwa robots
+
+                For multiple robots in the same ROS environment it is necessary to define different communication ports and namespaces for each one as follows:
+
+                * The port (:literal:`libiiwa_port`) must be unique and must also be defined on each robot's :ref:`Sunrise project <sunrise_project>` (:literal:`Controller: Port`, editable on the smartHMI).
+                * Namespace (:literal:`__ns`) will prefix each topic and service name to avoid naming conflicts.
+
+                .. code-block:: bash
+
+                    $ ros2 launch libiiwa_ros2 default.py libiiwa_port:=12225 __ns:=robot1
+
+                .. code-block:: bash
+
+                    $ ros2 launch libiiwa_ros2 default.py libiiwa_port:=12226 __ns:=robot2
 
 .. note::
 
